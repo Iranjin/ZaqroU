@@ -58,7 +58,20 @@ void MemoryEditorTab::Update()
             uint32_t value = std::strtoul(mValueInput, nullptr, 16);
             uint32_t addr = std::strtoul(mAddressInput, nullptr, 16);
             tcp->write_memory(addr, value);
-            ReadMemory(mBaseAddress);
+
+            int index = addr - mBaseAddress;
+            if (index >= 0 && index + 3 < mMemory.size())
+            {
+                mMemory[index] = (value >> 24) & 0xFF;
+                mMemory[index + 1] = (value >> 16) & 0xFF;
+                mMemory[index + 2] = (value >> 8) & 0xFF;
+                mMemory[index + 3] = value & 0xFF;
+            }
+
+            uint32_t val = (mMemory[index] << 24) | (mMemory[index + 1] << 16) |
+                           (mMemory[index + 2] << 8) | mMemory[index + 3];
+            
+            snprintf(mValueInput, sizeof(mValueInput), mViewFormat.c_str(), val);
         }
     }
 
