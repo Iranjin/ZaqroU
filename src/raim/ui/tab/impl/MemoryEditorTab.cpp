@@ -79,7 +79,7 @@ void MemoryEditorTab::Update()
 
     { // 右カラム：表示モード切替とテーブル
     
-        if (ImGui::InputTextWithHint("Address", "Address...", mAddressInput, sizeof(mAddressInput),
+        if (ImGui::InputTextWithHint("##Address", "Address...", mAddressInput, sizeof(mAddressInput),
                                      ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsHexadecimal))
         {
             uint32_t addr = std::strtoul(mAddressInput, nullptr, 16);

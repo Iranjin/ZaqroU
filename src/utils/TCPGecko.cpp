@@ -149,7 +149,7 @@ void TCPGecko::clear_memory(uint32_t address, uint32_t length)
 
 void TCPGecko::upload_code_list(std::vector<uint8_t> data)
 {
-    for (size_t i = 0; i < 4; i++)
+    for (size_t i = 0; i < 8; i++)
         data.push_back(0x00);
     upload_memory(CODE_LIST_START_ADDRESS, data);
 }

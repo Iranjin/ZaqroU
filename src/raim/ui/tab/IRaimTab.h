@@ -22,7 +22,7 @@ public:
     virtual ~IRaimTab() = default;
 
     virtual void Update() = 0;
-
+    virtual void UpdateBackground() {};
     virtual void OnTabOpened() {}
     virtual void OnTabClosed() {}
     virtual void OnConnected() {}

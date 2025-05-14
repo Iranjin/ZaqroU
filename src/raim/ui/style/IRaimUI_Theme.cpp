@@ -30,6 +30,10 @@ void IRaimUITheme::Apply() const // Default
     colors[ImGuiCol_Separator]             = ImVec4(0.40f, 0.40f, 0.40f, 1.0f);
     colors[ImGuiCol_DragDropTarget]        = ImVec4(0.7f,  0.2f,  0.2f,  1.0f);
     
+    colors[ImGuiCol_ResizeGrip]            = ImVec4(0.20f, 0.20f, 0.20f, 0.0f);
+    colors[ImGuiCol_ResizeGripHovered]     = ImVec4(0.25f, 0.25f, 0.25f, 0.0f);
+    colors[ImGuiCol_ResizeGripActive]      = ImVec4(0.30f, 0.30f, 0.30f, 0.0f);
+    
     colors[ImGuiCol_TitleBg]               = ImVec4(0.7f,  0.2f,  0.2f,  1.0f);
     colors[ImGuiCol_TitleBgActive]         = ImVec4(0.4f,  0.1f,  0.1f,  1.0f);
     colors[ImGuiCol_TitleBgCollapsed]      = ImVec4(0.8f,  0.3f,  0.3f,  1.0f);

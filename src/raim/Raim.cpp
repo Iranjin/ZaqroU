@@ -8,7 +8,7 @@
 #include "ui/style/RaimUI_Theme.h"
 
 
-bool WaitEvents = true;
+bool WaitEvents = false;
 
 
 Raim::Raim(GLFWwindow *window)

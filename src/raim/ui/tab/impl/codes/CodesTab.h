@@ -63,7 +63,9 @@ public:
 
     void CommentFrame();
 
-    void ControlsFrame(ImVec2 &available);
+
+    void CodesTable(const ImVec2 &available);
+    void ControlsFrame(const ImVec2 &available);
 
     void CodePopup();
 
@@ -72,5 +74,4 @@ public:
 
     void Update() override;
     void OnConnected() override;
-    // void OnDisconnected() override;
 };

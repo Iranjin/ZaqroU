@@ -81,6 +81,8 @@ void RaimTabManager::Update()
                 ImGui::EndTabItem();
             }
 
+            tab->UpdateBackground();
+
             if (on_connected)
                 tab->OnConnected();
             if (on_disconnected)

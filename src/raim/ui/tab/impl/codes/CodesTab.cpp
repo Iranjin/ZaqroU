@@ -119,7 +119,6 @@ void CodesTab::SendCodes()
             uint32_t &value = valWithoutHash[i];
 
             tcp->write_memory(address, value);
-            // printf("Enabled: %08X %08X\n", address, value);
         }
 
         hasWrittenCodes |= !addrWithoutHash.empty();
@@ -199,7 +198,6 @@ void CodesTab::DisableCodes()
             uint32_t &value = valWithHash[i];
 
             tcp->write_memory(address, value);
-            // printf("Disabled: %08X %08X\n", address, value);
         }
 
         hasWrittenCodes |= !addrWithHash.empty();
