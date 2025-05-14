@@ -44,20 +44,6 @@ void RaimTabManager::DeallocTabs()
 
 void RaimTabManager::Update() 
 {
-    // if (mActiveTab)
-    // {
-    //     ImVec2 windowWidth = ImGui::GetContentRegionAvail();
-    //     ImVec2 textSize = ImGui::CalcTextSize(mActiveTab->getTabName());
-        
-    //     // タブ名表示
-    //     /*float cursorY = ImGui::GetCursorPosY();
-
-    //     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + windowWidth.x - textSize.x - 7.0f);
-    //     ImGui::TextDisabled("%s", mActiveTab->getTabName());
-
-    //     ImGui::SetCursorPosY(cursorY);*/
-    // }
-
     bool on_connected = false;
     bool on_disconnected = false;
 
@@ -75,7 +61,6 @@ void RaimTabManager::Update()
 
     if (ImGui::BeginTabBar("MainTabs"))
     {
-        
         IRaimTab *currentTab = nullptr;
 
         for (IRaimTab *tab : mTabs)

@@ -1,6 +1,7 @@
 #include "NotificationManager.h"
 
 #include <algorithm>
+#include <cmath>
 
 
 void NotificationManager::AddNotification(const std::string &title, const std::string &message, float time)

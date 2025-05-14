@@ -18,14 +18,6 @@ TitleIdParser::TitleIdParser(const std::string &xml_path)
 
 bool TitleIdParser::load()
 {
-    if (!std::filesystem::exists(m_path))
-    {
-        std::vector<uint8_t> data;
-        const char *file_url = "https://cdn.discordapp.com/attachments/1221161283693580328/1350365726573203478/index.html?ex=68244215&is=6822f095&hm=804419daef16d99b800c6c0cab9dbad1b91dac8e80ed88521a059e65a3401e96&";
-        download_file(file_url, data);
-        save_to_file(m_path, data);
-    }
-
     XMLDocument doc;
     if (doc.LoadFile(m_path.c_str()) != XML_SUCCESS)
     {

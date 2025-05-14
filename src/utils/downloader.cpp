@@ -8,13 +8,13 @@
 
 size_t write_to_buffer(void *ptr, size_t size, size_t nmemb, void *userdata)
 {
-    std::vector<uint8_t> *buffer = (std::vector<uint8_t> *) userdata;
+    std::vector<char> *buffer = (std::vector<char> *) userdata;
     size_t totalSize = size * nmemb;
-    buffer->insert(buffer->end(), (uint8_t *) ptr, (uint8_t *) ptr + totalSize);
+    buffer->insert(buffer->end(), (char *) ptr, (char *) ptr + totalSize);
     return totalSize;
 }
 
-bool download_file(const std::string &url, std::vector<uint8_t> &data)
+bool download_file(const std::string &url, std::vector<char> &data)
 {
     CURL *curl;
     CURLcode res;
@@ -43,7 +43,7 @@ bool download_file(const std::string &url, std::vector<uint8_t> &data)
     return false;
 }
 
-bool save_to_file(const std::string &path, const std::vector<uint8_t> &data)
+bool save_to_file(const std::string &path, const std::vector<char> &data)
 {
     std::ofstream file(path, std::ios::binary);
     if (!file)
@@ -52,7 +52,7 @@ bool save_to_file(const std::string &path, const std::vector<uint8_t> &data)
         return false;
     }
 
-    file.write(reinterpret_cast<const char *>(data.data()), data.size());
+    file.write(data.data(), data.size());
     file.close();
 
     return true;

@@ -11,10 +11,9 @@ class RaimTabManager
 private:
     RaimUI *mRaimUI;
     std::vector<IRaimTab*> mTabs;
-    IRaimTab* mActiveTab;
+    IRaimTab *mActiveTab = nullptr;
 
-    bool mConnected = false,
-         mLastConnected = false;
+    bool mLastConnected = false;
 
     void AllocTabs();
     void DeallocTabs();

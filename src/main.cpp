@@ -1,7 +1,8 @@
 #include <filesystem>
 #include <vector>
 
-#include "imgui.h"
+#include <imgui.h>
+#include <imgui_internal.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 #include <GLFW/glfw3.h>
@@ -15,8 +16,14 @@ extern bool WaitEvents;
 Raim *appInstance = nullptr;
 
 
+static void glfw_error_callback(int error, const char *description)
+{
+    fprintf(stderr, "GLFW Error %d: %s\n", error, description);
+}
+
 int main()
 {
+    glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
         return -1;
 
@@ -60,7 +67,7 @@ int main()
             std::string folder_path = std::filesystem::path(font_path).parent_path();
             std::string url = std::string("https://github.com/Iranjin/ZaqroU/raw/refs/heads/main") + fonts[i];
             
-            std::vector<uint8_t> data;
+            std::vector<char> data;
             download_file(url, data);
 
             std::filesystem::create_directories(folder_path);
