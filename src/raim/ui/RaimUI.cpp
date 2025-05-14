@@ -127,22 +127,26 @@ void RaimUI::MainUI()
         // 同じ行にボタン
         ImGui::SameLine();
 
-        std::shared_ptr<TCPGecko> tcpGecko = getRaim()->getTCPGecko();
-        bool isConnected = tcpGecko->is_connected();
+        std::shared_ptr<TCPGecko> tcp = getRaim()->getTCPGecko();
+        bool isConnected = tcp->is_connected();
 
         if (ImGui::Button(!isConnected ? "Connect" : "Disconnect", ImVec2(buttonWidth, 0)))
         {
             if (!isConnected)
             {
-                tcpGecko->connect(ipBuffer, 7331);
+                tcp->connect(ipBuffer, 7331);
                 config->set("ip_address", std::string(ipBuffer));
                 config->save();
 
-                GetNotificationManager()->AddNotification("TCPGecko", "Connected");
+                GetNotificationManager()->AddNotification("TCPGecko", 
+                    std::format("Connected to: {}\nServer version: {}", std::string(ipBuffer), tcp->get_server_version()));
             }
             else
             {
-                tcpGecko->disconnect();
+                tcp->disconnect();
+
+                GetNotificationManager()->AddNotification("TCPGecko", 
+                    std::format("Disconnected from: {}", std::string(ipBuffer)));
             }
         }
 
@@ -151,13 +155,13 @@ void RaimUI::MainUI()
         {
             if (!isConnected)
             {
-                tcpGecko->connect(ipBuffer, 7331);
+                tcp->connect(ipBuffer, 7331);
                 config->set("ip_address", std::string(ipBuffer));
                 config->save();
             }
             else
             {
-                tcpGecko->disconnect();
+                tcp->disconnect();
             }
         }
     }

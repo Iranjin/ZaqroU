@@ -1,4 +1,5 @@
-/*#include "DebugTab.h"
+#ifdef DEBUG_MODE
+#include "DebugTab.h"
 
 #include <iostream>
 
@@ -22,12 +23,10 @@ void DebugTab::Update()
     
     if (ImGui::Button("DebugButton"))
     {
-        
+        auto tmp = tcp->get_server_version();
+        std::cout << tmp << std::endl;
     }
+
     ImGui::EndDisabled();
 }
-
-void DebugTab::OnTabOpened()
-{
-    mTabOpened = true;
-}*/
+#endif

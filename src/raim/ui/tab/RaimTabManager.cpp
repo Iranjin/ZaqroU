@@ -3,8 +3,11 @@
 #include "IRaimTab.h"
 #include "impl/codes/CodesTab.h"
 #include "impl/MemoryEditorTab.h"
-// #include "impl/DebugTab.h"
 #include "impl/settings/SettingsTab.h"
+#include "impl/LogsTab.h"
+#ifdef DEBUG_MODE
+#include "impl/DebugTab.h"
+#endif
 #include <utils/TCPGecko.h>
 #include <raim/ui/RaimUI.h>
 #include <raim/Raim.h>
@@ -29,7 +32,10 @@ void RaimTabManager::AllocTabs()
         new CodesTab(mRaimUI),
         new MemoryEditorTab(mRaimUI),
         new SettingsTab(mRaimUI),
-        // new DebugTab(mRaimUI),
+        new LogsTab(mRaimUI),
+#ifdef DEBUG_MODE
+        new DebugTab(mRaimUI),
+#endif
     };
 }
 

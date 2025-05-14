@@ -22,7 +22,7 @@ std::string CodesTab::CodeFrame_GetSelectedText(std::vector<std::string> &lines,
     int current_chars = 0;
     for (size_t i = 0; i < lines.size(); ++i)
     {
-        const std::string& line = lines[i];
+        const std::string &line = lines[i];
         int line_length = line.length() + 1;
 
         if (sel_end < current_chars) break;
@@ -86,7 +86,8 @@ void CodesTab::CodeFrame_DrawTextSelection(
         int line_length = line.length() + 1; // +1 for newline
 
         if (sel_end < current_chars) break;
-        if (sel_start > current_chars + line_length) {
+        if (sel_start > current_chars + line_length)
+        {
             current_chars += line_length;
             continue;
         }

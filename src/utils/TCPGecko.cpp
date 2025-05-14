@@ -29,44 +29,6 @@ void TCPGecko::disconnect()
     m_connected = false;
 }
 
-/*
-def readmem(self, address, length): #Number of bytes
-    if length == 0: raise BaseException("Reading memory requires a length (# of bytes)")
-    if not self.validrange(address, length): raise BaseException("Address range not valid")
-    if not self.validaccess(address, length, "read"): raise BaseException("Cannot read from address")
-    ret = b""
-    if length > 0x400:
-        print("Length is greater than 0x400 bytes, need to read in chunks")
-        print("Start address:   " + hexstr0(address))
-        for i in range(int(length / 0x400)): #Number of blocks, ignores extra
-            self.s.send(b"\x04") #cmd_readmem
-            request = struct.pack(">II", address, address + 0x400)
-            self.s.send(request)
-            status = self.s.recv(1)
-            if   status == b"\xbd": ret += self.s.recv(0x400)
-            elif status == b"\xb0": ret += b"\x00" * 0x400
-            else: raise BaseException("Something went terribly wrong")
-            address += 0x400;length -= 0x400
-            print("Current address: " + hexstr0(address))
-        if length != 0: #Now read the last little bit
-            self.s.send(b"\x04")
-            request = struct.pack(">II", address, address + length)
-            self.s.send(request)
-            status = self.s.recv(1)
-            if   status == b"\xbd": ret += self.s.recv(length)
-            elif status == b"\xb0": ret += b"\x00" * length
-            else: raise BaseException("Something went terribly wrong")
-        print("Finished!")
-    else:
-        self.s.send(b"\x04")
-        request = struct.pack(">II", address, address + length)
-        self.s.send(request)
-        status = self.s.recv(1)
-        if   status == b"\xbd": ret += self.s.recv(length)
-        elif status == b"\xb0": ret += b"\x00" * length
-        else: raise BaseException("Something went terribly wrong")
-    return ret
-*/
 std::vector<uint8_t> TCPGecko::read_memory(uint32_t address, uint32_t length)
 {
     if (!is_connected())
@@ -96,15 +58,6 @@ std::vector<uint8_t> TCPGecko::read_memory(uint32_t address, uint32_t length)
     return result;
 }
 
-/*
-def pokemem(self, address, value): #Only takes 4 bytes, may need to run multiple times
-    if not self.validrange(address, 4): raise BaseException("Address range not valid")
-    if not self.validaccess(address, 4, "write"): raise BaseException("Cannot write to address")
-    self.s.send(b"\x03") #cmd_pokemem
-    request = struct.pack(">II", int(address), int(value))
-    self.s.send(request) #Done, move on
-    return
-*/
 void TCPGecko::write_memory(uint32_t address, uint32_t value)
 {
     if (!is_connected())
@@ -267,23 +220,6 @@ uint32_t TCPGecko::get_symbol(const std::string &rplname, const std::string &sym
     return address;
 }
 
-/*
-def call(self, address, *args, recv: int = 4):
-    if not self.__connected: raise ConnectionIsNotInProgressException("No connection is in progress!")
-    
-    arguments = list(args)
-    if len(arguments) <= 8:
-        while len(arguments) != 8:
-            arguments.append(0)
-
-        address = struct.unpack(">I", address)[0]
-        req = struct.pack(">I8I", address, *arguments)
-        self.__socket.send(Commands.REMOTE_PROCEDURE_CALL.value)
-        self.__socket.send(req)
-
-        return struct.unpack('>Q', self.__socket.recv(8))[0] >> 32 * (recv == 4)
-    else: raise TooManyArgumentsException("Too many arguments!")
-*/
 uint64_t TCPGecko::call(uint32_t address, const std::vector<uint32_t> &args, int recv_size)
 {
     if (!is_connected())
@@ -316,14 +252,86 @@ uint64_t TCPGecko::call(uint32_t address, const std::vector<uint32_t> &args, int
         return result;
 }
 
-/*
-def getTitleID(self) -> int:
-    if not self.__connected: raise ConnectionIsNotInProgressException("No connection is in progress!")
-    return self.call(self.getSymbol("coreinit.rpl", "OSGetTitleID"), recv = 8)
-*/
 uint64_t TCPGecko::get_title_id()
 {
     return call(get_symbol("coreinit.rpl", "OSGetTitleID"), {}, 8);
+}
+
+std::string TCPGecko::get_server_version()
+{
+    if (!is_connected())
+        throw std::runtime_error("Not connected");
+
+    char command = (char) COMMAND_SERVER_VERSION;
+    boost::asio::write(m_socket, boost::asio::buffer(&command, 1));
+
+    char length_buf[4];
+    boost::asio::read(m_socket, boost::asio::buffer(length_buf, 4));
+    int version_length = read_u32_be(length_buf);
+
+    std::vector<char> version_buf(version_length);
+    boost::asio::read(m_socket, boost::asio::buffer(version_buf.data(), version_length));
+
+    return std::string(version_buf.begin(), version_buf.end());
+}
+
+uint32_t TCPGecko::get_os_version()
+{
+    if (!is_connected())
+        throw std::runtime_error("Not connected");
+
+    char command = (char) COMMAND_GET_OS_VERSION;
+    boost::asio::write(m_socket, boost::asio::buffer(&command, 1));
+
+    char response[4];
+    boost::asio::read(m_socket, boost::asio::buffer(response, 4));
+    return read_u32_be(response);
+}
+
+uint32_t TCPGecko::get_version_hash()
+{
+    if (!is_connected())
+        throw std::runtime_error("Not connected");
+
+    char command = (char) COMMAND_GET_VERSION_HASH;
+    boost::asio::write(m_socket, boost::asio::buffer(&command, 1));
+
+    char response[4];
+    boost::asio::read(m_socket, boost::asio::buffer(response, 4));
+    return read_u32_be(response);
+}
+
+// TODO: 未実装
+std::string TCPGecko::get_account_id()
+{
+    /*if (!is_connected())
+        throw std::runtime_error("Not connected");
+
+    char command = (char) COMMAND_ACCOUNT_IDENTIFIER;
+    boost::asio::write(m_socket, boost::asio::buffer(&command, 1));
+
+    char length_buf[4];
+    boost::asio::read(m_socket, boost::asio::buffer(length_buf, 4));
+    int version_length = read_u32_be(length_buf);
+
+    std::vector<char> version_buf(version_length);
+    boost::asio::read(m_socket, boost::asio::buffer(version_buf.data(), version_length));
+
+    return std::string(version_buf.begin(), version_buf.end());*/
+    return "";
+}
+
+uint32_t TCPGecko::get_code_handler_address()
+{
+    if (!is_connected())
+        throw std::runtime_error("Not connected");
+
+    char command = (char) COMMAND_GET_CODE_HANDLER_ADDRESS;
+    boost::asio::write(m_socket, boost::asio::buffer(&command, 1));
+
+    char response[4];
+    boost::asio::read(m_socket, boost::asio::buffer(response, 4));
+    return read_u32_be(response);
 }
 
 bool TCPGecko::valid_range(uint32_t address, uint32_t length)

@@ -101,6 +101,11 @@ public:
     uint64_t call(uint32_t address, const std::vector<uint32_t> &args, int recv_size);
 
     uint64_t get_title_id();
+    std::string get_server_version();
+    uint32_t get_os_version();
+    uint32_t get_version_hash();
+    std::string get_account_id();
+    uint32_t get_code_handler_address();
 
     inline bool is_connected() const { return m_connected; }
 

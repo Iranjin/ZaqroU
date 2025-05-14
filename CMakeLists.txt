@@ -17,6 +17,8 @@ set(SOURCES ${CPP_SOURCES} ${C_SOURCES})
 
 add_executable(Zaqro_U ${SOURCES})
 
+# target_compile_definitions(Zaqro_U PRIVATE DEBUG_MODE)
+
 target_include_directories(Zaqro_U PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(Zaqro_U PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
