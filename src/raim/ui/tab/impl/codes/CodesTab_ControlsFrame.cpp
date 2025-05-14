@@ -157,12 +157,5 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
     ImGui::EndDisabled();
     // Line 2 END
 
-    // Line 3 START
-    if (ImGui::Button("NotePad"))
-    {
-        mNotePadEnabled = !mNotePadEnabled;
-    }
-    // Line 3 END
-
     ImGui::EndChild();
 }

@@ -73,6 +73,8 @@ void NotificationManager::Update()
         ImGui::SetNextWindowSize(ImVec2(windowWidth, notif.height));
         ImGui::SetNextWindowPos(ImVec2(pos.x - windowWidth, notif.currentY));
 
+        ImGui::SetNextWindowBgAlpha(0.8f);
+
         ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | 
                                  ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | 
                                  ImGuiWindowFlags_NoNav;
