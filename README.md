@@ -24,7 +24,8 @@ Zaqro U は、Wii U 向けのチートツールです。C++20 を使用してお
 - [LZ4](https://github.com/lz4/lz4) — 高速圧縮ライブラリ  
 - [nlohmann/json](https://github.com/nlohmann/json) — JSON パーサ／シリアライザ  
 - [tinyxml2](https://github.com/leethomason/tinyxml2) — 軽量 XML パーサ  
-- [tinyfiledialogs](https://sourceforge.net/projects/tinyfiledialogs/) — クロスプラットフォームなファイルダイアログ
+- [tinyfiledialogs](https://sourceforge.net/projects/tinyfiledialogs/) — クロスプラットフォームなファイルダイアログ  
+- [Boost.System](https://www.boost.org/doc/libs/release/libs/system/) — システムユーティリティ（Wii U とのTCP通信）
 
 ## ビルド方法
 
@@ -33,3 +34,4 @@ git clone https://github.com/Iranjin/ZaqroU.git
 cd ZaqroU
 cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake
 cmake --build build
+```
