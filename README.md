@@ -15,7 +15,7 @@ Zaqro U は、Wii U 向けのチートツールです。C++20 を使用してお
 - CMake ≥ 3.15  
 - C++20 対応のコンパイラ  
 - [vcpkg](https://github.com/microsoft/vcpkg) による依存関係の管理  
-- （オプション）対応 OS：Windows（他 OS は未検証）
+- （オプション）
 
 ## 使用ライブラリ（vcpkg 経由）
 
