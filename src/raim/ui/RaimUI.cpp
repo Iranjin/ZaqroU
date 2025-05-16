@@ -119,50 +119,43 @@ void RaimUI::MainUI()
         float buttonWidth = 100.0f;
         float inputWidth = totalWidth - buttonWidth - ImGui::GetStyle().ItemSpacing.x;
 
+        std::shared_ptr<TCPGecko> tcp = getRaim()->getTCPGecko();
+        bool isConnected = tcp->is_connected();
+
+        auto connect = [&]()
+        {
+            tcp->connect(ipBuffer);
+            config->set("ip_address", std::string(ipBuffer));
+            config->save();
+            GetNotificationManager()->AddNotification("TCPGecko", 
+                std::format("Connected to: {}\nServer version: {}", std::string(ipBuffer), tcp->get_server_version()));
+        };
+
+        auto disconnect = [&]()
+        {
+            tcp->disconnect();
+            GetNotificationManager()->AddNotification("TCPGecko", 
+                std::format("Disconnected from: {}", std::string(ipBuffer)));
+        };
+
         // InputText
         ImGui::PushItemWidth(inputWidth);
-        ImGui::InputText("##IP Address", ipBuffer, IM_ARRAYSIZE(ipBuffer));
+        if (ImGui::InputText("##IP Address", ipBuffer, IM_ARRAYSIZE(ipBuffer), ImGuiInputTextFlags_EnterReturnsTrue))
+        {
+            if (!isConnected)
+                connect();
+        }
         ImGui::PopItemWidth();
 
         // 同じ行にボタン
         ImGui::SameLine();
 
-        std::shared_ptr<TCPGecko> tcp = getRaim()->getTCPGecko();
-        bool isConnected = tcp->is_connected();
-
         if (ImGui::Button(!isConnected ? "Connect" : "Disconnect", ImVec2(buttonWidth, 0)))
         {
             if (!isConnected)
-            {
-                tcp->connect(ipBuffer, 7331);
-                config->set("ip_address", std::string(ipBuffer));
-                config->save();
-
-                GetNotificationManager()->AddNotification("TCPGecko", 
-                    std::format("Connected to: {}\nServer version: {}", std::string(ipBuffer), tcp->get_server_version()));
-            }
+                connect();
             else
-            {
-                tcp->disconnect();
-
-                GetNotificationManager()->AddNotification("TCPGecko", 
-                    std::format("Disconnected from: {}", std::string(ipBuffer)));
-            }
-        }
-
-        // Enterキーが押されたときの処理
-        if (ImGui::IsItemFocused() && ImGui::IsKeyPressed(ImGuiKey_Enter))
-        {
-            if (!isConnected)
-            {
-                tcp->connect(ipBuffer, 7331);
-                config->set("ip_address", std::string(ipBuffer));
-                config->save();
-            }
-            else
-            {
-                tcp->disconnect();
-            }
+                disconnect();
         }
     }
     catch (const std::exception &e)

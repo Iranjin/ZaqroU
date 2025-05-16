@@ -3,76 +3,61 @@
 #include <vector>
 #include <string>
 #include <functional>
-#include <algorithm>
+
 #include "CodeEntry.h"
 
 
+struct CodeEntry;
+
 class CodeEntryManager
 {
-public:
-    void addCodeEntry(const CodeEntry &entry)
-    {
-        entries.push_back(entry);
-    }
-
-    int insertCodeEntry(int index, const CodeEntry &entry)
-    {
-        if (index >= 0 && index <= entries.size())
-        {
-            entries.insert(entries.begin() + index, entry);
-            return index;
-        }
-        return -1;
-    }
-
-    void removeCodeEntry(const std::string &name)
-    {
-        entries.erase(std::remove_if(entries.begin(), entries.end(),
-                                     [&name](const CodeEntry &entry) { return entry.name == name; }),
-                      entries.end());
-    }
-
-    void removeCodeEntry(int index)
-    {
-        if (index >= 0 && index < entries.size())
-            entries.erase(entries.begin() + index);
-    }
-
-    bool hasEnabledEntry() const
-    {
-        return std::any_of(entries.begin(), entries.end(),
-                           [](const CodeEntry &entry) { return entry.enabled; });
-    }
-
-    std::vector<CodeEntry> filterEntries(std::function<bool(const CodeEntry&)> predicate) const
-    {
-        std::vector<CodeEntry> result;
-        std::copy_if(entries.begin(), entries.end(), std::back_inserter(result), predicate);
-        return result;
-    }
-
-    CodeEntry* findCodeEntry(const std::string &name)
-    {
-        auto it = std::find_if(entries.begin(), entries.end(),
-                               [&name](const CodeEntry &entry) { return entry.name == name; });
-        return (it != entries.end()) ? &(*it) : nullptr;
-    }
-
-    size_t size() const { return entries.size(); }
-    bool empty() const { return entries.empty(); }
-
-    const std::vector<CodeEntry> &getEntries() const { return entries; }
-
-    void clear() { entries.clear(); }
-
-    std::vector<CodeEntry>::iterator begin() { return entries.begin(); }
-    std::vector<CodeEntry>::iterator end() { return entries.end(); }
-    std::vector<CodeEntry>::const_iterator begin() const { return entries.begin(); }
-    std::vector<CodeEntry>::const_iterator end() const { return entries.end(); }
-
-    const CodeEntry &operator[](size_t index) const { return entries[index]; }
-    CodeEntry &operator[](size_t index) { return entries[index]; }
-
 private:
-    std::vector<CodeEntry> entries;
+    std::vector<CodeEntry> m_entries;
+
+    struct Change
+    {
+        size_t index;
+        CodeEntry old_value;
+        CodeEntry new_value;
+    };
+
+    std::vector<std::vector<Change>> m_undo_stack;
+    std::vector<std::vector<Change>> m_redo_stack;
+
+    bool m_modifying = false;
+    std::vector<CodeEntry> m_snapshot_before_modify;
+
+public:
+    void begin_modify();
+    void end_modify();
+    void detect_changes(std::vector<Change> &changes);
+
+    bool undo();
+    bool redo();
+
+    void add_entry(const CodeEntry &entry);
+    size_t insert_entry(size_t index, const CodeEntry &entry);
+    void remove_entry(const std::string &name);
+    void remove_entry(size_t index);
+
+    std::vector<CodeEntry> filter_entries(std::function<bool(const CodeEntry&)> predicate) const;
+    CodeEntry *find_entry(const std::string &name);
+
+    bool has_enabled_entry() const;
+    size_t sum_size() const;
+
+    size_t size() const { return m_entries.size(); }
+    bool empty() const { return m_entries.empty(); }
+
+    const std::vector<CodeEntry> &getEntries() const { return m_entries; }
+
+    void clear() { m_entries.clear(); }
+
+    std::vector<CodeEntry>::iterator begin() { return m_entries.begin(); }
+    std::vector<CodeEntry>::iterator end() { return m_entries.end(); }
+    std::vector<CodeEntry>::const_iterator begin() const { return m_entries.begin(); }
+    std::vector<CodeEntry>::const_iterator end() const { return m_entries.end(); }
+
+    const CodeEntry &operator[](size_t index) const { return m_entries[index]; }
+    CodeEntry &operator[](size_t index) { return m_entries[index]; }
 };

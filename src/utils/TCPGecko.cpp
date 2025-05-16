@@ -184,8 +184,8 @@ uint32_t TCPGecko::get_symbol(const std::string &rplname, const std::string &sym
     if (!is_connected())
         throw std::runtime_error("Not connected");
     
-    char cmd = (char) COMMAND_GET_SYMBOL;
-    boost::asio::write(m_socket, boost::asio::buffer(&cmd, 1));
+    char command = (char) COMMAND_GET_SYMBOL;
+    boost::asio::write(m_socket, boost::asio::buffer(&command, 1));
 
     std::vector<char> request;
 
@@ -231,10 +231,11 @@ uint64_t TCPGecko::call(uint32_t address, const std::vector<uint32_t> &args, int
     std::vector<uint32_t> padded_args = args;
     padded_args.resize(8, 0);
 
-    char cmd = (char) COMMAND_REMOTE_PROCEDURE_CALL;
-    boost::asio::write(m_socket, boost::asio::buffer(&cmd, 1));
+    char command = (char) COMMAND_REMOTE_PROCEDURE_CALL;
+    boost::asio::write(m_socket, boost::asio::buffer(&command, 1));
 
-    char request[36];
+    constexpr size_t REQUEST_SIZE = 4 + 8 * 4;
+    char request[REQUEST_SIZE];
     write_u32(request, address);
 
     for (size_t i = 0; i < 8; ++i)
@@ -247,9 +248,12 @@ uint64_t TCPGecko::call(uint32_t address, const std::vector<uint32_t> &args, int
     uint64_t result = read_u64_be(result_buf);
 
     if (recv_size == 4)
-        return (uint32_t) (result >> 32);
-    else
+        return (uint32_t) result;
+    else if (recv_size == 8)
         return result;
+    else
+        throw std::invalid_argument("recv_size must be either 4 or 8");
+
 }
 
 uint64_t TCPGecko::get_title_id()

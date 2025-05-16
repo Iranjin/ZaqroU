@@ -71,7 +71,7 @@ public:
             iss.read(reinterpret_cast<char *>(&commentLen), 2);
             entry.comment = readString(iss, commentLen);
 
-            manager.addCodeEntry(entry);
+            manager.add_entry(entry);
         }
     }
 
@@ -128,7 +128,7 @@ public:
             if (commentElem != nullptr && commentElem->GetText() != nullptr)
                 entry.comment = commentElem->GetText();
 
-            manager.addCodeEntry(entry);
+            manager.add_entry(entry);
         }
     }
 

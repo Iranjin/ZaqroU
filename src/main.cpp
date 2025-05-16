@@ -13,8 +13,6 @@
 
 extern bool WaitEvents;
 
-Raim *appInstance = nullptr;
-
 
 static void glfw_error_callback(int error, const char *description)
 {
@@ -93,7 +91,7 @@ int main()
         io.FontGlobalScale = 0.25f;
     }
 
-    appInstance = new Raim(window);
+    Raim *appInstance = new Raim(window);
 
     // Main loop
     while (!glfwWindowShouldClose(window))

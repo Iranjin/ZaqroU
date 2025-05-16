@@ -89,14 +89,12 @@ void CodesTab::CodePopup()
             entry.enabled = mCodes[mEditTargetIndex].enabled;
             entry.codes = inputCode;
 
+            mCodes.begin_modify();
             if (mPopupMode == CodePopupMode::Add)
-            {
-                mCodes.addCodeEntry(entry);
-            }
+                mCodes.add_entry(entry);
             else if (mPopupMode == CodePopupMode::Edit && mEditTargetIndex >= 0 && mEditTargetIndex < (int)mCodes.size())
-            {
                 mCodes[mEditTargetIndex] = entry;
-            }
+            mCodes.end_modify();
 
             initialized = false;
             mPopupMode = CodePopupMode::None;

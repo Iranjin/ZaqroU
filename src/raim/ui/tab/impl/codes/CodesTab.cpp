@@ -28,10 +28,10 @@ void CodesTab::SendCodes()
     if (!tcp->is_connected())
         return;
     
-    std::vector<CodeEntry> cafe_codes = mCodes.filterEntries([](const CodeEntry entry) {
+    std::vector<CodeEntry> cafe_codes = mCodes.filter_entries([](const CodeEntry entry) {
         return entry.assemblyRamWrite == false && entry.enabled;
     });
-    std::vector<CodeEntry> assembly_ram_writes = mCodes.filterEntries([](const CodeEntry &entry) {
+    std::vector<CodeEntry> assembly_ram_writes = mCodes.filter_entries([](const CodeEntry &entry) {
         return entry.assemblyRamWrite == true && entry.enabled;
     });
 
@@ -147,10 +147,10 @@ void CodesTab::DisableCodes()
     if (!tcp->is_connected())
         return;
     
-    std::vector<CodeEntry> cafe_codes = mCodes.filterEntries([](const CodeEntry entry) {
+    std::vector<CodeEntry> cafe_codes = mCodes.filter_entries([](const CodeEntry entry) {
         return entry.assemblyRamWrite == false && entry.enabled;
     });
-    std::vector<CodeEntry> assembly_ram_writes = mCodes.filterEntries([](const CodeEntry &entry) {
+    std::vector<CodeEntry> assembly_ram_writes = mCodes.filter_entries([](const CodeEntry &entry) {
         return entry.assemblyRamWrite == true && entry.enabled;
     });
 

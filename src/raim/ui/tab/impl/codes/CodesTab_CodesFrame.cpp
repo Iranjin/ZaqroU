@@ -103,7 +103,9 @@ void CodesTab::CodesFrame_MouseClick(ImGuiIO &io, bool &isSelected, size_t &i)
                 mSelectedIndices.clear();
                 mSelectedIndices.insert(i);
             }
+            mCodes.begin_modify();
             mCodes[i].enabled = !mCodes[i].enabled;
+            mCodes.end_modify();
         }
 
         mActiveIndex = i;
@@ -152,12 +154,14 @@ void CodesTab::CodesFrame_DragAndDrop(size_t &i)
             for (int idx : indices)
                 movingEntries.push_back(mCodes[idx]);
 
+            mCodes.begin_modify();
             for (auto it = indices.rbegin(); it != indices.rend(); ++it)
-                mCodes.removeCodeEntry(*it);
+                mCodes.remove_entry(*it);
 
             size_t insertPos = i;
             for (size_t j = 0; j < movingEntries.size(); ++j)
-                mCodes.insertCodeEntry(insertPos + j, movingEntries[j]);
+                mCodes.insert_entry(insertPos + j, movingEntries[j]);
+            mCodes.end_modify();
 
             mSelectedIndices.clear();
             for (size_t j = 0; j < movingEntries.size(); ++j)
@@ -187,12 +191,14 @@ void CodesTab::CodesFrame_ContextMenu()
             std::vector<size_t> sortedIndices(mSelectedIndices.begin(), mSelectedIndices.end());
             std::sort(sortedIndices.begin(), sortedIndices.end());
 
+            mCodes.begin_modify();
             for (auto it = sortedIndices.rbegin(); it != sortedIndices.rend(); ++it)
             {
                 size_t selectedIndex = *it;
-                mCodes.removeCodeEntry(selectedIndex);
+                mCodes.remove_entry(selectedIndex);
                 mSelectedIndices.erase(selectedIndex);
             }
+            mCodes.end_modify();
 
             mActiveIndex = -1;
         }
@@ -200,13 +206,15 @@ void CodesTab::CodesFrame_ContextMenu()
         {
             std::vector<size_t> newIndices;
 
+            mCodes.begin_modify();
             size_t currentIndex = mCodes.size();
             for (size_t selectedIndex : mSelectedIndices)
             {
-                mCodes.insertCodeEntry(currentIndex, mCodes[selectedIndex]);
+                mCodes.insert_entry(currentIndex, mCodes[selectedIndex]);
                 newIndices.push_back(currentIndex);
                 currentIndex++;
             }
+            mCodes.end_modify();
 
             mSelectedIndices.clear();
             for (size_t newIndex : newIndices)
@@ -239,8 +247,10 @@ void CodesTab::CodesFrame()
             {
                 bool newState = !mCodes[*mSelectedIndices.begin()].enabled;
 
+                mCodes.begin_modify();
                 for (size_t i : mSelectedIndices)
                     mCodes[i].enabled = newState;
+                mCodes.end_modify();
             }
 
             if (io.KeyCtrl)
@@ -300,8 +310,17 @@ void CodesTab::CodesFrame()
             }
         }
 
-        if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_F))
-            mShowSearchBar = !mShowSearchBar;
+        if (io.KeyCtrl)
+        {
+            if (ImGui::IsKeyPressed(ImGuiKey_F)) // Search
+                mShowSearchBar = !mShowSearchBar;
+            
+            if (ImGui::IsKeyPressed(ImGuiKey_Z)) // Undo
+                mCodes.undo();
+            
+            if (io.KeyShift && ImGui::IsKeyPressed(ImGuiKey_Z)) // Redo
+                mCodes.redo();
+        }
     }
 
     for (size_t i = 0; i < mFilteredIndices.size(); ++i)

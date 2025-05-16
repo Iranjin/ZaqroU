@@ -28,7 +28,6 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
         ImGui::OpenPopup("CodePopup");
     }
 
-    // ImGui::BeginDisabled(mLoadedPath.empty());
     ImGui::SameLine();
     if (ImGui::Button("Save Code List"))
     {
@@ -57,14 +56,12 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
             std::string folder_path = std::filesystem::path(mLoadedPath).parent_path();
             std::filesystem::create_directories(folder_path);
             CodeLoader::SaveToFile(mLoadedPath, mCodes);
-            // CodeLoader::SaveToFile("zaqro_u/debug.bin", mCodes);
             saved_file_path = mLoadedPath;
         }
 
         if (!saved_file_path.empty())
             getRaimUI()->GetNotificationManager()->AddNotification(mNotifTitle, std::format("Saved \"{}\"", saved_file_path));
     }
-    // ImGui::EndDisabled();
 
     ImGui::BeginDisabled(tcp->is_connected());
     ImGui::SameLine();
@@ -84,16 +81,12 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
             CodeLoader::LoadFromFile(path, mCodes);
             mLoadedPath = path;
         }
-        // mCodes.clear();
-        // CodeLoader::LoadFromFile("zaqro_u/debug.bin", mCodes);
-        // CodeLoader::LoadFromXmlFile("zaqro_u/kuroha.xml", mCodes);
 
         mListUpdated = true;
     }
     ImGui::EndDisabled();
 
     ImGui::BeginDisabled(mLoadedPath.empty() || tcp->is_connected());
-    // ImGui::BeginDisabled(tcp->is_connected());
     ImGui::SameLine();
     if (ImGui::Button("Unload Code List"))
     {
@@ -102,7 +95,6 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
         mSelectedIndices.clear();
         mActiveIndex = -1;
     }
-    // ImGui::EndDisabled();
     ImGui::EndDisabled();
 
     ImGui::SameLine();
@@ -123,10 +115,12 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
             std::filesystem::path filepath = path;
             std::string ext = filepath.extension().string();
 
+            mCodes.begin_modify();
             if (ext == ".bin")
                 CodeLoader::LoadFromFile(path, mCodes);
             else if (ext == ".xml")
                 CodeLoader::LoadFromXmlFile(path, mCodes);
+            mCodes.end_modify();
 
             getRaimUI()->GetNotificationManager()->AddNotification(mNotifTitle, std::format("Imported \"{}\"", path));
         }
@@ -135,25 +129,23 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
     ImGui::SameLine();
     if (ImGui::Button("Untick All"))
     {
+        mCodes.begin_modify();
         for (CodeEntry &entry : mCodes)
             entry.enabled = false;
+        mCodes.end_modify();
     }
     // Line 1 END
 
     // Line 2 START
     ImGui::BeginDisabled(!tcp->is_connected());
-    ImGui::BeginDisabled(!mCodes.hasEnabledEntry());
+    ImGui::BeginDisabled(!mCodes.has_enabled_entry());
     if (ImGui::Button("Send Codes"))
-    {
         SendCodes();
-    }
     ImGui::EndDisabled();
 
     ImGui::SameLine();
     if (ImGui::Button("Disable Codes"))
-    {
         DisableCodes();
-    }
     ImGui::EndDisabled();
     // Line 2 END
 
