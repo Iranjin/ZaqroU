@@ -14,7 +14,6 @@ SettingsTab::SettingsTab(RaimUI *raimUI)
 {
     AddSetting(TAB_APPEARANCE, "Theme", "theme", getRaimUI()->getUITheme()->AllThemes()[0]);
     AddSetting(TAB_APPEARANCE, "Font scale", "font_scale", 1.0f, 0.5f, 2.0f);
-    AddSetting(TAB_GENERAL, "WaitEvents", "wait_events", false);
 }
 
 template <>

@@ -11,9 +11,6 @@
 #include "raim/Raim.h"
 
 
-extern bool WaitEvents;
-
-
 static void glfw_error_callback(int error, const char *description)
 {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
@@ -96,10 +93,7 @@ int main()
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
-        if (WaitEvents)
-            glfwWaitEvents();
-        else
-            glfwPollEvents();
+        glfwWaitEventsTimeout(1.0 / 60.0);
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();

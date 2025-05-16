@@ -8,9 +8,6 @@
 #include "ui/style/RaimUI_Theme.h"
 
 
-bool WaitEvents = false;
-
-
 Raim::Raim(GLFWwindow *window)
     : mWindow(window),
       mConfig(std::make_shared<Config>()),
@@ -48,6 +45,4 @@ void Raim::Update()
     //         mLastSaveTime = now;
     //     }
     // }
-
-    WaitEvents = getConfig()->get("wait_events", false);
 }
