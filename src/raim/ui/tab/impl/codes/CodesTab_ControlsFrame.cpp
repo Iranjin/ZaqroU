@@ -47,7 +47,7 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
 
             if (path)
             {
-                CodeLoader::SaveToFile(path, mCodes);
+                CodeLoader::save_to_file(path, mCodes);
                 saved_file_path = path;
             }
         }
@@ -55,12 +55,12 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
         {
             std::string folder_path = std::filesystem::path(mLoadedPath).parent_path();
             std::filesystem::create_directories(folder_path);
-            CodeLoader::SaveToFile(mLoadedPath, mCodes);
+            CodeLoader::save_to_file(mLoadedPath, mCodes);
             saved_file_path = mLoadedPath;
         }
 
         if (!saved_file_path.empty())
-            getRaimUI()->GetNotificationManager()->AddNotification(mNotifTitle, std::format("Saved \"{}\"", saved_file_path));
+            getRaimUI()->getNotificationManager()->AddNotification(mNotifTitle, std::format("Saved \"{}\"", saved_file_path));
     }
 
     ImGui::BeginDisabled(tcp->is_connected());
@@ -78,7 +78,7 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
         if (path)
         {
             mCodes.clear();
-            CodeLoader::LoadFromFile(path, mCodes);
+            CodeLoader::load_from_file(path, mCodes);
             mLoadedPath = path;
         }
 
@@ -117,12 +117,12 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
 
             mCodes.begin_modify();
             if (ext == ".bin")
-                CodeLoader::LoadFromFile(path, mCodes);
+                CodeLoader::load_from_file(path, mCodes);
             else if (ext == ".xml")
-                CodeLoader::LoadFromXmlFile(path, mCodes);
+                CodeLoader::load_from_xml_file(path, mCodes);
             mCodes.end_modify();
 
-            getRaimUI()->GetNotificationManager()->AddNotification(mNotifTitle, std::format("Imported \"{}\"", path));
+            getRaimUI()->getNotificationManager()->AddNotification(mNotifTitle, std::format("Imported \"{}\"", path));
         }
     }
 

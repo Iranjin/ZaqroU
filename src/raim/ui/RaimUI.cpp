@@ -46,12 +46,6 @@ void RaimUI::Init()
 
 void RaimUI::Update()
 {
-    if (!mInitialized)
-    {
-        Init();
-        mInitialized = true;
-    }
-    
     ImGuiViewport *viewport = ImGui::GetMainViewport();
 
     ImGui::SetNextWindowPos(viewport->Pos);
@@ -127,14 +121,14 @@ void RaimUI::MainUI()
             tcp->connect(ipBuffer);
             config->set("ip_address", std::string(ipBuffer));
             config->save();
-            GetNotificationManager()->AddNotification("TCPGecko", 
+            getNotificationManager()->AddNotification("TCPGecko", 
                 std::format("Connected to: {}\nServer version: {}", std::string(ipBuffer), tcp->get_server_version()));
         };
 
         auto disconnect = [&]()
         {
             tcp->disconnect();
-            GetNotificationManager()->AddNotification("TCPGecko", 
+            getNotificationManager()->AddNotification("TCPGecko", 
                 std::format("Disconnected from: {}", std::string(ipBuffer)));
         };
 

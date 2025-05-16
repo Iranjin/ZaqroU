@@ -25,7 +25,7 @@ void LogsTab::Update()
 {
     using namespace std::chrono;
 
-    NotificationManager *notifManager = getRaimUI()->GetNotificationManager();
+    NotificationManager *notifManager = getRaimUI()->getNotificationManager();
 
     std::string logs;
     for (const NotificationManager::NotifLog &notif : notifManager->GetNotificationLogs())

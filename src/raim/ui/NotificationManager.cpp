@@ -1,11 +1,13 @@
 #include "NotificationManager.h"
 
+#include <imgui_internal.h>
+#include <imgui.h>
 #include <algorithm>
 #include <cmath>
 #include <chrono>
 
 
-void NotificationManager::AddNotification(const std::string &title, const std::string &message, float displayTime)
+void NotificationManager::AddNotification(const std::string &title, const std::string &message, float display_time, std::function<void()> on_click)
 {
     const float padding = 10.0f;
 
@@ -13,65 +15,133 @@ void NotificationManager::AddNotification(const std::string &title, const std::s
     auto timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
         now.time_since_epoch()).count() / 1000.0;
 
-    mNotificationLogs.push_back({ title, message, timestamp });
-    
-    if (mNotificationLogs.size() > mMaxLogCount)
-        mNotificationLogs.pop_front();
+    m_notification_logs.push_back({ title, message, timestamp });
 
-    Notification notif = { title, message, displayTime, 0.0f, 0.0f, padding };
-    mNotifications.insert(mNotifications.begin(), notif);
+    if (m_notification_logs.size() > m_max_log_count)
+        m_notification_logs.pop_front();
+
+    Notification notif = { title, message, INFORMATION, display_time, 0.0f, 0.0f, padding, on_click };
+    m_notifications.insert(m_notifications.begin(), notif);
 
     float currentY = padding;
-    for (Notification &notif : mNotifications)
+    for (Notification &notif : m_notifications)
     {
-        notif.currentY = currentY;
+        notif.current_y = currentY;
         currentY += notif.height + padding;
+    }
+}
+
+void NotificationManager::AddWarnNotification(const std::string &message, float display_time, std::function<void()> on_click)
+{
+    std::string title = "Warning";
+    const float padding = 10.0f;
+
+    auto now = std::chrono::system_clock::now();
+    auto timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
+        now.time_since_epoch()).count() / 1000.0;
+
+    m_notification_logs.push_back({ title, message, timestamp });
+    
+    if (m_notification_logs.size() > m_max_log_count)
+        m_notification_logs.pop_front();
+
+    Notification notif = { title, message, WARNING, display_time, 0.0f, 0.0f, padding, on_click };
+    m_notifications.insert(m_notifications.begin(), notif);
+
+    float current_y = padding;
+    for (Notification &notif : m_notifications)
+    {
+        notif.current_y = current_y;
+        current_y += notif.height + padding;
+    }
+}
+
+void NotificationManager::AddErrorNotification(const std::string &message, float display_time, std::function<void()> on_click)
+{
+    std::string title = "Error";
+    const float padding = 10.0f;
+
+    auto now = std::chrono::system_clock::now();
+    auto timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
+        now.time_since_epoch()).count() / 1000.0;
+
+    m_notification_logs.push_back({ title, message, timestamp });
+    
+    if (m_notification_logs.size() > m_max_log_count)
+        m_notification_logs.pop_front();
+
+    Notification notif = { title, message, ERROR, display_time, 0.0f, 0.0f, padding, on_click };
+    m_notifications.insert(m_notifications.begin(), notif);
+
+    float current_y = padding;
+    for (Notification &notif : m_notifications)
+    {
+        notif.current_y = current_y;
+        current_y += notif.height + padding;
     }
 }
 
 void NotificationManager::Update()
 {
-    const float deltaTime = ImGui::GetIO().DeltaTime;
+    const float delta_time = ImGui::GetIO().DeltaTime;
     ImVec2 viewportSize = ImGui::GetMainViewport()->Size;
     const float padding = 10.0f;
     const float minNotifWidth = 300.0f;
     const float minNotifHeight = 60.0f;
 
-    for (size_t i = mNotifications.size(); i-- > 0; )
+    float totalHeight = 0.0f;
+    for (Notification &notif : m_notifications)
     {
-        Notification &notif = mNotifications[i];
-        notif.timeRemaining -= deltaTime;
+        ImVec2 title_size = ImGui::CalcTextSize(notif.title.c_str());
+        ImVec2 message_size = ImGui::CalcTextSize(notif.message.c_str());
 
-        if (notif.timeRemaining > 0.0f)
-            notif.animationProgress = std::min(notif.animationProgress + deltaTime / mAnimationDuration, 1.0f);
+        float contentHeight = title_size.y + message_size.y + 3 * padding;
+        notif.height = std::max(minNotifHeight, contentHeight);
+
+        totalHeight += notif.height + padding;
+    }
+
+    while (totalHeight > viewportSize.y && !m_notifications.empty())
+    {
+        totalHeight -= m_notifications.back().height + padding;
+        m_notifications.back().remove();
+    }
+
+    for (size_t i = m_notifications.size(); i-- > 0; )
+    {
+        Notification &notif = m_notifications[i];
+        notif.time_remaining -= delta_time;
+
+        if (notif.time_remaining > 0.0f)
+            notif.animation_progress = std::min(notif.animation_progress + delta_time / m_animation_duration, 1.0f);
         else
-            notif.animationProgress = std::max(notif.animationProgress - deltaTime / mAnimationDuration, 0.0f);
+            notif.animation_progress = std::max(notif.animation_progress - delta_time / m_animation_duration, 0.0f);
 
-        if (notif.timeRemaining <= 0.0f && notif.animationProgress <= 0.0f)
+        if (notif.time_remaining <= 0.0f && notif.animation_progress <= 0.0f)
         {
-            mNotifications.erase(mNotifications.begin() + i);
+            m_notifications.erase(m_notifications.begin() + i);
             continue;
         }
 
-        ImVec2 titleSize = ImGui::CalcTextSize(notif.title.c_str());
-        ImVec2 messageSize = ImGui::CalcTextSize(notif.message.c_str());
+        ImVec2 title_size = ImGui::CalcTextSize(notif.title.c_str());
+        ImVec2 message_size = ImGui::CalcTextSize(notif.message.c_str());
         
-        float windowWidth = std::max(minNotifWidth, std::max(titleSize.x, messageSize.x) + 2 * padding);
-        float contentHeight = titleSize.y + messageSize.y + 3 * padding;
-        notif.height = std::max(minNotifHeight, contentHeight);
+        float window_width = std::max(minNotifWidth, std::max(title_size.x, message_size.x) + 2 * padding);
+        float content_height = title_size.y + message_size.y + 3 * padding;
+        notif.height = std::max(minNotifHeight, content_height);
 
-        float easedProgress = 1.0f - powf(1.0f - notif.animationProgress, 3.0f);  // EaseOutCubic
+        float eased_progress = 1.0f - powf(1.0f - notif.animation_progress, 3.0f);  // EaseOutCubic
 
         float targetY = padding;
         for (size_t j = 0; j < i; ++j)
-            targetY += mNotifications[j].height + padding;
+            targetY += m_notifications[j].height + padding;
         
-        notif.currentY += (targetY - notif.currentY) * std::min(10.0f * deltaTime, 1.0f);
+        notif.current_y += (targetY - notif.current_y) * std::min(10.0f * delta_time, 1.0f);
 
-        ImVec2 pos = ImVec2((viewportSize.x - padding) - windowWidth * easedProgress + windowWidth, notif.currentY);
+        ImVec2 pos = ImVec2((viewportSize.x - padding) - window_width * eased_progress + window_width, notif.current_y);
 
-        ImGui::SetNextWindowSize(ImVec2(windowWidth, notif.height));
-        ImGui::SetNextWindowPos(ImVec2(pos.x - windowWidth, notif.currentY));
+        ImGui::SetNextWindowSize(ImVec2(window_width, notif.height));
+        ImGui::SetNextWindowPos(ImVec2(pos.x - window_width, notif.current_y));
 
         ImGui::SetNextWindowBgAlpha(0.8f);
 
@@ -81,9 +151,24 @@ void NotificationManager::Update()
 
         ImGui::Begin(("##Notification" + std::to_string(i)).c_str(), nullptr, flags);
 
-        ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_CheckMark), "%s", notif.title.c_str());
+        if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+        {
+            if (notif.on_click)
+                notif.on_click();
+            notif.remove();
+        }
+
+        ImVec4 color;
+        switch (notif.type)
+        {
+        case (INFORMATION): color = ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled); break;
+        case (WARNING): color = ImVec4(1.0f, 1.0f, 0.0f, 1.0f); break;
+        case (ERROR): color = ImVec4(1.0f, 0.0f, 0.0f, 1.0f); break;
+        }
         
-        ImGui::Dummy(ImVec2(0, padding/2));
+        ImGui::TextColored(color, "%s", notif.title.c_str());
+        
+        ImGui::Dummy(ImVec2(0, padding / 2));
         ImGui::TextUnformatted(notif.message.c_str());
 
         ImGui::End();

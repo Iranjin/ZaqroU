@@ -16,7 +16,7 @@
 class CodeLoader
 {
 public:
-    static void LoadFromFile(const std::string &filename, CodeEntryManager &manager)
+    static void load_from_file(const std::string &filename, CodeEntryManager &manager)
     {
         std::ifstream in(filename, std::ios::binary);
         if (!in)
@@ -28,54 +28,54 @@ public:
             throw std::runtime_error("Magic number mismatch.");
 
         uint8_t version;
-        in.read(reinterpret_cast<char *>(&version), 1);
+        in.read(reinterpret_cast<char*>(&version), 1);
 
         uint32_t rawSize;
-        in.read(reinterpret_cast<char *>(&rawSize), 4);
+        in.read(reinterpret_cast<char*>(&rawSize), 4);
 
-        std::vector<char> compressedData((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+        std::vector<char> compressed_data((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
         
         std::vector<char> rawData(rawSize);
-        int decompressedSize = LZ4_decompress_safe(compressedData.data(), rawData.data(), compressedData.size(), rawSize);
+        int decompressedSize = LZ4_decompress_safe(compressed_data.data(), rawData.data(), compressed_data.size(), rawSize);
         if (decompressedSize < 0)
             throw std::runtime_error("Decompression failed.");
 
         std::istringstream iss(std::string(rawData.data(), rawSize), std::ios::binary);
 
         uint32_t entryCount;
-        iss.read(reinterpret_cast<char *>(&entryCount), 4);
+        iss.read(reinterpret_cast<char*>(&entryCount), 4);
 
         for (uint32_t i = 0; i < entryCount; ++i)
         {
             CodeEntry entry;
 
             uint8_t nameLen;
-            iss.read(reinterpret_cast<char *>(&nameLen), 1);
+            iss.read(reinterpret_cast<char*>(&nameLen), 1);
             entry.name = readString(iss, nameLen);
 
             uint16_t codesLen;
-            iss.read(reinterpret_cast<char *>(&codesLen), 2);
+            iss.read(reinterpret_cast<char*>(&codesLen), 2);
             entry.codes = readString(iss, codesLen);
 
             uint8_t authorsLen;
-            iss.read(reinterpret_cast<char *>(&authorsLen), 1);
+            iss.read(reinterpret_cast<char*>(&authorsLen), 1);
             entry.authors = readString(iss, authorsLen);
 
             uint8_t flags;
-            iss.read(reinterpret_cast<char *>(&flags), 1);
+            iss.read(reinterpret_cast<char*>(&flags), 1);
             entry.rawAssembly = flags & 1;
             entry.assemblyRamWrite = flags & 2;
             entry.enabled = flags & 4;
 
             uint16_t commentLen;
-            iss.read(reinterpret_cast<char *>(&commentLen), 2);
+            iss.read(reinterpret_cast<char*>(&commentLen), 2);
             entry.comment = readString(iss, commentLen);
 
             manager.add_entry(entry);
         }
     }
 
-    static void LoadFromXmlFile(const std::string &filename, CodeEntryManager &manager)
+    static void load_from_xml_file(const std::string &filename, CodeEntryManager &manager)
     {
         using namespace tinyxml2;
 
@@ -88,26 +88,26 @@ public:
         if (root == nullptr)
             throw std::runtime_error("Root element <codes> not found.");
 
-        for (XMLElement *entryElem = root->FirstChildElement("entry");
-             entryElem != nullptr;
-             entryElem = entryElem->NextSiblingElement("entry"))
+        for (XMLElement *entry_elem = root->FirstChildElement("entry");
+             entry_elem != nullptr;
+             entry_elem = entry_elem->NextSiblingElement("entry"))
         {
             CodeEntry entry;
 
-            const char *nameAttr = entryElem->Attribute("name");
-            if (nameAttr == nullptr)
+            if (const char *name_attr = entry_elem->Attribute("name"))
+                entry.name = name_attr;
+            else
                 throw std::runtime_error("<entry> is missing required name attribute.");
-            entry.name = nameAttr;
 
-            XMLElement *codeElem = entryElem->FirstChildElement("code");
-            if (codeElem != nullptr && codeElem->GetText() != nullptr)
-                entry.codes = codeElem->GetText();
+            if (XMLElement *code_elem = entry_elem->FirstChildElement("code");
+                code_elem->GetText() != nullptr)
+                entry.codes = code_elem->GetText();
 
-            XMLElement *authorsElem = entryElem->FirstChildElement("authors");
-            if (authorsElem != nullptr && authorsElem->GetText() != nullptr)
-                entry.authors = authorsElem->GetText();
+            if (XMLElement *authors_elem = entry_elem->FirstChildElement("authors");
+                authors_elem->GetText() != nullptr)
+                entry.authors = authors_elem->GetText();
 
-            auto getBool = [](XMLElement *elem, bool &outVal)
+            auto get_bool = [](XMLElement *elem, bool &outVal)
             {
                 if (elem == nullptr || elem->GetText() == nullptr)
                     return;
@@ -115,46 +115,46 @@ public:
                 outVal = (text == "true" || text == "1");
             };
 
-            XMLElement *rawAsmElem = entryElem->FirstChildElement("raw_assembly");
-            getBool(rawAsmElem, entry.rawAssembly);
+            XMLElement *raw_asm_elem = entry_elem->FirstChildElement("raw_assembly");
+            get_bool(raw_asm_elem, entry.rawAssembly);
 
-            XMLElement *ramWriteElem = entryElem->FirstChildElement("assembly_ram_write");
-            getBool(ramWriteElem, entry.assemblyRamWrite);
+            XMLElement *raw_write_elem = entry_elem->FirstChildElement("assembly_ram_write");
+            get_bool(raw_write_elem, entry.assemblyRamWrite);
 
-            XMLElement *enabledElem = entryElem->FirstChildElement("enabled");
-            getBool(enabledElem, entry.enabled);
+            XMLElement *enabled_elem = entry_elem->FirstChildElement("enabled");
+            get_bool(enabled_elem, entry.enabled);
 
-            XMLElement *commentElem = entryElem->FirstChildElement("comment");
-            if (commentElem != nullptr && commentElem->GetText() != nullptr)
-                entry.comment = commentElem->GetText();
+            if (XMLElement *comment_elem = entry_elem->FirstChildElement("comment");
+                comment_elem->GetText() != nullptr)
+                entry.comment = comment_elem->GetText();
 
             manager.add_entry(entry);
         }
     }
 
-    static void SaveToFile(const std::string &filename, const CodeEntryManager &manager)
+    static void save_to_file(const std::string &filename, const CodeEntryManager &manager)
     {
-        std::ostringstream rawStream(std::ios::binary);
+        std::ostringstream raw_stream(std::ios::binary);
 
-        uint32_t entryCount = manager.size();
-        rawStream.write(reinterpret_cast<const char *>(&entryCount), 4);
+        uint32_t entry_count = manager.size();
+        raw_stream.write(reinterpret_cast<const char*>(&entry_count), 4);
 
         const std::vector<CodeEntry> &entries = manager.getEntries();
         for (size_t i = 0; i < entries.size(); ++i)
         {
             const CodeEntry &entry = entries[i];
 
-            uint8_t nameLen = static_cast<uint8_t>(entry.name.size());
-            rawStream.write(reinterpret_cast<const char *>(&nameLen), 1);
-            rawStream.write(entry.name.c_str(), nameLen);
+            uint8_t name_len = static_cast<uint8_t>(entry.name.size());
+            raw_stream.write(reinterpret_cast<const char*>(&name_len), 1);
+            raw_stream.write(entry.name.c_str(), name_len);
 
-            uint16_t codeLen = static_cast<uint16_t>(entry.codes.size());
-            rawStream.write(reinterpret_cast<const char *>(&codeLen), 2);
-            rawStream.write(entry.codes.c_str(), codeLen);
+            uint16_t code_len = static_cast<uint16_t>(entry.codes.size());
+            raw_stream.write(reinterpret_cast<const char*>(&code_len), 2);
+            raw_stream.write(entry.codes.c_str(), code_len);
 
-            uint8_t authorsLen = static_cast<uint8_t>(entry.authors.size());
-            rawStream.write(reinterpret_cast<const char *>(&authorsLen), 1);
-            rawStream.write(entry.authors.c_str(), authorsLen);
+            uint8_t authors_len = static_cast<uint8_t>(entry.authors.size());
+            raw_stream.write(reinterpret_cast<const char*>(&authors_len), 1);
+            raw_stream.write(entry.authors.c_str(), authors_len);
 
             uint8_t flags = 0;
             if (entry.rawAssembly)
@@ -163,18 +163,18 @@ public:
                 flags |= 2;
             if (entry.enabled)
                 flags |= 4;
-            rawStream.write(reinterpret_cast<const char *>(&flags), 1);
+            raw_stream.write(reinterpret_cast<const char*>(&flags), 1);
 
-            uint16_t commentLen = static_cast<uint16_t>(entry.comment.size());
-            rawStream.write(reinterpret_cast<const char *>(&commentLen), 2);
-            rawStream.write(entry.comment.c_str(), commentLen);
+            uint16_t comment_len = static_cast<uint16_t>(entry.comment.size());
+            raw_stream.write(reinterpret_cast<const char*>(&comment_len), 2);
+            raw_stream.write(entry.comment.c_str(), comment_len);
         }
 
-        std::string rawDataStr = rawStream.str();
-        std::vector<char> rawData(rawDataStr.begin(), rawDataStr.end());
+        std::string raw_data_str = raw_stream.str();
+        std::vector<char> raw_data(raw_data_str.begin(), raw_data_str.end());
 
-        std::vector<char> compressedData(LZ4_compressBound(rawData.size()));
-        int compressedSize = LZ4_compress_default(rawData.data(), compressedData.data(), rawData.size(), compressedData.size());
+        std::vector<char> compressed_data(LZ4_compressBound(raw_data.size()));
+        int compressedSize = LZ4_compress_default(raw_data.data(), compressed_data.data(), raw_data.size(), compressed_data.size());
         if (compressedSize <= 0)
             throw std::runtime_error("Compression failed.");
 
@@ -184,10 +184,10 @@ public:
 
         out.write("RAIM", 4);
         uint8_t version = 1;
-        out.write(reinterpret_cast<const char *>(&version), 1);
-        uint32_t rawSize = static_cast<uint32_t>(rawData.size());
-        out.write(reinterpret_cast<const char *>(&rawSize), 4);
-        out.write(compressedData.data(), compressedSize);
+        out.write(reinterpret_cast<const char*>(&version), 1);
+        uint32_t rawSize = static_cast<uint32_t>(raw_data.size());
+        out.write(reinterpret_cast<const char*>(&rawSize), 4);
+        out.write(compressed_data.data(), compressedSize);
     }
 
 private:

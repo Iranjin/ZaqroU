@@ -162,7 +162,7 @@ void CodesTab::CodeFrame()
     ImGui::BeginChild("Scrolling", windowSize, ImGuiChildFlags_None);
     ImVec2 scroll_pos(0.0f, ImGui::GetScrollY());
 
-    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    ImDrawList *draw_list = ImGui::GetWindowDrawList();
 
     ImGui::InvisibleButton("CodeArea", ImVec2(
         std::max(windowSize.x, lineNumberWidth + textSize.x * 100),

@@ -131,7 +131,7 @@ void CodesTab::SendCodes()
         tcp->enable_code_handler(true);
     }
 
-    NotificationManager *notifManager = getRaimUI()->GetNotificationManager();
+    NotificationManager *notifManager = getRaimUI()->getNotificationManager();
     constexpr float notifTime = 3.0f;
 
     if (hasWrittenCodes)
@@ -208,7 +208,7 @@ void CodesTab::DisableCodes()
     
     tcp->enable_code_handler(false);
 
-    NotificationManager *notifManager = getRaimUI()->GetNotificationManager();
+    NotificationManager *notifManager = getRaimUI()->getNotificationManager();
     constexpr float notifTime = 3.0f;
 
     if (hasWrittenCodes)
@@ -232,9 +232,9 @@ void CodesTab::OnConnected()
         mLoadedPath.clear();
         mSelectedIndices.clear();
         mActiveIndex = -1;
-        CodeLoader::LoadFromFile(codes_file_path, mCodes);
+        CodeLoader::load_from_file(codes_file_path, mCodes);
 
-        getRaimUI()->GetNotificationManager()->AddNotification("CodesTab", std::format("Loaded \"{}\"", codes_file_path));
+        getRaimUI()->getNotificationManager()->AddNotification("CodesTab", std::format("Loaded \"{}\"", codes_file_path));
     }
     mLoadedPath = codes_file_path;
 }

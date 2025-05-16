@@ -37,6 +37,6 @@ public:
     Raim *getRaim() const { return mRaim; }
     RaimUI_Theme *getUITheme() const { return mUITheme; }
     // TitleIdParser *getTitleIdParser() const { return mTitleIdParser; }
-    NotificationManager *GetNotificationManager() const { return mNotificationManager; }
+    NotificationManager *getNotificationManager() const { return mNotificationManager; }
     std::shared_ptr<Config> getConfig();
 };

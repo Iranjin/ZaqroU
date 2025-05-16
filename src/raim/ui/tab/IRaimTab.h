@@ -29,6 +29,7 @@ public:
     virtual void OnDisconnected() {}
 
     const char *getTabName() { return mTabName; }
+    RaimUI *getNotificationManager() { return mRaimUI; }
     RaimUI *getRaimUI() { return mRaimUI; }
     Raim *getRaim();
     std::shared_ptr<Config> getConfig();

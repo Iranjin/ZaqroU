@@ -30,6 +30,8 @@ public:
     void Init();
     void Update();
 
+    void LoadFonts();
+
     RaimUI* getRaimUI() const { return mRaimUI; }
     std::shared_ptr<Config> getConfig() const { return mConfig; }
     std::shared_ptr<TCPGecko> getTCPGecko() const { return mTCPGecko; }
