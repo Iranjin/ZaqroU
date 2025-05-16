@@ -8,7 +8,6 @@
 #include "theme/DarkTheme.h"
 #include "theme/GrayScaleTheme.h"
 #include "theme/JavaTheme.h"
-#include "theme/ImGuiTheme.h"
 
 
 class RaimUI_Theme
@@ -24,7 +23,6 @@ public:
             new DarkTheme(),
             new GrayScaleTheme(),
             new JavaTheme(),
-            new ImGuiTheme(),
         };
     }
 
