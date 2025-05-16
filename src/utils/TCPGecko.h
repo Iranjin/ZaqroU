@@ -100,11 +100,16 @@ public:
     uint32_t get_symbol(const std::string &rplname, const std::string &symname, uint8_t data_flag = 0);
     uint64_t call(uint32_t address, const std::vector<uint32_t> &args, int recv_size);
 
+    uint32_t malloc(uint32_t size, uint32_t alignment = 4);
+    void free(uint32_t address);
+
     uint64_t get_title_id();
+    uint32_t get_principal_id();
+    std::string get_account_id();
     std::string get_server_version();
+    uint32_t get_persistent_id();
     uint32_t get_os_version();
     uint32_t get_version_hash();
-    std::string get_account_id();
     uint32_t get_code_handler_address();
 
     inline bool is_connected() const { return m_connected; }

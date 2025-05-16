@@ -253,12 +253,66 @@ uint64_t TCPGecko::call(uint32_t address, const std::vector<uint32_t> &args, int
         return result;
     else
         throw std::invalid_argument("recv_size must be either 4 or 8");
+}
 
+uint32_t TCPGecko::malloc(uint32_t size, uint32_t alignment)
+{
+    return call(get_symbol("coreinit.rpl", "OSAllocFromSystem"), {size, alignment}, 8) >> 32;
+}
+
+void TCPGecko::free(uint32_t address)
+{
+    call(get_symbol("coreinit.rpl", "OSFreeToSystem"), {address}, 8);
 }
 
 uint64_t TCPGecko::get_title_id()
 {
     return call(get_symbol("coreinit.rpl", "OSGetTitleID"), {}, 8);
+}
+
+uint32_t TCPGecko::get_principal_id()
+{
+    return call(get_symbol("nn_act.rpl", "GetPrincipalId__Q2_2nn3actFv"), {}, 8) >> 32;
+}
+
+std::string TCPGecko::get_account_id()
+{
+    if (!is_connected())
+        throw std::runtime_error("Not connected");
+
+    constexpr uint32_t AccountIdSize = 16;
+    constexpr uint32_t Alignment = 4;
+
+    uint32_t buffer_address = malloc(AccountIdSize, Alignment);
+    if (buffer_address == 0)
+        throw std::runtime_error("Failed to allocate memory");
+
+    try
+    {
+        std::vector<uint8_t> zero_buffer(AccountIdSize, 0);
+        upload_memory(buffer_address, zero_buffer);
+
+        uint32_t func_addr = get_symbol("nn_act.rpl", "GetAccountId__Q2_2nn3actFPc");
+        call(func_addr, {buffer_address}, 8);
+
+        std::vector<uint8_t> account_id_data = read_memory(buffer_address, AccountIdSize);
+
+        size_t length = 0;
+        for (; length < AccountIdSize; ++length)
+        {
+            if (account_id_data[length] == 0)
+                break;
+        }
+
+        return std::string(account_id_data.begin(), account_id_data.begin() + length);
+    }
+    catch (const std::exception &e)
+    {
+        free(buffer_address);
+        throw e;
+    }
+
+    free(buffer_address);
 }
 
 std::string TCPGecko::get_server_version()
@@ -277,6 +331,19 @@ std::string TCPGecko::get_server_version()
     boost::asio::read(m_socket, boost::asio::buffer(version_buf.data(), version_length));
 
     return std::string(version_buf.begin(), version_buf.end());
+}
+
+uint32_t TCPGecko::get_persistent_id()
+{
+    if (!is_connected())
+        throw std::runtime_error("Not connected");
+
+    char command = (char) COMMAND_ACCOUNT_IDENTIFIER;
+    boost::asio::write(m_socket, boost::asio::buffer(&command, 1));
+
+    char buffer[4];
+    boost::asio::read(m_socket, boost::asio::buffer(buffer, 4));
+    return read_u32_be(buffer);
 }
 
 uint32_t TCPGecko::get_os_version()
@@ -303,26 +370,6 @@ uint32_t TCPGecko::get_version_hash()
     char response[4];
     boost::asio::read(m_socket, boost::asio::buffer(response, 4));
     return read_u32_be(response);
-}
-
-// TODO: 未実装
-std::string TCPGecko::get_account_id()
-{
-    /*if (!is_connected())
-        throw std::runtime_error("Not connected");
-
-    char command = (char) COMMAND_ACCOUNT_IDENTIFIER;
-    boost::asio::write(m_socket, boost::asio::buffer(&command, 1));
-
-    char length_buf[4];
-    boost::asio::read(m_socket, boost::asio::buffer(length_buf, 4));
-    int version_length = read_u32_be(length_buf);
-
-    std::vector<char> version_buf(version_length);
-    boost::asio::read(m_socket, boost::asio::buffer(version_buf.data(), version_length));
-
-    return std::string(version_buf.begin(), version_buf.end());*/
-    return "";
 }
 
 uint32_t TCPGecko::get_code_handler_address()
