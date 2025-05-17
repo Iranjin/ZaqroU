@@ -17,8 +17,8 @@ Raim::Raim(GLFWwindow *window)
       mConfigPath("zaqro_u/config.json")
 {
     mConfig->load(mConfigPath);
-    mRaimUI = new RaimUI(this);
     LoadFonts();
+    mRaimUI = new RaimUI(this);
     mRaimUI->Init();
 }
 
@@ -29,44 +29,52 @@ Raim::~Raim()
 
 void Raim::LoadFonts()
 {
-    constexpr size_t font_size = 2;
-    const char *fonts[font_size] = {
-        "/res/fonts/HackNerdFont-Regular.ttf",
-        "/res/fonts/NotoSansJP-Regular.ttf"
-    };
+    auto download_font = [](const std::string &path) {
+        std::string font_path = "zaqro_u/" + path;
+        std::string font_url = "https://github.com/Iranjin/ZaqroU/raw/refs/heads/main/" + font_path;
 
-    for (size_t i = 0; i < font_size; i++)
-    {
-        std::string font_path = std::string("zaqro_u") + fonts[i];
-        
         if (std::filesystem::exists(font_path))
-            continue;
+            return;
         
-        std::string folder_path = std::filesystem::path(font_path).parent_path();
-        std::string url = std::string("https://github.com/Iranjin/ZaqroU/raw/refs/heads/main") + fonts[i];
+        std::string folder_parent_path = std::filesystem::path(font_path).parent_path();
         
         std::vector<char> data;
-        download_file(url, data);
+        download_file(font_url, data);
 
-        std::filesystem::create_directories(folder_path);
+        std::filesystem::create_directories(folder_parent_path);
 
         save_to_file(font_path, data);
-    }
-
+    };
+    
     ImGuiIO &io = ImGui::GetIO();
 
     io.IniFilename = nullptr;
 
-    static ImWchar const glyph_ranges[] = {
-        0x0020, 0xfffd,
-        0,
-    };
-
-    io.Fonts->AddFontFromFileTTF("zaqro_u/res/fonts/HackNerdFont-Regular.ttf", 64.0f, NULL, glyph_ranges);
-
     ImFontConfig font_config;
-    font_config.MergeMode = true;
-    io.Fonts->AddFontFromFileTTF("zaqro_u/res/fonts/NotoSansJP-Regular.ttf", 88.0f, &font_config, io.Fonts->GetGlyphRangesJapanese());
+
+    { // English font
+        std::string font_path = "res/fonts/HackNerdFont-Regular.ttf";
+        std::string res_font_path = "zaqro_u/" + font_path;
+        
+        download_font(font_path);
+
+        static ImWchar const glyph_ranges[] = {
+            0x0020, 0xfffd,
+            0,
+        };
+
+        io.Fonts->AddFontFromFileTTF(res_font_path.c_str(), 64.0f, &font_config, glyph_ranges);
+    }
+
+    { // Japanese font
+        std::string font_path = "res/fonts/NotoSansJP-Regular.ttf";
+        std::string res_font_path = "zaqro_u/" + font_path;
+        
+        download_font(font_path);
+
+        font_config.MergeMode = true;
+        io.Fonts->AddFontFromFileTTF(font_path.c_str(), 88.0f, &font_config, io.Fonts->GetGlyphRangesJapanese());
+    }
 
     io.FontGlobalScale = 0.25f;
 }
