@@ -118,7 +118,7 @@ void CodesTab::SendCodes()
             uint32_t &address = addrWithoutHash[i];
             uint32_t &value = valWithoutHash[i];
 
-            tcp->write_memory(address, value);
+            tcp->write_mem_32(address, value);
         }
 
         hasWrittenCodes |= !addrWithoutHash.empty();
@@ -197,7 +197,7 @@ void CodesTab::DisableCodes()
             uint32_t &address = addrWithHash[i];
             uint32_t &value = valWithHash[i];
 
-            tcp->write_memory(address, value);
+            tcp->write_mem_32(address, value);
         }
 
         hasWrittenCodes |= !addrWithHash.empty();

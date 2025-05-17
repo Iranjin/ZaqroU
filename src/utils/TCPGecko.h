@@ -84,9 +84,9 @@ public:
     void disconnect();
 
     std::vector<uint8_t> read_memory(uint32_t address, uint32_t length = 0x4);
-    void write_memory(uint32_t address, uint32_t value);
-    void write_memory(uint32_t address, uint16_t value);
-    void write_memory(uint32_t address, uint8_t value);
+    void write_mem_32(uint32_t address, uint32_t value);
+    void write_mem_16(uint32_t address, uint16_t value);
+    void write_mem_8(uint32_t address, uint8_t value);
     void upload_memory(uint32_t address, const std::vector<uint8_t> &data);
     void clear_memory(uint32_t address, uint32_t length);
     uint32_t follow_pointer(uint32_t base_address, const std::vector<int32_t> &offsets);
@@ -99,7 +99,7 @@ public:
     size_t get_data_buffer_size();
 
     uint32_t get_symbol(const std::string &rplname, const std::string &symname, uint8_t data_flag = 0);
-    uint64_t call(uint32_t address, const std::vector<uint32_t> &args, int recv_size);
+    uint64_t call(uint32_t address, const std::vector<uint32_t> &args = {}, int recv_size = 8);
 
     uint32_t malloc(uint32_t size, uint32_t alignment = 4);
     void free(uint32_t address);

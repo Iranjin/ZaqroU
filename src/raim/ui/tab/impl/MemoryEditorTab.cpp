@@ -57,7 +57,7 @@ void MemoryEditorTab::Update()
         {
             uint32_t value = std::strtoul(mValueInput, nullptr, 16);
             uint32_t addr = std::strtoul(mAddressInput, nullptr, 16);
-            tcp->write_memory(addr, value);
+            tcp->write_mem_32(addr, value);
 
             int index = addr - mBaseAddress;
             if (index >= 0 && index + 3 < mMemory.size())

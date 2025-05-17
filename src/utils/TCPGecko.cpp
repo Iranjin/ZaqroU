@@ -58,7 +58,7 @@ std::vector<uint8_t> TCPGecko::read_memory(uint32_t address, uint32_t length)
     return result;
 }
 
-void TCPGecko::write_memory(uint32_t address, uint32_t value)
+void TCPGecko::write_mem_32(uint32_t address, uint32_t value)
 {
     if (!is_connected())
         throw std::runtime_error("Not connected");
@@ -73,7 +73,7 @@ void TCPGecko::write_memory(uint32_t address, uint32_t value)
     boost::asio::write(m_socket, boost::asio::buffer(request, 8));
 }
 
-void TCPGecko::write_memory(uint32_t address, uint16_t value)
+void TCPGecko::write_mem_16(uint32_t address, uint16_t value)
 {
     if (!is_connected())
         throw std::runtime_error("Not connected");
@@ -88,7 +88,7 @@ void TCPGecko::write_memory(uint32_t address, uint16_t value)
     boost::asio::write(m_socket, boost::asio::buffer(request, 8));
 }
 
-void TCPGecko::write_memory(uint32_t address, uint8_t value)
+void TCPGecko::write_mem_8(uint32_t address, uint8_t value)
 {
     if (!is_connected())
         throw std::runtime_error("Not connected");
@@ -177,7 +177,7 @@ void TCPGecko::upload_code_list(std::vector<uint8_t> data)
 
 void TCPGecko::enable_code_handler(bool enabled)
 {
-    write_memory(CODE_HANDLER_ENABLED_ADDRESS, (uint32_t) enabled);
+    write_mem_8(CODE_HANDLER_ENABLED_ADDRESS, enabled);
 }
 
 bool TCPGecko::is_code_handler_enabled()
@@ -269,7 +269,7 @@ uint64_t TCPGecko::call(uint32_t address, const std::vector<uint32_t> &args, int
     uint64_t result = read_u64_be(result_buf);
 
     if (recv_size == 4)
-        return (uint32_t) result;
+        return result >> 32;
     else if (recv_size == 8)
         return result;
     else
@@ -278,22 +278,22 @@ uint64_t TCPGecko::call(uint32_t address, const std::vector<uint32_t> &args, int
 
 uint32_t TCPGecko::malloc(uint32_t size, uint32_t alignment)
 {
-    return call(get_symbol("coreinit.rpl", "OSAllocFromSystem"), {size, alignment}, 8) >> 32;
+    return call(get_symbol("coreinit.rpl", "OSAllocFromSystem"), {size, alignment}, 4);
 }
 
 void TCPGecko::free(uint32_t address)
 {
-    call(get_symbol("coreinit.rpl", "OSFreeToSystem"), {address}, 8);
+    call(get_symbol("coreinit.rpl", "OSFreeToSystem"), {address});
 }
 
 uint64_t TCPGecko::get_title_id()
 {
-    return call(get_symbol("coreinit.rpl", "OSGetTitleID"), {}, 8);
+    return call(get_symbol("coreinit.rpl", "OSGetTitleID"));
 }
 
 uint32_t TCPGecko::get_principal_id()
 {
-    return call(get_symbol("nn_act.rpl", "GetPrincipalId__Q2_2nn3actFv"), {}, 8) >> 32;
+    return call(get_symbol("nn_act.rpl", "GetPrincipalId__Q2_2nn3actFv"), {}, 4);
 }
 
 std::string TCPGecko::get_account_id()
@@ -314,7 +314,7 @@ std::string TCPGecko::get_account_id()
         upload_memory(buffer_address, zero_buffer);
 
         uint32_t func_addr = get_symbol("nn_act.rpl", "GetAccountId__Q2_2nn3actFPc");
-        call(func_addr, {buffer_address}, 8);
+        call(func_addr, {buffer_address});
 
         std::vector<uint8_t> account_id_data = read_memory(buffer_address, AccountIdSize);
 
@@ -354,7 +354,7 @@ std::wstring TCPGecko::get_mii_name()
         upload_memory(buffer_address, zero_buffer);
 
         uint32_t func_addr = get_symbol("nn_act.rpl", "GetMiiName__Q2_2nn3actFPw");
-        call(func_addr, {buffer_address}, 8);
+        call(func_addr, {buffer_address});
 
         std::vector<uint8_t> mii_name_data = read_memory(buffer_address, BufferSize);
 
