@@ -83,15 +83,18 @@ void MemoryEditorTab::Update()
                                      ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsHexadecimal))
         {
             uint32_t addr = std::strtoul(mAddressInput, nullptr, 16);
-            ReadMemory(addr);
+            if (TCPGecko::valid_range(addr, mMemSize))
+            {
+                ReadMemory(addr);
 
-            int index = addr - mBaseAddress;
-            uint32_t val = (mMemory[index] << 24) | (mMemory[index + 1] << 16) |
-                           (mMemory[index + 2] << 8) | mMemory[index + 3];
-            snprintf(mValueInput, sizeof(mValueInput), mViewFormat.c_str(), val);
+                int index = addr - mBaseAddress;
+                uint32_t val = (mMemory[index] << 24) | (mMemory[index + 1] << 16) |
+                               (mMemory[index + 2] << 8) | mMemory[index + 3];
+                snprintf(mValueInput, sizeof(mValueInput), mViewFormat.c_str(), val);
 
-            getConfig()->set("memedit_base_addr", addr);
-            getConfig()->save();
+                getConfig()->set("memedit_base_addr", addr);
+                getConfig()->save();
+            }
         }
         ImGui::SameLine();
         const char *items[] = { "Hexadecimal", "Decimal" };
