@@ -15,32 +15,32 @@
 #include "NotificationManager.h"
 
 
-RaimUI::RaimUI(Raim *appInstance)
-    : mRaim(appInstance)
+RaimUI::RaimUI(Raim *app_instance)
+    : m_raim(app_instance)
 {
-    mUITheme = new RaimUI_Theme(); // NOTE: 必ずRaimTabManagerよりも前に前に生成すること
-    mTabManager = new RaimTabManager(this);
+    m_ui_theme = new RaimUI_Theme(); // NOTE: 必ずRaimTabManagerよりも前に前に生成すること
+    m_tab_manager = new RaimTabManager(this);
 
-    // mTitleIdParser = new TitleIdParser("zaqro_u/Titles.xml");
-    // mTitleIdParser->load();
+    // m_title_id_parser = new TitleIdParser("zaqro_u/Titles.xml");
+    // m_title_id_parser->load();
 
-    mNotificationManager = new NotificationManager();
+    m_notif_manager = new NotificationManager();
 }
 
 RaimUI::~RaimUI()
 {
-    delete mTabManager;
-    delete mUITheme;
+    delete m_tab_manager;
+    delete m_ui_theme;
 
-    // delete mTitleIdParser;
+    // delete m_title_id_parser;
 
-    delete mNotificationManager;
+    delete m_notif_manager;
 }
 
 void RaimUI::Init()
 {
     std::string themeName = getConfig()->get("theme", std::string("dark"));
-    const IRaimUITheme* theme = mUITheme->FromName(themeName);
+    const IRaimUITheme* theme = m_ui_theme->FromName(themeName);
     theme->Apply();
 }
 
@@ -73,70 +73,70 @@ void RaimUI::MainUI()
     ImGui::SetWindowFontScale(getConfig()->get("font_scale", 1.0f));
 
     ImVec2 available = ImGui::GetContentRegionAvail();
-    float buttonHeight = ImGui::GetFrameHeightWithSpacing() * 1.1f;
-    float tabHeight = available.y - buttonHeight;
+    float button_height = ImGui::GetFrameHeightWithSpacing() * 1.1f;
+    float tab_height = available.y - button_height;
 
-    ImGui::BeginChild("TabArea", ImVec2(0, tabHeight), false, ImGuiWindowFlags_None);
+    ImGui::BeginChild("TabArea", ImVec2(0, tab_height), false, ImGuiWindowFlags_None);
     try
     {
-        mTabManager->Update();
+        m_tab_manager->Update();
     }
     catch (const std::exception &e)
     {
-        mErrorMessage = e.what();
-        mShowErrorPopup = true;
+        m_error_message = e.what();
+        m_show_error_popup = true;
         ImGui::OpenPopup("Error");
     }
     ImGui::EndChild();
 
+    std::shared_ptr<TCPGecko> tcp = getRaim()->getTCPGecko();
+    std::shared_ptr<Config> config = getConfig();
+
     try
     {
-        static char ipBuffer[64] = "192.168.";
+        static char ip_buffer[64] = "192.168.";
 
-        std::shared_ptr<Config> config = getConfig();
-
-        static bool entryBoxInitialized = false;
-        if (!entryBoxInitialized)
+        static bool entry_box_initialized = false;
+        if (!entry_box_initialized)
         {
             if (config->contains("ip_address"))
             {
-                std::string ipAddress = config->get("ip_address", std::string(ipBuffer));
-                strncpy(ipBuffer, ipAddress.c_str(), sizeof(ipBuffer) - 1);
-                ipBuffer[sizeof(ipBuffer) - 1] = '\0'; // 念のため null 終端を保証
+                std::string ip_address = config->get("ip_address", std::string(ip_buffer));
+                strncpy(ip_buffer, ip_address.c_str(), sizeof(ip_buffer) - 1);
+                ip_buffer[sizeof(ip_buffer) - 1] = '\0';
             }
-            entryBoxInitialized = true;
+            entry_box_initialized = true;
         }
 
         ImGui::SetCursorPosY(ImGui::GetWindowHeight() - ImGui::GetFrameHeight() * 1.3f);
 
-        float totalWidth = ImGui::GetContentRegionAvail().x;
-        float buttonWidth = 100.0f;
-        float inputWidth = totalWidth - buttonWidth - ImGui::GetStyle().ItemSpacing.x;
+        float total_width = ImGui::GetContentRegionAvail().x;
+        float button_width = 100.0f;
+        float input_width = total_width - button_width - ImGui::GetStyle().ItemSpacing.x;
 
-        std::shared_ptr<TCPGecko> tcp = getRaim()->getTCPGecko();
-        bool isConnected = tcp->is_connected();
+        bool is_connected = tcp->is_connected();
 
         auto connect = [&]()
         {
-            tcp->connect(ipBuffer);
-            config->set("ip_address", std::string(ipBuffer));
+            tcp->connect(ip_buffer);
+            config->set("ip_address", std::string(ip_buffer));
             config->save();
             getNotificationManager()->AddNotification("TCPGecko", 
-                std::format("Connected to: {}\nServer version: {}", std::string(ipBuffer), tcp->get_server_version()));
+                std::format("Connected to: {}\nServer version: {}", std::string(ip_buffer), tcp->get_server_version()));
         };
 
         auto disconnect = [&]()
         {
             tcp->disconnect();
             getNotificationManager()->AddNotification("TCPGecko", 
-                std::format("Disconnected from: {}", std::string(ipBuffer)));
+                std::format("Disconnected from: {}", std::string(ip_buffer)));
         };
 
         // InputText
-        ImGui::PushItemWidth(inputWidth);
-        if (ImGui::InputText("##IP Address", ipBuffer, IM_ARRAYSIZE(ipBuffer), ImGuiInputTextFlags_EnterReturnsTrue))
+        ImGui::PushItemWidth(input_width);
+        if (ImGui::InputText("##IP Address", ip_buffer, IM_ARRAYSIZE(ip_buffer), ImGuiInputTextFlags_EnterReturnsTrue))
         {
-            if (!isConnected)
+            if (!is_connected)
                 connect();
         }
         ImGui::PopItemWidth();
@@ -144,9 +144,9 @@ void RaimUI::MainUI()
         // 同じ行にボタン
         ImGui::SameLine();
 
-        if (ImGui::Button(!isConnected ? "Connect" : "Disconnect", ImVec2(buttonWidth, 0)))
+        if (ImGui::Button(!is_connected ? "Connect" : "Disconnect", ImVec2(button_width, 0)))
         {
-            if (!isConnected)
+            if (!is_connected)
                 connect();
             else
                 disconnect();
@@ -154,12 +154,12 @@ void RaimUI::MainUI()
     }
     catch (const std::exception &e)
     {
-        mErrorMessage = e.what();
-        mShowErrorPopup = true;
+        m_error_message = e.what();
+        m_show_error_popup = true;
         ImGui::OpenPopup("Error");
     }
 
-    if (mShowErrorPopup)
+    if (m_show_error_popup)
     {
         ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
@@ -168,37 +168,37 @@ void RaimUI::MainUI()
         {
             ImGui::Text("An error occurred:");
             
-            static char errorBuffer[2048];
-            strncpy(errorBuffer, mErrorMessage.c_str(), sizeof(errorBuffer));
-            errorBuffer[sizeof(errorBuffer) - 1] = '\0'; // null-terminate just in case
+            static char error_buffer[2048];
+            strncpy(error_buffer, m_error_message.c_str(), sizeof(error_buffer));
+            error_buffer[sizeof(error_buffer) - 1] = '\0'; // null-terminate just in case
 
-            ImGui::InputTextMultiline("##ErrorMessage", errorBuffer, sizeof(errorBuffer),
+            ImGui::InputTextMultiline("##ErrorMessage", error_buffer, sizeof(error_buffer),
                                       ImVec2(400, 150), ImGuiInputTextFlags_ReadOnly);
 
-            ImVec2 windowPos = ImGui::GetWindowPos();
-            ImVec2 windowSize = ImGui::GetWindowSize();
-            ImVec2 windowEnd = ImVec2(windowPos.x + windowSize.x, windowPos.y + windowSize.y);
+            ImVec2 window_pos = ImGui::GetWindowPos();
+            ImVec2 window_size = ImGui::GetWindowSize();
+            ImVec2 window_end = ImVec2(window_pos.x + window_size.x, window_pos.y + window_size.y);
 
-            ImVec2 mousePos = ImGui::GetIO().MouseClickedPos[0];
+            ImVec2 mouse_pos = ImGui::GetIO().MouseClickedPos[0];
 
             bool clickedOutside =
-                (mousePos.x < windowPos.x || mousePos.x > windowEnd.x ||
-                mousePos.y < windowPos.y || mousePos.y > windowEnd.y) &&
+                (mouse_pos.x < window_pos.x || mouse_pos.x > window_end.x ||
+                mouse_pos.y < window_pos.y || mouse_pos.y > window_end.y) &&
                 ImGui::IsMouseClicked(0);
 
             if (ImGui::Button("OK", ImVec2(ImGui::GetContentRegionAvail().x, 0)) || clickedOutside)
             {
                 ImGui::CloseCurrentPopup();
-                mShowErrorPopup = false;
+                m_show_error_popup = false;
             }
 
             ImGui::EndPopup();
         }
     }
 
-    mNotificationManager->Update();
+    m_notif_manager->Update();
 
     ImGui::End();
 }
 
-std::shared_ptr<Config> RaimUI::getConfig() { return mRaim->getConfig(); }
+std::shared_ptr<Config> RaimUI::getConfig() { return m_raim->getConfig(); }

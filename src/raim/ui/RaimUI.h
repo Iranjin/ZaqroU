@@ -14,29 +14,29 @@ class TitleIdParser;
 class RaimUI
 {
 private:
-    Raim *mRaim;
-    RaimTabManager *mTabManager;
-    RaimUI_Theme *mUITheme;
-    bool mInitialized = false;
+    Raim *m_raim;
+    RaimTabManager *m_tab_manager;
+    RaimUI_Theme *m_ui_theme;
+    bool m_initialized = false;
 
-    NotificationManager *mNotificationManager;
+    NotificationManager *m_notif_manager;
     
-    // TitleIdParser *mTitleIdParser;
+    // TitleIdParser *m_title_id_parser;
 
-    bool mShowErrorPopup = false;
-    std::string mErrorMessage;
+    bool m_show_error_popup = false;
+    std::string m_error_message;
     
 public:
-    RaimUI(Raim *appInstance);
+    RaimUI(Raim *app_instance);
     ~RaimUI();
 
     void Init();
     void Update();
     void MainUI();
 
-    Raim *getRaim() const { return mRaim; }
-    RaimUI_Theme *getUITheme() const { return mUITheme; }
+    Raim *getRaim() const { return m_raim; }
+    RaimUI_Theme *getUITheme() const { return m_ui_theme; }
     // TitleIdParser *getTitleIdParser() const { return mTitleIdParser; }
-    NotificationManager *getNotificationManager() const { return mNotificationManager; }
+    NotificationManager *getNotificationManager() const { return m_notif_manager; }
     std::shared_ptr<Config> getConfig();
 };
