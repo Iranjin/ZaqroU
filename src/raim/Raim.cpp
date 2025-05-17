@@ -16,21 +16,15 @@ Raim::Raim(GLFWwindow *window)
       mLastSaveTime(std::chrono::steady_clock::now()),
       mConfigPath("zaqro_u/config.json")
 {
+    mConfig->load(mConfigPath);
     mRaimUI = new RaimUI(this);
-
-    Init();
+    LoadFonts();
+    mRaimUI->Init();
 }
 
 Raim::~Raim()
 {
     delete mRaimUI;
-}
-
-void Raim::Init()
-{
-    mConfig->load(mConfigPath);
-    LoadFonts();
-    mRaimUI->Init();
 }
 
 void Raim::LoadFonts()

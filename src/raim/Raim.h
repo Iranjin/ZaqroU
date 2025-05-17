@@ -27,7 +27,6 @@ public:
     Raim(GLFWwindow *window);
     ~Raim();
 
-    void Init();
     void Update();
 
     void LoadFonts();
