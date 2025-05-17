@@ -89,6 +89,8 @@ public:
     void write_mem_8(uint32_t address, uint8_t value);
     void upload_memory(uint32_t address, const std::vector<uint8_t> &data);
     void clear_memory(uint32_t address, uint32_t length);
+    void write_str(uint32_t address, const std::string &str, bool null_terminated = true);
+    void write_wstr(uint32_t address, const std::wstring &wstr, bool null_terminated = true);
     uint32_t follow_pointer(uint32_t base_address, const std::vector<int32_t> &offsets);
 
     void upload_code_list(std::vector<uint8_t> data);
@@ -104,6 +106,8 @@ public:
     uint32_t malloc(uint32_t size, uint32_t alignment = 4);
     void free(uint32_t address);
 
+    void set_game_mode_description(const std::wstring &description);
+    void shutdown();
     uint64_t get_title_id();
     uint32_t get_principal_id();
     std::string get_account_id();

@@ -22,7 +22,7 @@ void DebugTab::Update()
 
     ImGui::BeginDisabled(!tcp->is_connected());
 
-    ImGui::BeginDisabled(m_account_id_task.is_running() || m_mii_name_task.is_running());
+    ImGui::BeginDisabled(m_account_id_task.is_running() || m_mii_name_task.is_running() || m_set_game_mode_description_task.is_running());
     if (ImGui::Button("GetAccountId") && !m_account_id_task.is_running())
     {
         m_account_id_task.run([tcp]() {
@@ -36,6 +36,31 @@ void DebugTab::Update()
             return tcp->get_mii_name();
         });
         getRaimUI()->set_allow_disconnect(false);
+    }
+    
+    if (ImGui::InputText("SetGameModeDescription",
+                         m_game_mode_description_str,
+                         IM_ARRAYSIZE(m_game_mode_description_str),
+                         ImGuiInputTextFlags_EnterReturnsTrue) && 
+        !m_set_game_mode_description_task.is_running())
+    {
+        m_set_game_mode_description_task.run([tcp, description = m_game_mode_description_str]() {
+            tcp->set_game_mode_description(string_to_wstring(std::string(description)));
+            return description;
+        });
+        getRaimUI()->set_allow_disconnect(false);
+    }
+    // if (ImGui::Button("Debug") && !m_debug_task.is_running())
+    // {
+    //     m_debug_task.run([tcp]() {
+    //         tcp->set_game_mode_description(L"Playing Zaqro U");
+    //         return "Success";
+    //     });
+    //     getRaimUI()->set_allow_disconnect(false);
+    // }
+    if (ImGui::Button("Shutdown"))
+    {
+        tcp->shutdown();
     }
     ImGui::EndDisabled();
 
@@ -62,6 +87,22 @@ void DebugTab::UpdateBackground()
             getNotificationManager()->AddNotification("DebugTab", "MiiName: " + str, 7.5f,
                 [str]() {
                     ImGui::SetClipboardText(str.c_str());
+                });
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+
+        getRaimUI()->set_allow_disconnect(true);
+    }
+    if (std::optional<std::string> result = m_set_game_mode_description_task.get_result())
+    {
+        try
+        {
+            getNotificationManager()->AddNotification("DebugTab", *result, 7.5f,
+                [result]() {
+                    ImGui::SetClipboardText(result->c_str());
                 });
         }
         catch(const std::exception& e)

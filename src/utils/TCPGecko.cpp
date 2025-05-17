@@ -21,6 +21,9 @@ void TCPGecko::connect(const std::string &ip_address, uint16_t port)
         boost::asio::ip::make_address(ip_address), port);
     m_socket.connect(endpoint);
     m_connected = true;
+    
+    if (m_socket.is_open())
+        m_socket.set_option(boost::asio::ip::tcp::no_delay(true));
 }
 
 void TCPGecko::disconnect()
@@ -145,6 +148,33 @@ void TCPGecko::clear_memory(uint32_t address, uint32_t length)
         address += chunk_size;
         remaining -= chunk_size;
     }
+}
+
+void TCPGecko::write_str(uint32_t address, const std::string &str, bool null_terminated)
+{
+    std::vector<uint8_t> data(str.begin(), str.end());
+    if (null_terminated)
+        data.push_back(0x00);
+    upload_memory(address, data);
+}
+
+void TCPGecko::write_wstr(uint32_t address, const std::wstring &wstr, bool null_terminated)
+{
+    std::vector<uint8_t> data;
+    for (wchar_t ch : wstr)
+    {
+        uint16_t val = static_cast<uint16_t>(ch);
+        data.push_back((val >> 8) & 0xFF);
+        data.push_back(val & 0xFF);
+    }
+
+    if (null_terminated)
+    {
+        data.push_back(0x00);
+        data.push_back(0x00);
+    }
+
+    upload_memory(address, data);
 }
 
 uint32_t TCPGecko::follow_pointer(uint32_t base_address, const std::vector<int32_t> &offsets)
@@ -278,12 +308,28 @@ uint64_t TCPGecko::call(uint32_t address, const std::vector<uint32_t> &args, int
 
 uint32_t TCPGecko::malloc(uint32_t size, uint32_t alignment)
 {
-    return call(get_symbol("coreinit.rpl", "OSAllocFromSystem"), {size, alignment}, 4);
+    uint32_t address = call(get_symbol("coreinit.rpl", "OSAllocFromSystem"), {size, alignment}, 4);
+    if (address == 0x0)
+        throw std::runtime_error("Failed to allocate memory");
+    return address;
 }
 
 void TCPGecko::free(uint32_t address)
 {
     call(get_symbol("coreinit.rpl", "OSFreeToSystem"), {address});
+}
+
+void TCPGecko::set_game_mode_description(const std::wstring &description)
+{
+    uint32_t wstr_ptr = malloc(description.size() * sizeof(wchar_t));
+    write_wstr(wstr_ptr, description);
+    call(get_symbol("nn_fp.rpl", "UpdateGameModeDescription__Q2_2nn2fpFPCw"), {wstr_ptr});
+    free(wstr_ptr);
+}
+
+void TCPGecko::shutdown()
+{
+    call(get_symbol("coreinit.rpl", "OSShutdown"));
 }
 
 uint64_t TCPGecko::get_title_id()
@@ -296,6 +342,11 @@ uint32_t TCPGecko::get_principal_id()
     return call(get_symbol("nn_act.rpl", "GetPrincipalId__Q2_2nn3actFv"), {}, 4);
 }
 
+/*
+void DisassemblePPCOpcode(uint32_t *addr, char *instr_buf, int instr_len, find_symbol_t sym_func, int flags)
+*/
+
+
 std::string TCPGecko::get_account_id()
 {
     if (!is_connected())
@@ -305,13 +356,10 @@ std::string TCPGecko::get_account_id()
     constexpr uint32_t Alignment = 4;
 
     uint32_t buffer_address = malloc(AccountIdSize, Alignment);
-    if (buffer_address == 0)
-        throw std::runtime_error("Failed to allocate memory");
 
     try
     {
-        std::vector<uint8_t> zero_buffer(AccountIdSize, 0);
-        upload_memory(buffer_address, zero_buffer);
+        clear_memory(buffer_address, AccountIdSize);
 
         uint32_t func_addr = get_symbol("nn_act.rpl", "GetAccountId__Q2_2nn3actFPc");
         call(func_addr, {buffer_address});
@@ -345,8 +393,6 @@ std::wstring TCPGecko::get_mii_name()
     constexpr uint32_t Alignment = 4;
 
     uint32_t buffer_address = malloc(BufferSize, Alignment);
-    if (buffer_address == 0)
-        throw std::runtime_error("Failed to allocate memory");
 
     try
     {
@@ -555,4 +601,3 @@ uint64_t TCPGecko::read_u64_be(const char *buf)
            ((uint64_t) (uint8_t) buf[6] << 8)  |
            ((uint64_t) (uint8_t) buf[7]);
 }
-
