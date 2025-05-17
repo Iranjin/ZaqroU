@@ -33,7 +33,7 @@ std::string CodesTab::CodeFrame_GetSelectedText(std::vector<std::string> &lines,
         }
 
         int line_sel_start = std::max(0, sel_start - current_chars);
-        int line_sel_end = std::min(static_cast<int>(line.length()), sel_end - current_chars);
+        int line_sel_end = std::min((int) line.length(), sel_end - current_chars);
 
         if (line_sel_start < line_sel_end)
         {
@@ -50,7 +50,7 @@ std::string CodesTab::CodeFrame_GetSelectedText(std::vector<std::string> &lines,
 
 int CodesTab::CodeFrame_GetCharIndexFromPos(std::vector<std::string> &lines, const ImVec2 &pos, ImVec2 &startPos, ImVec2 &textSize, ImVec2 &scroll_pos, float &lineHeight, float &lineNumberWidth)
 {
-    int line_idx = pos.y - startPos.y + scroll_pos.y / lineHeight;
+    int line_idx = (pos.y - startPos.y + scroll_pos.y) / lineHeight;
     if (line_idx < 0) line_idx = 0;
     if (line_idx >= lines.size()) line_idx = lines.size() - 1;
 
@@ -156,51 +156,41 @@ void CodesTab::CodeFrame()
     ImVec2 startPos = ImGui::GetCursorScreenPos();
     ImVec2 windowSize = ImGui::GetContentRegionAvail();
 
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 0));
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-
     ImGui::BeginChild("Scrolling", windowSize, ImGuiChildFlags_None);
     ImVec2 scroll_pos(0.0f, ImGui::GetScrollY());
 
     ImDrawList *draw_list = ImGui::GetWindowDrawList();
 
-    ImGui::InvisibleButton("CodeArea", ImVec2(
-        std::max(windowSize.x, lineNumberWidth + textSize.x * 100),
-        lines.size() * lineHeight
-    ));
-
-    // 選択解除
-    if (ImGui::IsItemClicked(0))
-        selection_start = selection_end = -1;
+    ImGui::InvisibleButton("CodeArea", ImVec2(windowSize.x + scroll_pos.x, windowSize.y + scroll_pos.y));
 
     // 選択
-    if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0))
+    if (ImGui::IsItemFocused())
     {
-        ImVec2 mouse_pos = ImGui::GetMousePos();
-
-        if (!dragging)
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
         {
+            ImVec2 mouse_pos = ImGui::GetMousePos();
             selection_start = selection_end = CodeFrame_GetCharIndexFromPos(
                 lines, mouse_pos, startPos, textSize, scroll_pos, lineHeight, lineNumberWidth);
             dragging = true;
         }
-        else
+        else if (dragging && ImGui::IsMouseDragging(ImGuiMouseButton_Left))
         {
+            ImVec2 mouse_pos = ImGui::GetMousePos();
             selection_end = CodeFrame_GetCharIndexFromPos(
                 lines, mouse_pos, startPos, textSize, scroll_pos, lineHeight, lineNumberWidth);
+
+            ImVec2 mouse_rel = ImVec2(mouse_pos.x - startPos.x, mouse_pos.y - startPos.y);
+            constexpr float scroll_speed = 10.0f;
+
+            if (mouse_rel.y < 0)
+                ImGui::SetScrollY(ImGui::GetScrollY() + mouse_rel.y - scroll_speed);
+            else if (mouse_rel.y > windowSize.y)
+                ImGui::SetScrollY(ImGui::GetScrollY() + mouse_rel.y + scroll_speed - windowSize.y);
         }
-
-        ImVec2 mouse_rel = ImVec2(mouse_pos.x - startPos.x, mouse_pos.y - startPos.y);
-        float scroll_speed = 10.0f;
-
-        if (mouse_rel.y < 0)
-            ImGui::SetScrollY(ImGui::GetScrollY() + mouse_rel.y - scroll_speed);
-        else if (mouse_rel.y > windowSize.y)
-            ImGui::SetScrollY(ImGui::GetScrollY() + mouse_rel.y + scroll_speed - windowSize.y);
-    }
-    else if (ImGui::IsMouseReleased(0))
-    {
-        dragging = false;
+        else if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+        {
+            dragging = false;
+        }
     }
 
     CodeFrame_ContextMenu(lines, selection_start, selection_end);
@@ -251,6 +241,5 @@ void CodesTab::CodeFrame()
     }
 
     ImGui::EndChild();
-    ImGui::PopStyleVar(2);
 }
 
