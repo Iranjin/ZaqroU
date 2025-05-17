@@ -127,6 +127,7 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
     }
 
     ImGui::SameLine();
+    ImGui::BeginDisabled(!mCodes.has_enabled_entry());
     if (ImGui::Button("Untick All"))
     {
         mCodes.begin_modify();
@@ -134,6 +135,7 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
             entry.enabled = false;
         mCodes.end_modify();
     }
+    ImGui::EndDisabled();
     // Line 1 END
 
     // Line 2 START

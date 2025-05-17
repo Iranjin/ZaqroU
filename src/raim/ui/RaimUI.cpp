@@ -8,6 +8,7 @@
 
 #include <utils/TCPGecko.h>
 #include <utils/TitleIdParser.h>
+#include <utils/StrUtils.h>
 #include <utils/Config.h>
 #include "../Raim.h"
 #include "style/RaimUI_Theme.h"
@@ -118,11 +119,18 @@ void RaimUI::MainUI()
 
         auto connect = [&]()
         {
-            tcp->connect(ip_buffer);
-            config->set("ip_address", std::string(ip_buffer));
-            config->save();
-            getNotificationManager()->AddNotification("TCPGecko", 
-                std::format("Connected to: {}\nServer version: {}", std::string(ip_buffer), tcp->get_server_version()));
+            try
+            {
+                tcp->connect(ip_buffer);
+                config->set("ip_address", std::string(ip_buffer));
+                config->save();
+                getNotificationManager()->AddNotification("TCPGecko", 
+                    std::format("Connected to: {}\nUser: {}", std::string(ip_buffer), tcp->get_account_id()));
+            }
+            catch(const std::exception &e)
+            {
+                getNotificationManager()->AddErrorNotification("Failed to connect");
+            }
         };
 
         auto disconnect = [&]()
