@@ -21,7 +21,7 @@ void TCPGecko::connect(const std::string &ip_address, uint16_t port)
         boost::asio::ip::make_address(ip_address), port);
     m_socket.connect(endpoint);
     m_connected = true;
-    
+
     if (m_socket.is_open())
         m_socket.set_option(boost::asio::ip::tcp::no_delay(true));
 }
@@ -104,6 +104,56 @@ void TCPGecko::write_mem_8(uint32_t address, uint8_t value)
     request[7] = value;
 
     boost::asio::write(m_socket, boost::asio::buffer(request, 8));
+}
+
+void TCPGecko::write_float(uint32_t address, float value)
+{
+    if (!is_connected())
+        throw std::runtime_error("Not connected");
+
+    char command = (char) COMMAND_WRITE_32;
+    boost::asio::write(m_socket, boost::asio::buffer(&command, 1));
+
+    uint32_t binary_value;
+    std::memcpy(&binary_value, &value, sizeof(float));
+
+    char request[8];
+    write_u32(request, address);
+    write_u32(request + 4, binary_value);
+
+    boost::asio::write(m_socket, boost::asio::buffer(request, 8));
+}
+
+void TCPGecko::write_double(uint32_t address, double value)
+{
+    if (!is_connected())
+        throw std::runtime_error("Not connected");
+
+    uint64_t binary_value;
+    std::memcpy(&binary_value, &value, sizeof(double));
+
+    uint32_t high = (uint32_t)(binary_value >> 32);
+    uint32_t low  = (uint32_t)(binary_value & 0xFFFFFFFF);
+
+    {
+        char command = (char) COMMAND_WRITE_32;
+        boost::asio::write(m_socket, boost::asio::buffer(&command, 1));
+
+        char request[8];
+        write_u32(request, address);
+        write_u32(request + 4, high);
+        boost::asio::write(m_socket, boost::asio::buffer(request, 8));
+    }
+
+    {
+        char command = (char) COMMAND_WRITE_32;
+        boost::asio::write(m_socket, boost::asio::buffer(&command, 1));
+
+        char request[8];
+        write_u32(request, address + 4);
+        write_u32(request + 4, low);
+        boost::asio::write(m_socket, boost::asio::buffer(request, 8));
+    }
 }
 
 void TCPGecko::upload_memory(uint32_t address, const std::vector<uint8_t> &data)
@@ -308,7 +358,7 @@ uint64_t TCPGecko::call(uint32_t address, const std::vector<uint32_t> &args, int
 
 uint32_t TCPGecko::malloc(uint32_t size, uint32_t alignment)
 {
-    uint32_t address = call(get_symbol("coreinit.rpl", "OSAllocFromSystem"), {size, alignment}, 4);
+    uint32_t address = call(get_symbol("coreinit.rpl", "OSAllocFromSystem"), {size, alignment});
     if (address == 0x0)
         throw std::runtime_error("Failed to allocate memory");
     return address;
@@ -334,18 +384,13 @@ void TCPGecko::shutdown()
 
 uint64_t TCPGecko::get_title_id()
 {
-    return call(get_symbol("coreinit.rpl", "OSGetTitleID"));
+    return call(get_symbol("coreinit.rpl", "OSGetTitleID"), {}, 8);
 }
 
 uint32_t TCPGecko::get_principal_id()
 {
-    return call(get_symbol("nn_act.rpl", "GetPrincipalId__Q2_2nn3actFv"), {}, 4);
+    return call(get_symbol("nn_act.rpl", "GetPrincipalId__Q2_2nn3actFv"));
 }
-
-/*
-void DisassemblePPCOpcode(uint32_t *addr, char *instr_buf, int instr_len, find_symbol_t sym_func, int flags)
-*/
-
 
 std::string TCPGecko::get_account_id()
 {
@@ -600,4 +645,30 @@ uint64_t TCPGecko::read_u64_be(const char *buf)
            ((uint64_t) (uint8_t) buf[5] << 16) |
            ((uint64_t) (uint8_t) buf[6] << 8)  |
            ((uint64_t) (uint8_t) buf[7]);
+}
+
+uint32_t TCPGecko::read_u32_be(const std::vector<uint8_t> &data)
+{
+    if (data.size() < 4)
+        throw std::runtime_error("Data size too small to read uint32_t");
+
+    return ((uint32_t) (uint8_t) data[0] << 24) |
+           ((uint32_t) (uint8_t) data[1] << 16) |
+           ((uint32_t) (uint8_t) data[2] << 8)  |
+           ((uint32_t) (uint8_t) data[3]);
+}
+
+uint64_t TCPGecko::read_u64_be(const std::vector<uint8_t> &data)
+{
+    if (data.size() < 8)
+        throw std::runtime_error("Data size too small to read uint64_t");
+
+    return ((uint64_t) (uint8_t) data[0] << 56) |
+           ((uint64_t) (uint8_t) data[1] << 48) |
+           ((uint64_t) (uint8_t) data[2] << 40) |
+           ((uint64_t) (uint8_t) data[3] << 32) |
+           ((uint64_t) (uint8_t) data[4] << 24) |
+           ((uint64_t) (uint8_t) data[5] << 16) |
+           ((uint64_t) (uint8_t) data[6] << 8)  |
+           ((uint64_t) (uint8_t) data[7]);
 }

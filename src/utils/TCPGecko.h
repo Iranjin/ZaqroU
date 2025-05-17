@@ -87,6 +87,8 @@ public:
     void write_mem_32(uint32_t address, uint32_t value);
     void write_mem_16(uint32_t address, uint16_t value);
     void write_mem_8(uint32_t address, uint8_t value);
+    void write_float(uint32_t address, float value);
+    void write_double(uint32_t address, double value);
     void upload_memory(uint32_t address, const std::vector<uint8_t> &data);
     void clear_memory(uint32_t address, uint32_t length);
     void write_str(uint32_t address, const std::string &str, bool null_terminated = true);
@@ -101,7 +103,7 @@ public:
     size_t get_data_buffer_size();
 
     uint32_t get_symbol(const std::string &rplname, const std::string &symname, uint8_t data_flag = 0);
-    uint64_t call(uint32_t address, const std::vector<uint32_t> &args = {}, int recv_size = 8);
+    uint64_t call(uint32_t address, const std::vector<uint32_t> &args = {}, int recv_size = 4);
 
     uint32_t malloc(uint32_t size, uint32_t alignment = 4);
     void free(uint32_t address);
@@ -127,4 +129,6 @@ public:
     static void write_u16(char *buf, uint16_t val);
     static uint32_t read_u32_be(const char *buf);
     static uint64_t read_u64_be(const char *buf);
+    static uint32_t read_u32_be(const std::vector<uint8_t> &data);
+    static uint64_t read_u64_be(const std::vector<uint8_t> &data);
 };
