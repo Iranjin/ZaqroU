@@ -2,6 +2,8 @@
 
 #include "../IRaimTab.h"
 
+#include "MemoryTableView.h"
+
 #include <vector>
 #include <mutex>
 #include <cstdint>
@@ -10,12 +12,6 @@
 class MemoryEditorTab : public IRaimTab
 {
 private:
-    struct CellCoord
-    {
-        int row = -1;
-        int col = -1;
-    };
-
     enum class EViewMode : int
     {
         HEX,
@@ -26,9 +22,10 @@ private:
     uint32_t mBaseAddress;
     uint32_t mMemSize;
 
-    CellCoord mSelectedCell;
-
     EViewMode mCurrentViewMode = EViewMode::HEX;
+    
+    bool mAutoRefreshEnabled = false;
+    float mRefreshTimer = 0.0f;
 
     std::string mViewFormat = "%08X";
 
@@ -42,5 +39,7 @@ public:
     void Update() override;
 
 private:
+    MemoryTableView mTableView;
+
     void ReadMemory(uint32_t address);
 };

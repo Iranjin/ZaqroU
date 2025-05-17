@@ -12,7 +12,7 @@
 
 MemoryEditorTab::MemoryEditorTab(RaimUI *raimUI)
     : IRaimTab(raimUI, "MemoryEditor"),
-      mMemSize(16 * 200)
+      mMemSize(16 * 800)
 {
     mBaseAddress = getConfig()->get("memedit_base_addr", 0x40000000);
     snprintf(mAddressInput, sizeof(mAddressInput), "%08X", mBaseAddress);
@@ -41,15 +41,35 @@ void MemoryEditorTab::ReadMemory(uint32_t address)
 
 void MemoryEditorTab::Update()
 {
+    float deltaTime = ImGui::GetIO().DeltaTime;
+
+    if (mAutoRefreshEnabled)
+    {
+        mRefreshTimer += deltaTime;
+        if (mRefreshTimer >= 0.1f)
+        {
+            ReadMemory(mBaseAddress);
+            mTableView.SetMemory(mMemory, mBaseAddress);
+            mRefreshTimer = 0.0f;
+        }
+    }
+    
     std::shared_ptr<TCPGecko> tcp = getRaim()->getTCPGecko();
 
     ImGui::BeginDisabled(!tcp->is_connected());
+    
+    if (mMemory.empty())
+    {
+        mMemory.resize(mMemSize, 0x00);
+        mTableView.SetMemory(mMemory, mBaseAddress);
+        mTableView.JumpToAddress(mBaseAddress);
+    }
 
     ImGui::Columns(2, "MemoryControlAndTables", false);
     ImGui::SetColumnWidth(0, 200);
     ImGui::Dummy(ImVec2(0, 50));
 
-    { // 左カラム：アドレス・値入力
+    { // 左カラム：値入力
         ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsHexadecimal;
 
         ImGui::Text("Value");
@@ -59,124 +79,65 @@ void MemoryEditorTab::Update()
             uint32_t addr = std::strtoul(mAddressInput, nullptr, 16);
             tcp->write_mem_32(addr, value);
 
-            int index = addr - mBaseAddress;
-            if (index >= 0 && index + 3 < mMemory.size())
-            {
-                mMemory[index] = (value >> 24) & 0xFF;
-                mMemory[index + 1] = (value >> 16) & 0xFF;
-                mMemory[index + 2] = (value >> 8) & 0xFF;
-                mMemory[index + 3] = value & 0xFF;
-            }
-
-            uint32_t val = (mMemory[index] << 24) | (mMemory[index + 1] << 16) |
-                           (mMemory[index + 2] << 8) | mMemory[index + 3];
-            
-            snprintf(mValueInput, sizeof(mValueInput), mViewFormat.c_str(), val);
+            mTableView.UpdateMemory(addr, value);
+            uint32_t updated = mTableView.GetSelectedValue();
+            snprintf(mValueInput, sizeof(mValueInput), mViewFormat.c_str(), updated);
         }
     }
 
     ImGui::NextColumn();
 
-    { // 右カラム：表示モード切替とテーブル
-    
-        if (ImGui::InputTextWithHint("##Address", "Address...", mAddressInput, sizeof(mAddressInput),
-                                     ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsHexadecimal))
+    { // 右カラム：アドレス・ビュー切替＋描画
+        if (ImGui::BeginTable("MemoryEditorControlTable", 3, ImGuiTableFlags_SizingStretchSame))
         {
-            uint32_t addr = std::strtoul(mAddressInput, nullptr, 16);
-            if (TCPGecko::valid_range(addr, mMemSize))
+            ImGui::TableNextColumn();
+            ImGui::SetNextItemWidth(-FLT_MIN);
+            if (ImGui::InputTextWithHint("##Address", "Address...", mAddressInput, sizeof(mAddressInput),
+                                        ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsHexadecimal))
             {
-                ReadMemory(addr);
-
-                int index = addr - mBaseAddress;
-                uint32_t val = (mMemory[index] << 24) | (mMemory[index + 1] << 16) |
-                               (mMemory[index + 2] << 8) | mMemory[index + 3];
-                snprintf(mValueInput, sizeof(mValueInput), mViewFormat.c_str(), val);
-
-                getConfig()->set("memedit_base_addr", addr);
-                getConfig()->save();
-            }
-        }
-        ImGui::SameLine();
-        const char *items[] = { "Hexadecimal", "Decimal" };
-        ImGui::Text("View Mode:");
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(150);
-        ImGui::Combo("##View Mode", (int*) (&mCurrentViewMode), "Hexadecimal\0Decimal\0\0");
-
-        ImGui::BeginChild("MemoryEditorScrollable", ImVec2(0, 0), ImGuiChildFlags_None);
-        
-        std::vector<uint8_t> displayMemory = mMemory;
-        if (displayMemory.empty())
-            displayMemory.resize(mMemSize, 0x00); // ゼロ埋め
-
-        if (ImGui::BeginTable("MemoryTable", 5, ImGuiTableFlags_Borders))
-        {
-            ImGui::TableSetupColumn("Address");
-            ImGui::TableSetupColumn("+0x0");
-            ImGui::TableSetupColumn("+0x4");
-            ImGui::TableSetupColumn("+0x8");
-            ImGui::TableSetupColumn("+0xC");
-            ImGui::TableHeadersRow();
-
-            for (int row = 0; row < displayMemory.size(); row += 16)
-            {
-                ImGui::TableNextRow();
-                ImGui::PushID(row);
-
-                for (int col = 0; col < 5; ++col)
+                uint32_t addr = std::strtoul(mAddressInput, nullptr, 16);
+                if (TCPGecko::valid_range(addr, mMemSize))
                 {
-                    ImGui::TableSetColumnIndex(col);
-                    ImGui::PushID(col);
+                    ReadMemory(addr);
+                    mTableView.SetMemory(mMemory, addr);
+                    mTableView.JumpToAddress(addr);
 
-                    char buf[16] = {};
-                    if (col == 0)
-                    {
-                        snprintf(buf, sizeof(buf), "%08X", mBaseAddress + row);
-                    }
-                    else
-                    {
-                        int i = row + (col - 1) * 4;
-                        if (i + 3 < displayMemory.size())
-                        {
-                            uint32_t val = (displayMemory[i] << 24) | (displayMemory[i + 1] << 16) |
-                                        (displayMemory[i + 2] << 8) | displayMemory[i + 3];
-                            if (mCurrentViewMode == EViewMode::HEX)
-                                snprintf(buf, sizeof(buf), "%08X", val);
-                            else
-                                snprintf(buf, sizeof(buf), "%u", val);
-                        }
-                        else
-                        {
-                            snprintf(buf, sizeof(buf), "--------");
-                        }
-                    }
+                    snprintf(mValueInput, sizeof(mValueInput), mViewFormat.c_str(), mTableView.GetSelectedValue());
 
-                    bool isSelected = (mSelectedCell.row == row && mSelectedCell.col == col);
-
-                    ImGuiSelectableFlags flags = (col == 0) ? ImGuiSelectableFlags_Disabled : ImGuiSelectableFlags_None;
-                    if (ImGui::Selectable(buf, isSelected, flags, ImVec2(ImGui::GetColumnWidth(), 0)))
-                    {
-                        mSelectedCell = { row, col };
-
-                        uint32_t selectedAddress = mBaseAddress + row + (col - 1) * 4;
-                        snprintf(mAddressInput, sizeof(mAddressInput), "%08X", selectedAddress);
-
-                        if (selectedAddress + 3 < mBaseAddress + displayMemory.size())
-                        {
-                            int index = selectedAddress - mBaseAddress;
-                            uint32_t val = (displayMemory[index] << 24) | (displayMemory[index + 1] << 16) |
-                                        (displayMemory[index + 2] << 8) | displayMemory[index + 3];
-                            snprintf(mValueInput, sizeof(mValueInput), "%08X", val);
-                        }
-                    }
-
-                    ImGui::PopID();
+                    getConfig()->set("memedit_base_addr", addr);
+                    getConfig()->save();
                 }
+                else
+                {
+                    snprintf(mAddressInput, sizeof(mAddressInput), "%08X", mBaseAddress);
+                }
+            }
 
-                ImGui::PopID();
+            ImGui::TableNextColumn();
+            ImGui::SetNextItemWidth(-FLT_MIN);
+            ImGui::Checkbox("Auto Refresh", &mAutoRefreshEnabled);
+
+            ImGui::TableNextColumn();
+            ImGui::Text("View Mode:");
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(-FLT_MIN);
+            if (ImGui::Combo("##View Mode", (int *)(&mCurrentViewMode), "Hexadecimal\0Decimal\0\0"))
+            {
+                mTableView.SetViewMode(mCurrentViewMode == EViewMode::HEX);
             }
 
             ImGui::EndTable();
+        }
+
+        ImGui::BeginChild("MemoryEditorScrollable", ImVec2(0, 0), ImGuiChildFlags_None);
+        mTableView.Draw();
+
+        uint32_t selectedAddr = mTableView.GetSelectedAddress();
+        uint32_t selectedVal = mTableView.GetSelectedValue();
+        if (selectedAddr != 0)
+        {
+            snprintf(mAddressInput, sizeof(mAddressInput), "%08X", selectedAddr);
+            snprintf(mValueInput, sizeof(mValueInput), mViewFormat.c_str(), selectedVal);
         }
 
         ImGui::EndChild();
