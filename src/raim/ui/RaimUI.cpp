@@ -144,6 +144,7 @@ void RaimUI::MainUI()
         // 同じ行にボタン
         ImGui::SameLine();
 
+        ImGui::BeginDisabled(!m_is_disconnect_allowed && is_connected);
         if (ImGui::Button(!is_connected ? "Connect" : "Disconnect", ImVec2(button_width, 0)))
         {
             if (!is_connected)
@@ -151,6 +152,7 @@ void RaimUI::MainUI()
             else
                 disconnect();
         }
+        ImGui::EndDisabled();
     }
     catch (const std::exception &e)
     {

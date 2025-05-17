@@ -147,6 +147,27 @@ void TCPGecko::clear_memory(uint32_t address, uint32_t length)
     }
 }
 
+uint32_t TCPGecko::follow_pointer(uint32_t base_address, const std::vector<int32_t> &offsets)
+{
+    if (!is_connected())
+        throw std::runtime_error("Not connected");
+
+    char command = (char) COMMAND_FOLLOW_POINTER;
+    boost::asio::write(m_socket, boost::asio::buffer(&command, 1));
+
+    char request[8];
+    write_u32(request, base_address);
+    write_u32(request + 4, offsets.size());
+
+    boost::asio::write(m_socket, boost::asio::buffer(request, 8));
+    if (!offsets.empty())
+        boost::asio::write(m_socket, boost::asio::buffer(offsets.data(), offsets.size() * sizeof(int32_t)));
+
+    char response[4];
+    boost::asio::read(m_socket, boost::asio::buffer(response, 4));
+    return read_u32_be(response);
+}
+
 void TCPGecko::upload_code_list(std::vector<uint8_t> data)
 {
     for (size_t i = 0; i < 8; i++)
@@ -304,6 +325,7 @@ std::string TCPGecko::get_account_id()
                 break;
         }
 
+        free(buffer_address);
         return std::string(account_id_data.begin(), account_id_data.begin() + length);
     }
     catch (const std::exception &e)
@@ -311,8 +333,48 @@ std::string TCPGecko::get_account_id()
         free(buffer_address);
         throw e;
     }
+}
 
-    free(buffer_address);
+std::wstring TCPGecko::get_mii_name()
+{
+    if (!is_connected())
+        throw std::runtime_error("Not connected");
+
+    constexpr size_t MiiNameSize = 11;
+    constexpr size_t BufferSize = MiiNameSize * sizeof(uint16_t);
+    constexpr uint32_t Alignment = 4;
+
+    uint32_t buffer_address = malloc(BufferSize, Alignment);
+    if (buffer_address == 0)
+        throw std::runtime_error("Failed to allocate memory");
+
+    try
+    {
+        std::vector<uint8_t> zero_buffer(BufferSize, 0);
+        upload_memory(buffer_address, zero_buffer);
+
+        uint32_t func_addr = get_symbol("nn_act.rpl", "GetMiiName__Q2_2nn3actFPw");
+        call(func_addr, {buffer_address}, 8);
+
+        std::vector<uint8_t> mii_name_data = read_memory(buffer_address, BufferSize);
+
+        std::wstring result;
+        for (size_t i = 0; i + 1 < mii_name_data.size(); i += 2)
+        {
+            uint16_t ch = (mii_name_data[i] << 8) | mii_name_data[i + 1];
+            if (ch == 0)
+                break;
+            result += (wchar_t) ch;
+        }
+
+        free(buffer_address);
+        return result;
+    }
+    catch (const std::exception &e)
+    {
+        free(buffer_address);
+        throw;
+    }
 }
 
 std::string TCPGecko::get_server_version()

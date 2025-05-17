@@ -18,6 +18,7 @@ private:
     RaimTabManager *m_tab_manager;
     RaimUI_Theme *m_ui_theme;
     bool m_initialized = false;
+    bool m_is_disconnect_allowed = true;
 
     NotificationManager *m_notif_manager;
     
@@ -39,4 +40,6 @@ public:
     // TitleIdParser *getTitleIdParser() const { return mTitleIdParser; }
     NotificationManager *getNotificationManager() const { return m_notif_manager; }
     std::shared_ptr<Config> getConfig();
+
+    void set_allow_disconnect(bool allow) { m_is_disconnect_allowed = allow; }
 };

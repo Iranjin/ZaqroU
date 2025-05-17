@@ -89,6 +89,7 @@ public:
     void write_memory(uint32_t address, uint8_t value);
     void upload_memory(uint32_t address, const std::vector<uint8_t> &data);
     void clear_memory(uint32_t address, uint32_t length);
+    uint32_t follow_pointer(uint32_t base_address, const std::vector<int32_t> &offsets);
 
     void upload_code_list(std::vector<uint8_t> data);
     void clear_code_list();
@@ -106,6 +107,7 @@ public:
     uint64_t get_title_id();
     uint32_t get_principal_id();
     std::string get_account_id();
+    std::wstring get_mii_name();
     std::string get_server_version();
     uint32_t get_persistent_id();
     uint32_t get_os_version();
