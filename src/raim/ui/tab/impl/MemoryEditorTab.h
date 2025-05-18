@@ -12,34 +12,28 @@
 class MemoryEditorTab : public IRaimTab
 {
 private:
-    enum class EViewMode : int
-    {
-        HEX,
-        DEC
-    };
+    std::vector<uint8_t> m_memory;
+    uint32_t m_base_address;
+    uint32_t m_mem_size;
 
-    std::vector<uint8_t> mMemory;
-    uint32_t mBaseAddress;
-    uint32_t mMemSize;
-
-    EViewMode mCurrentViewMode = EViewMode::HEX;
+    MemoryTableView::EViewMode m_view_mode = MemoryTableView::EViewMode::HEX;
     
-    bool mAutoRefreshEnabled = false;
-    float mRefreshTimer = 0.0f;
+    bool m_auto_refresh_enabled = false;
+    float m_refresh_timer = 0.0f;
 
-    std::string mViewFormat = "%08X";
-
-    char mAddressInput[9] = {};
-    char mValueInput[9] = {};
+    char m_address_input[9] = {};
+    char m_value_input[9] = {};
 
 public:
-    MemoryEditorTab(RaimUI *raimUI);
+    MemoryEditorTab(RaimUI *raim_ui);
     ~MemoryEditorTab();
 
     void Update() override;
+    void OnConnected() override;
+    void OnTabOpened() override;
 
 private:
-    MemoryTableView mTableView;
+    std::shared_ptr<MemoryTableView> m_table_view;
 
     void ReadMemory(uint32_t address);
 };

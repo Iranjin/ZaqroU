@@ -10,12 +10,15 @@
 #include <cstdlib>
 
 
-MemoryEditorTab::MemoryEditorTab(RaimUI *raimUI)
-    : IRaimTab(raimUI, "MemoryEditor"),
-      mMemSize(16 * 800)
+MemoryEditorTab::MemoryEditorTab(RaimUI *raim_ui)
+    : IRaimTab(raim_ui, "MemoryEditor"),
+      m_mem_size(16 * 800),
+      m_table_view(std::make_shared<MemoryTableView>(getRaim()->getTCPGecko()))
 {
-    mBaseAddress = getConfig()->get("memedit_base_addr", 0x40000000);
-    snprintf(mAddressInput, sizeof(mAddressInput), "%08X", mBaseAddress);
+    m_base_address = getConfig()->get_nested("memory_editor.base_address", 0x40000000);
+    snprintf(m_address_input, sizeof(m_address_input), "%08X", m_base_address);
+
+    m_auto_refresh_enabled = getConfig()->get_nested("memory_editor.auto_refresh", false);
 }
 
 MemoryEditorTab::~MemoryEditorTab()
@@ -29,8 +32,8 @@ void MemoryEditorTab::ReadMemory(uint32_t address)
         std::shared_ptr<TCPGecko> tcp = getRaim()->getTCPGecko();
         if (tcp && tcp->is_connected())
         {
-            mMemory = tcp->read_memory(address, mMemSize);
-            mBaseAddress = address;
+            m_memory = tcp->read_memory(address, m_mem_size);
+            m_base_address = address;
         }
     }
     catch (const std::exception &e)
@@ -41,16 +44,16 @@ void MemoryEditorTab::ReadMemory(uint32_t address)
 
 void MemoryEditorTab::Update()
 {
-    float deltaTime = ImGui::GetIO().DeltaTime;
+    float delta_time = ImGui::GetIO().DeltaTime;
 
-    if (mAutoRefreshEnabled)
+    if (m_auto_refresh_enabled)
     {
-        mRefreshTimer += deltaTime;
-        if (mRefreshTimer >= 0.1f)
+        m_refresh_timer += delta_time;
+        if (m_refresh_timer >= 0.1f)
         {
-            ReadMemory(mBaseAddress);
-            mTableView.SetMemory(mMemory, mBaseAddress);
-            mRefreshTimer = 0.0f;
+            ReadMemory(m_base_address);
+            m_table_view->SetMemory(m_memory, m_base_address);
+            m_refresh_timer = 0.0f;
         }
     }
     
@@ -58,11 +61,11 @@ void MemoryEditorTab::Update()
 
     ImGui::BeginDisabled(!tcp->is_connected());
     
-    if (mMemory.empty())
+    if (m_memory.empty())
     {
-        mMemory.resize(mMemSize, 0x00);
-        mTableView.SetMemory(mMemory, mBaseAddress);
-        mTableView.JumpToAddress(mBaseAddress);
+        m_memory.resize(m_mem_size, 0x00);
+        m_table_view->SetMemory(m_memory, m_base_address);
+        m_table_view->JumpToAddress(m_base_address);
     }
 
     ImGui::Columns(2, "MemoryControlAndTables", false);
@@ -73,15 +76,21 @@ void MemoryEditorTab::Update()
         ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsHexadecimal;
 
         ImGui::Text("Value");
-        if (ImGui::InputText("##Value", mValueInput, sizeof(mValueInput), flags))
+        if (ImGui::InputText("##Value", m_value_input, sizeof(m_value_input), flags))
         {
-            uint32_t value = std::strtoul(mValueInput, nullptr, 16);
-            uint32_t addr = std::strtoul(mAddressInput, nullptr, 16);
-            tcp->write_mem_32(addr, value);
+            uint32_t addr = std::strtoul(m_address_input, nullptr, 16);
+            uint32_t value = std::strtoul(m_value_input, nullptr, 16);
 
-            mTableView.UpdateMemory(addr, value);
-            uint32_t updated = mTableView.GetSelectedValue();
-            snprintf(mValueInput, sizeof(mValueInput), mViewFormat.c_str(), updated);
+            switch (m_table_view->GetBytesPerCell())
+            {
+                case 4: tcp->write_mem_32(addr, value); break;
+                case 2: tcp->write_mem_16(addr, value); break;
+                case 1: tcp->write_mem_8(addr, value); break;
+            }
+            
+            m_table_view->UpdateMemory(addr, value);
+            uint32_t updated = m_table_view->GetSelectedValue();
+            snprintf(m_value_input, sizeof(m_value_input), m_table_view->GetViewFormat(), updated);
         }
     }
 
@@ -92,52 +101,54 @@ void MemoryEditorTab::Update()
         {
             ImGui::TableNextColumn();
             ImGui::SetNextItemWidth(-FLT_MIN);
-            if (ImGui::InputTextWithHint("##Address", "Address...", mAddressInput, sizeof(mAddressInput),
+            if (ImGui::InputTextWithHint("##Address", "Address...", m_address_input, sizeof(m_address_input),
                                         ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsHexadecimal))
             {
-                uint32_t addr = std::strtoul(mAddressInput, nullptr, 16);
-                if (TCPGecko::valid_range(addr, mMemSize))
+                uint32_t addr = std::strtoul(m_address_input, nullptr, 16);
+                if (TCPGecko::valid_range(addr, m_mem_size))
                 {
                     ReadMemory(addr);
-                    mTableView.SetMemory(mMemory, addr);
-                    mTableView.JumpToAddress(addr);
+                    m_table_view->SetMemory(m_memory, addr);
+                    m_table_view->JumpToAddress(addr);
 
-                    snprintf(mValueInput, sizeof(mValueInput), mViewFormat.c_str(), mTableView.GetSelectedValue());
+                    snprintf(m_value_input, sizeof(m_value_input), "%08X", m_table_view->GetSelectedValue());
 
-                    getConfig()->set("memedit_base_addr", addr);
+                    getConfig()->set_nested("memory_editor.base_address", addr);
                     getConfig()->save();
                 }
                 else
                 {
-                    snprintf(mAddressInput, sizeof(mAddressInput), "%08X", mBaseAddress);
+                    snprintf(m_address_input, sizeof(m_address_input), "%08X", m_base_address);
                 }
             }
 
             ImGui::TableNextColumn();
             ImGui::SetNextItemWidth(-FLT_MIN);
-            ImGui::Checkbox("Auto Refresh", &mAutoRefreshEnabled);
+            if (ImGui::Checkbox("Auto Refresh", &m_auto_refresh_enabled))
+            {
+                getConfig()->set_nested("memory_editor.auto_refresh", m_auto_refresh_enabled);
+                getConfig()->save();
+            }
 
             ImGui::TableNextColumn();
             ImGui::Text("View Mode:");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(-FLT_MIN);
-            if (ImGui::Combo("##View Mode", (int *)(&mCurrentViewMode), "Hexadecimal\0Decimal\0\0"))
-            {
-                mTableView.SetViewMode(mCurrentViewMode == EViewMode::HEX);
-            }
+            if (ImGui::Combo("##View Mode", (int *) (&m_view_mode), "Hexadecimal\0Decimal\0Float\0UTF-8\0UTF-16\0"))
+                m_table_view->SetViewMode(m_view_mode);
 
             ImGui::EndTable();
         }
 
         ImGui::BeginChild("MemoryEditorScrollable", ImVec2(0, 0), ImGuiChildFlags_None);
-        mTableView.Draw();
+        m_table_view->Draw();
 
-        uint32_t selectedAddr = mTableView.GetSelectedAddress();
-        uint32_t selectedVal = mTableView.GetSelectedValue();
-        if (selectedAddr != 0)
+        uint32_t selected_addr = m_table_view->GetSelectedAddress();
+        uint32_t selected_val = m_table_view->GetSelectedValue();
+        if (selected_addr != 0)
         {
-            snprintf(mAddressInput, sizeof(mAddressInput), "%08X", selectedAddr);
-            snprintf(mValueInput, sizeof(mValueInput), mViewFormat.c_str(), selectedVal);
+            snprintf(m_address_input, sizeof(m_address_input), "%08X", selected_addr);
+            snprintf(m_value_input, sizeof(m_value_input), m_table_view->GetViewFormat(), selected_val);
         }
 
         ImGui::EndChild();
@@ -145,4 +156,22 @@ void MemoryEditorTab::Update()
 
     ImGui::Columns(1);
     ImGui::EndDisabled();
+}
+
+void MemoryEditorTab::OnConnected()
+{
+    if (getRaim()->getTCPGecko()->is_connected())
+    {
+        ReadMemory(m_base_address);
+        m_table_view->SetMemory(m_memory, m_base_address);
+    }
+}
+
+void MemoryEditorTab::OnTabOpened()
+{
+    if (getRaim()->getTCPGecko()->is_connected())
+    {
+        ReadMemory(m_base_address);
+        m_table_view->SetMemory(m_memory, m_base_address);
+    }
 }
