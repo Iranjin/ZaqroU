@@ -5,7 +5,8 @@
 
 
 TCPGecko::TCPGecko()
-    : m_socket(m_io_context), m_connected(false)
+    : m_socket(m_io_context), m_connected(false),
+      m_nagle_enabled(false)
 {
 }
 
@@ -22,8 +23,7 @@ void TCPGecko::connect(const std::string &ip_address, uint16_t port)
     m_socket.connect(endpoint);
     m_connected = true;
 
-    if (m_socket.is_open())
-        m_socket.set_option(boost::asio::ip::tcp::no_delay(true));
+    set_nagle_enabled(m_nagle_enabled);
 }
 
 void TCPGecko::disconnect()

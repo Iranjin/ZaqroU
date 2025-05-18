@@ -61,6 +61,7 @@ void DebugTab::Update()
     if (ImGui::Button("Shutdown"))
     {
         tcp->shutdown();
+        tcp->disconnect();
     }
     ImGui::EndDisabled();
 

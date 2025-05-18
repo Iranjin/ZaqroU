@@ -34,7 +34,7 @@ int main()
     }
 
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(1.0); // VSync
+    glfwSwapInterval(1); // VSync
 
     // Initialize
     IMGUI_CHECKVERSION();

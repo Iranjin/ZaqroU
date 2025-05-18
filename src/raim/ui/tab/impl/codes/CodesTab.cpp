@@ -7,6 +7,7 @@
 #include <raim/ui/NotificationManager.h>
 #include "../../../RaimUI.h"
 #include "../../../../Raim.h"
+#include "backend/CodeLoader.h"
 
 #include <imgui.h>
 

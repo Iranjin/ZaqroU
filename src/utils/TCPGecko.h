@@ -75,6 +75,7 @@ private:
     boost::asio::io_context m_io_context;
     boost::asio::ip::tcp::socket m_socket;
     bool m_connected;
+    bool m_nagle_enabled;
     
 public:
     TCPGecko();
@@ -82,6 +83,16 @@ public:
 
     void connect(const std::string &ip_address, uint16_t port = 7331);
     void disconnect();
+
+    void set_nagle_enabled(bool enabled)
+    {
+        if (m_socket.is_open())
+            m_socket.set_option(boost::asio::ip::tcp::no_delay(!enabled));
+        
+        m_nagle_enabled = enabled;
+    }
+    
+    inline bool is_nagle_enabled() const { return m_nagle_enabled; }
 
     std::vector<uint8_t> read_memory(uint32_t address, uint32_t length = 0x4);
     void write_mem_32(uint32_t address, uint32_t value);

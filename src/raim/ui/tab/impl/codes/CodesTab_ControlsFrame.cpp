@@ -5,6 +5,7 @@
 #include <utils/TCPGecko.h>
 #include <raim/ui/NotificationManager.h>
 #include "../../../RaimUI.h"
+#include "backend/CodeLoader.h"
 
 #include <tinyfiledialogs/tinyfiledialogs.h>
 #include <imgui.h>
@@ -126,8 +127,10 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
         }
     }
 
+    bool has_enabled_entry = mCodes.has_enabled_entry();
+
     ImGui::SameLine();
-    ImGui::BeginDisabled(!mCodes.has_enabled_entry());
+    ImGui::BeginDisabled(!has_enabled_entry);
     if (ImGui::Button("Untick All"))
     {
         mCodes.begin_modify();
@@ -140,7 +143,7 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
 
     // Line 2 START
     ImGui::BeginDisabled(!tcp->is_connected());
-    ImGui::BeginDisabled(!mCodes.has_enabled_entry());
+    ImGui::BeginDisabled(!has_enabled_entry);
     if (ImGui::Button("Send Codes"))
         SendCodes();
     ImGui::EndDisabled();
