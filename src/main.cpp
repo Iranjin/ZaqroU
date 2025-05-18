@@ -41,10 +41,12 @@ int main()
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
 
+    io.IniFilename = nullptr;
+    
+    Raim *app = new Raim(window);
+
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
-
-    Raim *app = new Raim(window);
 
     // Main loop
     while (!glfwWindowShouldClose(window))

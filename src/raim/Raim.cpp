@@ -5,6 +5,7 @@
 #include <utils/tcp_gecko/TCPGecko.h>
 #include <utils/Config.h>
 #include <utils/downloader.h>
+#include <utils/common.h>
 #include "ui/RaimUI.h"
 #include "ui/style/RaimUI_Theme.h"
 
@@ -14,7 +15,7 @@ Raim::Raim(GLFWwindow *window)
       mConfig(std::make_shared<Config>()),
       mTCPGecko(std::make_shared<TCPGecko>()),
       mLastSaveTime(std::chrono::steady_clock::now()),
-      mConfigPath("zaqro_u/config.json")
+      mConfigPath(get_save_dir() + "/config.json")
 {
     mConfig->load(mConfigPath);
     LoadFonts();
@@ -30,8 +31,8 @@ Raim::~Raim()
 void Raim::LoadFonts()
 {
     auto download_font = [](const std::string &path) {
-        std::string font_path = "zaqro_u/" + path;
-        std::string font_url = "https://raw.githubusercontent.com/Iranjin/ZaqroU/refs/heads/main/" + path;
+        std::string font_path = get_save_dir() + path;
+        std::string font_url = "https://raw.githubusercontent.com/Iranjin/ZaqroU/refs/heads/main" + path;
 
         if (std::filesystem::exists(font_path))
             return;
@@ -48,13 +49,11 @@ void Raim::LoadFonts()
     
     ImGuiIO &io = ImGui::GetIO();
 
-    io.IniFilename = nullptr;
-
     ImFontConfig font_config;
 
     { // English font
-        std::string font_path = "res/fonts/HackNerdFont-Regular.ttf";
-        std::string res_font_path = "zaqro_u/" + font_path;
+        std::string font_path = "/res/fonts/HackNerdFont-Regular.ttf";
+        std::string res_font_path = get_save_dir() + font_path;
         
         download_font(font_path);
 
@@ -67,13 +66,13 @@ void Raim::LoadFonts()
     }
 
     { // Japanese font
-        std::string font_path = "res/fonts/NotoSansJP-Regular.ttf";
-        std::string res_font_path = "zaqro_u/" + font_path;
+        std::string font_path = "/res/fonts/NotoSansJP-Regular.ttf";
+        std::string res_font_path = get_save_dir() + font_path;
         
         download_font(font_path);
 
         font_config.MergeMode = true;
-        io.Fonts->AddFontFromFileTTF(font_path.c_str(), 88.0f, &font_config, io.Fonts->GetGlyphRangesJapanese());
+        io.Fonts->AddFontFromFileTTF(res_font_path.c_str(), 88.0f, &font_config, io.Fonts->GetGlyphRangesJapanese());
     }
 
     io.FontGlobalScale = 0.25f;

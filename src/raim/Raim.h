@@ -3,6 +3,7 @@
 #include <memory>
 #include <chrono>
 #include <future>
+#include <string>
 
 #include <GLFW/glfw3.h>
 
@@ -18,7 +19,7 @@ private:
     RaimUI *mRaimUI;
     std::shared_ptr<Config> mConfig;
     std::shared_ptr<TCPGecko> mTCPGecko;
-    const char *mConfigPath;
+    std::string mConfigPath;
     std::future<void> mSaveFuture;
 
     std::chrono::steady_clock::time_point mLastSaveTime;
@@ -34,6 +35,6 @@ public:
     RaimUI* getRaimUI() const { return mRaimUI; }
     std::shared_ptr<Config> getConfig() const { return mConfig; }
     std::shared_ptr<TCPGecko> getTCPGecko() const { return mTCPGecko; }
-    const char *getConfigPath() const { return mConfigPath; }
+    std::string getConfigPath() const { return mConfigPath; }
     GLFWwindow *getWindow() const { return mWindow; }
 };

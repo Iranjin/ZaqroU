@@ -3,6 +3,7 @@
 #include <filesystem>
 
 #include <utils/tcp_gecko/TCPGecko.h>
+#include <utils/common.h>
 #include <raim/ui/NotificationManager.h>
 #include "../../../RaimUI.h"
 #include "backend/CodeLoader.h"
@@ -13,7 +14,7 @@
 
 void CodesTab::ControlsFrame(const ImVec2 &available)
 {
-    std::string titles_path = "zaqro_u/titles";
+    std::string titles_path = get_save_dir() + "/titles";
     
     float bottomHeight = (available.y - ImGui::GetStyle().ItemSpacing.y) / 3.0f;
 
@@ -71,7 +72,7 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
         const char *filters[] = { "*.bin" };
         const char *path = tinyfd_openFileDialog(
             "Select file to load",
-            "zaqro_u/titles/",
+            (get_save_dir() + "/titles/").c_str(),
             1, filters,
             ".dat file",
             0);
@@ -106,7 +107,7 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
         const char *filters[] = { "*.bin", "*.xml" };
         const char *path = tinyfd_openFileDialog(
             "Select file to import",
-            "zaqro_u/titles/",
+            (get_save_dir() + "/titles/").c_str(),
             2, filters,
             "Code file",
             0);

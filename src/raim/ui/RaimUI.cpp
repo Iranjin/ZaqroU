@@ -22,7 +22,7 @@ RaimUI::RaimUI(Raim *app_instance)
     m_ui_theme = new RaimUI_Theme(); // NOTE: 必ずRaimTabManagerよりも前に前に生成すること
     m_tab_manager = new RaimTabManager(this);
 
-    // m_title_id_parser = new TitleIdParser("zaqro_u/Titles.xml");
+    // m_title_id_parser = new TitleIdParser("Titles.xml");
     // m_title_id_parser->load();
 
     m_notif_manager = new NotificationManager();
