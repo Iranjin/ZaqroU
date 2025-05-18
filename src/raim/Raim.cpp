@@ -31,7 +31,7 @@ void Raim::LoadFonts()
 {
     auto download_font = [](const std::string &path) {
         std::string font_path = "zaqro_u/" + path;
-        std::string font_url = "https://github.com/Iranjin/ZaqroU/raw/refs/heads/main/" + font_path;
+        std::string font_url = "https://raw.githubusercontent.com/Iranjin/ZaqroU/refs/heads/main/" + path;
 
         if (std::filesystem::exists(font_path))
             return;
