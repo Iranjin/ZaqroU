@@ -31,9 +31,8 @@ void NotificationManager::AddNotification(const std::string &title, const std::s
     }
 }
 
-void NotificationManager::AddWarnNotification(const std::string &message, float display_time, std::function<void()> on_click)
+void NotificationManager::AddWarnNotification(const std::string &title, const std::string &message, float display_time, std::function<void()> on_click)
 {
-    std::string title = "Warning";
     const float padding = 10.0f;
 
     auto now = std::chrono::system_clock::now();
@@ -56,9 +55,8 @@ void NotificationManager::AddWarnNotification(const std::string &message, float 
     }
 }
 
-void NotificationManager::AddErrorNotification(const std::string &message, float display_time, std::function<void()> on_click)
+void NotificationManager::AddErrorNotification(const std::string &title, const std::string &message, float display_time, std::function<void()> on_click)
 {
-    std::string title = "Error";
     const float padding = 10.0f;
 
     auto now = std::chrono::system_clock::now();

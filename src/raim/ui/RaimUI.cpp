@@ -40,7 +40,7 @@ RaimUI::~RaimUI()
 
 void RaimUI::Init()
 {
-    std::string themeName = getConfig()->get("theme", std::string("dark"));
+    std::string themeName = getConfig()->get_nested("appearance.theme", std::string("dark"));
     const IRaimUITheme* theme = m_ui_theme->FromName(themeName);
     theme->Apply();
 }
@@ -71,7 +71,7 @@ void RaimUI::MainUI()
     ImGui::Begin("FullScreenWindow", nullptr, window_flags);
     ImGui::PopStyleVar(2);
     
-    ImGui::SetWindowFontScale(getConfig()->get("font_scale", 1.0f));
+    ImGui::SetWindowFontScale(getConfig()->get_nested("appearance.font_scale", 1.0f));
 
     ImVec2 available = ImGui::GetContentRegionAvail();
     float button_height = ImGui::GetFrameHeightWithSpacing() * 1.1f;
@@ -100,9 +100,9 @@ void RaimUI::MainUI()
         static bool entry_box_initialized = false;
         if (!entry_box_initialized)
         {
-            if (config->contains("ip_address"))
+            if (config->contains_nested("connection.ip_address"))
             {
-                std::string ip_address = config->get("ip_address", std::string(ip_buffer));
+                std::string ip_address = config->get_nested("connection.ip_address", std::string(ip_buffer));
                 strncpy(ip_buffer, ip_address.c_str(), sizeof(ip_buffer) - 1);
                 ip_buffer[sizeof(ip_buffer) - 1] = '\0';
             }
@@ -122,14 +122,14 @@ void RaimUI::MainUI()
             try
             {
                 tcp->connect(ip_buffer);
-                config->set("ip_address", std::string(ip_buffer));
+                config->set_nested("connection.ip_address", std::string(ip_buffer));
                 config->save();
                 getNotificationManager()->AddNotification("TCPGecko", 
                     std::format("Connected to: {}\nUser: {}", std::string(ip_buffer), tcp->get_account_id()));
             }
             catch(const std::exception &e)
             {
-                getNotificationManager()->AddErrorNotification("Failed to connect");
+                getNotificationManager()->AddErrorNotification("TCPGecko", "Failed to connect");
             }
         };
 
@@ -140,7 +140,6 @@ void RaimUI::MainUI()
                 std::format("Disconnected from: {}", std::string(ip_buffer)));
         };
 
-        // InputText
         ImGui::PushItemWidth(input_width);
         if (ImGui::InputText("##IP Address", ip_buffer, IM_ARRAYSIZE(ip_buffer), ImGuiInputTextFlags_EnterReturnsTrue))
         {

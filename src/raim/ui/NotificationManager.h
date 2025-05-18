@@ -48,8 +48,8 @@ private:
 
 public:
     void AddNotification(const std::string &title, const std::string &message, float display_time = 5.0f, OnClickEvent onClick = default_on_click_event);
-    void AddWarnNotification(const std::string &message, float display_time = 5.0f, OnClickEvent onClick = default_on_click_event);
-    void AddErrorNotification(const std::string &message, float display_time = 5.0f, OnClickEvent onClick = default_on_click_event);
+    void AddWarnNotification(const std::string &title, const std::string &message, float display_time = 5.0f, OnClickEvent onClick = default_on_click_event);
+    void AddErrorNotification(const std::string &title, const std::string &message, float display_time = 5.0f, OnClickEvent onClick = default_on_click_event);
 
     void Update();
     

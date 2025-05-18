@@ -23,12 +23,12 @@ public:
 
     void Save(std::shared_ptr<Config> config) override
     {
-        config->set(mKey, mValue);
+        config->set_nested(mKey, mValue);
     }
 
     void Load(std::shared_ptr<Config> config) override
     {
-        mValue = config->get(mKey, mValue);
+        mValue = config->get_nested(mKey, mValue);
     }
 
     bool Update(std::shared_ptr<Config> config) override

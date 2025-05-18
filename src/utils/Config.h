@@ -42,6 +42,23 @@ public:
         }
         return default_value;
     }
+    
+    bool contains_nested(const std::string &key) const
+    {
+        std::stringstream ss(key);
+        std::string token;
+        const nlohmann::json *current = &mData;
+
+        while (std::getline(ss, token, '.'))
+        {
+            if (current->contains(token))
+                current = &(*current)[token];
+            else
+                return false;
+        }
+
+        return true;
+    }
 
     template <typename T>
     void set_nested(const std::string &key, const T &value)
@@ -63,7 +80,7 @@ public:
     T get_nested(const std::string &key, const T &default_value = T()) const {
         std::stringstream ss(key);
         std::string token;
-        const nlohmann::json* current = &mData;
+        const nlohmann::json *current = &mData;
 
         while (std::getline(ss, token, '.'))
         {
