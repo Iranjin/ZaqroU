@@ -1,5 +1,7 @@
 #include "byteorder.h"
 
+#include <stdexcept>
+
 
 void write_u32(char *buf, uint32_t val)
 {

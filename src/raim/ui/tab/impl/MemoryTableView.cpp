@@ -79,7 +79,7 @@ void MemoryTableView::FormatValue(char *str, size_t size, const char *buf)
             if (c >= 32 && c <= 126)
                 snprintf(str, size, "%c", c);
             else if (c == 0)
-                snprintf(str, size, "");
+                memset(str, 0, size);
             else
                 snprintf(str, size, ".");
             break;
@@ -91,7 +91,7 @@ void MemoryTableView::FormatValue(char *str, size_t size, const char *buf)
             if (val >= 32 && val <= 126)
                 snprintf(str, size, "%c", val);
             else if (val == 0)
-                snprintf(str, size, "");
+                memset(str, 0, size);
             else
                 snprintf(str, size, "U+%04X", val);
             break;

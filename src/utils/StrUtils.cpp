@@ -3,6 +3,7 @@
 #include <locale>
 #include <codecvt>
 #include <stdexcept>
+#include <cstdint>
 
 
 #if defined(_WIN32)
