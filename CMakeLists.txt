@@ -15,7 +15,25 @@ list(APPEND CPP_SOURCES
 
 set(SOURCES ${CPP_SOURCES} ${C_SOURCES})
 
-add_executable(Zaqro_U ${SOURCES})
+if(APPLE)
+    set(APP_ICON "Zaqro U.icns")
+
+    set_source_files_properties(
+        res/images/${APP_ICON}
+        PROPERTIES
+        MACOSX_PACKAGE_LOCATION "Resources"
+    )
+
+    add_executable(Zaqro_U MACOSX_BUNDLE ${SOURCES} res/images/${APP_ICON})
+
+    set_target_properties(Zaqro_U PROPERTIES
+        OUTPUT_NAME "Zaqro U"
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_ICON_FILE "${APP_ICON}"
+    )
+else()
+    add_executable(Zaqro_U ${SOURCES})
+endif()
 
 # target_compile_definitions(Zaqro_U PRIVATE DEBUG_MODE)
 
