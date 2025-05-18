@@ -8,7 +8,7 @@
 #ifdef DEBUG_MODE
 #include "impl/DebugTab.h"
 #endif
-#include <utils/TCPGecko.h>
+#include <utils/tcp_gecko/TCPGecko.h>
 #include <raim/ui/RaimUI.h>
 #include <raim/Raim.h>
 

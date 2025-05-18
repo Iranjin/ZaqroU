@@ -8,7 +8,7 @@
 #include <iomanip>
 #include <sstream>
 
-#include <utils/TCPGecko.h>
+#include <utils/tcp_gecko/TCPGecko.h>
 #include <raim/ui/NotificationManager.h>
 #include <raim/ui/RaimUI.h>
 #include <raim/Raim.h>

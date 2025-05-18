@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cctype>
 
-#include <utils/TCPGecko.h>
+#include <utils/tcp_gecko/TCPGecko.h>
 #include <utils/Config.h>
 #include "../../../RaimUI.h"
 #include "../../../../Raim.h"

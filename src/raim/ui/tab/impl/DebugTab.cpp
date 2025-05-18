@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include <utils/TCPGecko.h>
+#include <utils/tcp_gecko/TCPGecko.h>
 #include <utils/StrUtils.h>
 #include <raim/ui/NotificationManager.h>
 #include <raim/ui/RaimUI.h>
@@ -61,6 +61,11 @@ void DebugTab::Update()
     if (ImGui::Button("Shutdown"))
     {
         tcp->shutdown();
+        tcp->disconnect();
+    }
+    if (ImGui::Button("Reboot"))
+    {
+        tcp->reboot();
         tcp->disconnect();
     }
     ImGui::EndDisabled();

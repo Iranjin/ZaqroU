@@ -1,5 +1,7 @@
 #include "TCPGecko.h"
 
+#include "byteorder.h"
+
 #include <iostream>
 #include <stdexcept>
 
@@ -227,25 +229,45 @@ void TCPGecko::write_wstr(uint32_t address, const std::wstring &wstr, bool null_
     upload_memory(address, data);
 }
 
-uint32_t TCPGecko::follow_pointer(uint32_t base_address, const std::vector<int32_t> &offsets)
+uint32_t TCPGecko::follow_pointer(uint32_t base_address, const std::vector<int32_t> &offsets, bool use_memory_read)
 {
     if (!is_connected())
         throw std::runtime_error("Not connected");
 
-    char command = (char) COMMAND_FOLLOW_POINTER;
-    boost::asio::write(m_socket, boost::asio::buffer(&command, 1));
+    if (use_memory_read)
+    {
+        uint32_t address = base_address;
+        for (size_t i = 0; i < offsets.size(); ++i)
+        {
+            if (!valid_range(address, 4))
+                throw std::runtime_error("Invalid memory range during pointer traversal");
 
-    char request[8];
-    write_u32(request, base_address);
-    write_u32(request + 4, offsets.size());
+            std::vector<uint8_t> data = read_memory(address, 4);
+            if (data.size() != 4)
+                throw std::runtime_error("Failed to read memory");
 
-    boost::asio::write(m_socket, boost::asio::buffer(request, 8));
-    if (!offsets.empty())
-        boost::asio::write(m_socket, boost::asio::buffer(offsets.data(), offsets.size() * sizeof(int32_t)));
+            address = read_u32_be(data);
+            address += offsets[i];
+        }
+        return address;
+    }
+    else
+    {
+        char command = (char) COMMAND_FOLLOW_POINTER;
+        boost::asio::write(m_socket, boost::asio::buffer(&command, 1));
 
-    char response[4];
-    boost::asio::read(m_socket, boost::asio::buffer(response, 4));
-    return read_u32_be(response);
+        char request[8];
+        write_u32(request, base_address);
+        write_u32(request + 4, offsets.size());
+
+        boost::asio::write(m_socket, boost::asio::buffer(request, 8));
+        if (!offsets.empty())
+            boost::asio::write(m_socket, boost::asio::buffer(offsets.data(), offsets.size() * sizeof(int32_t)));
+
+        char response[4];
+        boost::asio::read(m_socket, boost::asio::buffer(response, 4));
+        return read_u32_be(response);
+    }
 }
 
 void TCPGecko::upload_code_list(std::vector<uint8_t> data)
@@ -380,6 +402,18 @@ void TCPGecko::set_game_mode_description(const std::wstring &description)
 void TCPGecko::shutdown()
 {
     call(get_symbol("coreinit.rpl", "OSShutdown"));
+}
+
+void TCPGecko::reboot()
+{
+    call(get_symbol("coreinit.rpl", "OSLaunchTitlel"), {0xFFFFFFFF, 0xFFFFFFFE});
+}
+
+void TCPGecko::launch_title(uint64_t title_id)
+{
+    uint32_t upper_id = title_id >> 32;
+    uint32_t lower_id = title_id & 0xFFFFFFFF;
+    call(get_symbol("sysapp.rpl", "SYSLaunchTitle"), {upper_id, lower_id});
 }
 
 uint64_t TCPGecko::get_title_id()
@@ -611,64 +645,4 @@ bool TCPGecko::valid_access(uint32_t address, uint32_t length, const std::string
     }
 
     return false;
-}
-
-void TCPGecko::write_u32(char *buf, uint32_t val)
-{
-    buf[0] = (val >> 24) & 0xFF;
-    buf[1] = (val >> 16) & 0xFF;
-    buf[2] = (val >> 8) & 0xFF;
-    buf[3] = val & 0xFF;
-}
-
-void TCPGecko::write_u16(char *buf, uint16_t val)
-{
-    buf[0] = (val >> 8) & 0xFF;
-    buf[1] = val & 0xFF;
-}
-
-uint32_t TCPGecko::read_u32_be(const char *buf)
-{
-    return ((uint32_t) (uint8_t) buf[0] << 24) |
-           ((uint32_t) (uint8_t) buf[1] << 16) |
-           ((uint32_t) (uint8_t) buf[2] << 8)  |
-           ((uint32_t) (uint8_t) buf[3]);
-}
-
-uint64_t TCPGecko::read_u64_be(const char *buf)
-{
-    return ((uint64_t) (uint8_t) buf[0] << 56) |
-           ((uint64_t) (uint8_t) buf[1] << 48) |
-           ((uint64_t) (uint8_t) buf[2] << 40) |
-           ((uint64_t) (uint8_t) buf[3] << 32) |
-           ((uint64_t) (uint8_t) buf[4] << 24) |
-           ((uint64_t) (uint8_t) buf[5] << 16) |
-           ((uint64_t) (uint8_t) buf[6] << 8)  |
-           ((uint64_t) (uint8_t) buf[7]);
-}
-
-uint32_t TCPGecko::read_u32_be(const std::vector<uint8_t> &data)
-{
-    if (data.size() < 4)
-        throw std::runtime_error("Data size too small to read uint32_t");
-
-    return ((uint32_t) (uint8_t) data[0] << 24) |
-           ((uint32_t) (uint8_t) data[1] << 16) |
-           ((uint32_t) (uint8_t) data[2] << 8)  |
-           ((uint32_t) (uint8_t) data[3]);
-}
-
-uint64_t TCPGecko::read_u64_be(const std::vector<uint8_t> &data)
-{
-    if (data.size() < 8)
-        throw std::runtime_error("Data size too small to read uint64_t");
-
-    return ((uint64_t) (uint8_t) data[0] << 56) |
-           ((uint64_t) (uint8_t) data[1] << 48) |
-           ((uint64_t) (uint8_t) data[2] << 40) |
-           ((uint64_t) (uint8_t) data[3] << 32) |
-           ((uint64_t) (uint8_t) data[4] << 24) |
-           ((uint64_t) (uint8_t) data[5] << 16) |
-           ((uint64_t) (uint8_t) data[6] << 8)  |
-           ((uint64_t) (uint8_t) data[7]);
 }

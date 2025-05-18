@@ -3,7 +3,8 @@
 #include <imgui.h>
 
 #include <utils/StrUtils.h>
-#include <utils/TCPGecko.h>
+#include <utils/tcp_gecko/TCPGecko.h>
+#include <utils/tcp_gecko/byteorder.h>
 
 #include <cstdio>
 
@@ -54,7 +55,7 @@ void MemoryTableView::FormatValue(char *str, size_t size, const char *buf)
     {
         case EViewMode::HEX:
         {
-            uint32_t val = TCPGecko::read_u32_be(buf);
+            uint32_t val = read_u32_be(buf);
             snprintf(str, size, "%08X", val);
             break;
         }
@@ -66,7 +67,7 @@ void MemoryTableView::FormatValue(char *str, size_t size, const char *buf)
         }
         case EViewMode::FLOAT:
         {
-            uint32_t bits = TCPGecko::read_u32_be(buf);
+            uint32_t bits = read_u32_be(buf);
             float f;
             std::memcpy(&f, &bits, sizeof(f));
             snprintf(str, size, "%f", f);

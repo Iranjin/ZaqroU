@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 
-#include <utils/TCPGecko.h>
+#include <utils/tcp_gecko/TCPGecko.h>
 #include <utils/TitleIdParser.h>
 #include <utils/StrUtils.h>
 #include <utils/Config.h>

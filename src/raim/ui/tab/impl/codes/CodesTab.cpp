@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-#include <utils/TCPGecko.h>
+#include <utils/tcp_gecko/TCPGecko.h>
 #include <utils/TitleIdParser.h>
 #include <raim/ui/NotificationManager.h>
 #include "../../../RaimUI.h"

@@ -1,7 +1,7 @@
 #include "MemoryEditorTab.h"
 
 #include <iostream>
-#include <utils/TCPGecko.h>
+#include <utils/tcp_gecko/TCPGecko.h>
 #include <utils/Config.h>
 #include <raim/ui/RaimUI.h>
 #include <raim/Raim.h>
@@ -76,6 +76,7 @@ void MemoryEditorTab::Update()
         ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsHexadecimal;
 
         ImGui::Text("Value");
+        ImGui::SetNextItemWidth(-FLT_MIN);
         if (ImGui::InputText("##Value", m_value_input, sizeof(m_value_input), flags))
         {
             uint32_t addr = std::strtoul(m_address_input, nullptr, 16);
