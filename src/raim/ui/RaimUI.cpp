@@ -117,8 +117,7 @@ void RaimUI::MainUI()
 
         bool is_connected = tcp->is_connected();
 
-        auto connect = [&]()
-        {
+        auto connect = [&]() {
             try
             {
                 tcp->connect(ip_buffer);
@@ -129,12 +128,11 @@ void RaimUI::MainUI()
             }
             catch(const std::exception &e)
             {
-                getNotificationManager()->AddErrorNotification("TCPGecko", "Failed to connect");
+                getNotificationManager()->AddErrorNotification("TCPGecko", e.what());
             }
         };
 
-        auto disconnect = [&]()
-        {
+        auto disconnect = [&]() {
             tcp->disconnect();
             getNotificationManager()->AddNotification("TCPGecko", 
                 std::format("Disconnected from: {}", std::string(ip_buffer)));
@@ -148,9 +146,7 @@ void RaimUI::MainUI()
         }
         ImGui::PopItemWidth();
 
-        // 同じ行にボタン
         ImGui::SameLine();
-
         ImGui::BeginDisabled(!m_is_disconnect_allowed && is_connected);
         if (ImGui::Button(!is_connected ? "Connect" : "Disconnect", ImVec2(button_width, 0)))
         {
