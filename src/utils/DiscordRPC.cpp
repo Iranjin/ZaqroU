@@ -74,7 +74,8 @@ void DiscordRPC::Connect()
 
         for (const char *pattern : patterns)
         {
-            for (int i = 0; i < 10; ++i) {
+            for (int i = 0; i < 10; ++i)
+            {
                 char path[108];
                 std::snprintf(path, sizeof(path), pattern, dir, i);
                 if (access(path, F_OK) == 0)

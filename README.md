@@ -48,3 +48,8 @@ cd ZaqroU
 cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake
 cmake --build build
 ```
+
+## Licenses
+
+This project includes third-party code from [wine-discord-ipc-bridge](https://github.com/0e4ef622/wine-discord-ipc-bridge),
+licensed under the MIT License. See `THIRD_PARTY_LICENSES` for details.
