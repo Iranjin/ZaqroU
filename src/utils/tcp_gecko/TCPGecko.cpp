@@ -314,6 +314,29 @@ bool TCPGecko::is_code_handler_enabled()
     return (bool) read_memory(CODE_HANDLER_ENABLED_ADDRESS)[3];
 }
 
+bool TCPGecko::check_server_status()
+{
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
+    if (!is_connected())
+        throw std::runtime_error("Not connected");
+
+    try
+    {
+        char command = (char) COMMAND_SERVER_STATUS;
+        boost::asio::write(m_socket, boost::asio::buffer(&command, 1));
+
+        char response;
+        boost::asio::read(m_socket, boost::asio::buffer(&response, 1));
+
+        return true;
+    }
+    catch (const boost::system::system_error &e)
+    {
+        return false;
+    }
+}
+
 size_t TCPGecko::get_data_buffer_size()
 {
     std::lock_guard<std::recursive_mutex> lock(m_mutex);

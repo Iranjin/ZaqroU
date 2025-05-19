@@ -9,13 +9,13 @@ bool Config::load(const std::string& filename)
 {
     std::ifstream in(filename);
 
-    mLoadedFilePath = filename;
+    m_loaded_file_path = filename;
 
     if (!in)
         return false;
     
     try {
-        in >> mData;
+        in >> m_data;
     } catch (...) {
         return false;
     }
@@ -37,7 +37,7 @@ bool Config::save(const std::string& filename) const
         return false;
     
     try {
-        out << mData.dump(4);
+        out << m_data.dump(4);
     } catch (...) {
         return false;
     }
@@ -47,5 +47,5 @@ bool Config::save(const std::string& filename) const
 
 bool Config::save() const
 {
-    return save(mLoadedFilePath);
+    return save(m_loaded_file_path);
 }

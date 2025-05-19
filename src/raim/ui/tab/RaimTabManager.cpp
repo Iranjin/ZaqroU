@@ -111,3 +111,13 @@ void RaimTabManager::Update()
         }
     }
 }
+
+IRaimTab *RaimTabManager::find_tab_by_name(const char *tab_name) const
+{
+    for (IRaimTab *tab : m_tabs)
+    {
+        if (strcmp(tab->get_tab_name(), tab_name) == 0)
+            return tab;
+    }
+    return nullptr;
+}

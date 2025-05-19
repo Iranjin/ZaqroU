@@ -24,5 +24,6 @@ public:
 
     void Update();
 
+    IRaimTab *find_tab_by_name(const char *tab_name) const;
     IRaimTab *get_active_tab() const { return m_active_tab; }
 };

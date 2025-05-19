@@ -37,7 +37,7 @@ public:
 };
 
 template<>
-void SettingsTab::AddSetting<IRaimUITheme*>(TabType tab, const char* label, const char* key, IRaimUITheme* defaultValue);
+void SettingsTab::AddSetting<IRaimUITheme*>(TabType tab, const char *label, const char *key, IRaimUITheme *defaultValue);
 
 template<>
 void SettingsTab::AddSetting<bool>(TabType tab, const char *label, const char *key, bool defaultValue);

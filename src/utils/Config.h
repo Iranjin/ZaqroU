@@ -10,8 +10,8 @@
 class Config
 {
 private:
-    nlohmann::json mData;
-    std::string mLoadedFilePath;
+    nlohmann::json m_data;
+    std::string m_loaded_file_path;
 
 public:
     bool load(const std::string &filename);
@@ -20,22 +20,22 @@ public:
 
     bool contains(const std::string &key) const
     {
-        return mData.contains(key);
+        return m_data.contains(key);
     }
     
     template <typename T>
     void set(const std::string &key, const T &value)
     {
-        mData[key] = value;
+        m_data[key] = value;
     }
 
     template <typename T>
     T get(const std::string &key, const T &default_value = T()) const
     {
-        if (mData.contains(key))
+        if (m_data.contains(key))
         {
             try {
-                return mData.at(key).get<T>();
+                return m_data.at(key).get<T>();
             } catch (...) {
                 return default_value;
             }
@@ -47,7 +47,7 @@ public:
     {
         std::stringstream ss(key);
         std::string token;
-        const nlohmann::json *current = &mData;
+        const nlohmann::json *current = &m_data;
 
         while (std::getline(ss, token, '.'))
         {
@@ -65,7 +65,7 @@ public:
     {
         std::stringstream ss(key);
         std::string token;
-        nlohmann::json* current = &mData;
+        nlohmann::json *current = &m_data;
 
         while (std::getline(ss, token, '.'))
         {
@@ -80,7 +80,7 @@ public:
     T get_nested(const std::string &key, const T &default_value = T()) const {
         std::stringstream ss(key);
         std::string token;
-        const nlohmann::json *current = &mData;
+        const nlohmann::json *current = &m_data;
 
         while (std::getline(ss, token, '.'))
         {
@@ -97,6 +97,6 @@ public:
         }
     }
 
-    bool empty() const { return mData.empty(); }
-    size_t size() const { return mData.size(); }
+    bool empty() const { return m_data.empty(); }
+    size_t size() const { return m_data.size(); }
 };

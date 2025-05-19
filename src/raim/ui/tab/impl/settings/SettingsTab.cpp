@@ -17,7 +17,7 @@ SettingsTab::SettingsTab(RaimUI *raim_ui)
 }
 
 template <>
-void SettingsTab::AddSetting<IRaimUITheme*>(TabType tab, const char* label, const char* key, IRaimUITheme* defaultValue)
+void SettingsTab::AddSetting<IRaimUITheme*>(TabType tab, const char *label, const char *key, IRaimUITheme *defaultValue)
 {
     mTabSettings[tab].emplace_back(std::make_unique<Setting<std::string>>(
         label, key, defaultValue ? defaultValue->get_name() : "",
@@ -57,7 +57,7 @@ void SettingsTab::AddSetting<IRaimUITheme*>(TabType tab, const char* label, cons
 
             return false;
         },
-        [raim_ui = get_raim_ui()](const std::string& theme_name) {
+        [raim_ui = get_raim_ui()](const std::string &theme_name) {
             for (IRaimUITheme *t : raim_ui->get_ui_theme()->all_themes())
                 if (t->get_name() == theme_name) t->apply();
         }

@@ -59,6 +59,7 @@ public:
     void enable_code_handler(bool enabled);
     bool is_code_handler_enabled();
 
+    bool check_server_status();
     size_t get_data_buffer_size();
 
     uint32_t get_symbol(const std::string &rplname, const std::string &symname, uint8_t data_flag = 0);

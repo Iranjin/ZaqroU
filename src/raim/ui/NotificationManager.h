@@ -19,8 +19,6 @@ public:
 private:
     using OnClickEvent = std::function<void()>;
 
-    static void default_on_click_event() {}
-
     enum NotifType
     {
         INFORMATION,
@@ -37,9 +35,9 @@ private:
         float animation_progress;
         float height;
         float current_y = 0.0f;
-        OnClickEvent on_click = default_on_click_event;
+        OnClickEvent on_click = nullptr;
 
-        inline void remove() { time_remaining = 0.0f; };
+        void remove() { time_remaining = 0.0f; };
     };
 
     std::vector<Notification> m_notifications;
@@ -48,9 +46,9 @@ private:
     const size_t m_max_log_count = 1000;
 
 public:
-    void AddNotification(const std::string &title, const std::string &message, float display_time = 5.0f, OnClickEvent onClick = default_on_click_event);
-    void AddWarnNotification(const std::string &title, const std::string &message, float display_time = 5.0f, OnClickEvent onClick = default_on_click_event);
-    void AddErrorNotification(const std::string &title, const std::string &message, float display_time = 5.0f, OnClickEvent onClick = default_on_click_event);
+    void AddNotification(const std::string &title, const std::string &message, float display_time = 5.0f, OnClickEvent on_click = nullptr);
+    void AddWarnNotification(const std::string &title, const std::string &message, float display_time = 5.0f, OnClickEvent on_click = nullptr);
+    void AddErrorNotification(const std::string &title, const std::string &message, float display_time = 5.0f, OnClickEvent on_click = nullptr);
 
     void Update();
     

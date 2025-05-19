@@ -24,7 +24,7 @@ namespace
         return nonce;
     }
 
-    void SendPacket(boost::asio::local::stream_protocol::socket& socket, int opcode, const json& data)
+    void SendPacket(boost::asio::local::stream_protocol::socket &socket, int opcode, const json &data)
     {
         std::string payload = data.dump();
         uint32_t length = payload.size();
@@ -100,7 +100,7 @@ void DiscordRPC::Reconnect()
         m_socket.connect(boost::asio::local::stream_protocol::endpoint(socket_path));
         SendHandshake();
     }
-    catch (const std::exception& e)
+    catch (const std::exception &e)
     {
         std::cerr << "DiscordRPC Reconnect failed: " << e.what() << std::endl;
     }
@@ -112,7 +112,7 @@ void DiscordRPC::Update()
     {
         SendActivity();
     }
-    catch (const std::exception& e)
+    catch (const std::exception &e)
     {
         std::cerr << "DiscordRPC Update error: " << e.what() << std::endl;
         Reconnect();
