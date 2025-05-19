@@ -210,6 +210,8 @@ void CodesTab::DisableCodes()
     
     tcp->enable_code_handler(false);
 
+    tcp->clear_code_list();
+
     NotificationManager *notif_manager = get_raim_ui()->get_notification_manager();
     constexpr float notif_time = 3.0f;
 

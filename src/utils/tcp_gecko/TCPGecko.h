@@ -54,8 +54,8 @@ public:
     void write_wstr(uint32_t address, const std::wstring &wstr, bool null_terminated = true);
     uint32_t follow_pointer(uint32_t base_address, const std::vector<int32_t> &offsets, bool use_memory_read = true);
 
-    void upload_code_list(std::vector<uint8_t> data);
     void clear_code_list();
+    void upload_code_list(const std::vector<uint8_t> &data);
     void enable_code_handler(bool enabled);
     bool is_code_handler_enabled();
 

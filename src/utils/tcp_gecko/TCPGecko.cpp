@@ -191,9 +191,10 @@ void TCPGecko::upload_memory(uint32_t address, const std::vector<uint8_t> &data)
     if (data.empty())
         return;
 
+    /* NOTE: 多分必要ない
     size_t max_size = get_data_buffer_size();
     if (data.size() > max_size)
-        throw std::runtime_error("Data size exceeds maximum buffer size");
+        throw std::runtime_error("Data size exceeds maximum buffer size");*/
     
     char command = (char) COMMAND_UPLOAD_MEMORY;
     boost::asio::write(m_socket, boost::asio::buffer(&command, 1));
@@ -210,21 +211,9 @@ void TCPGecko::clear_memory(uint32_t address, uint32_t length)
 {
     if (!is_connected())
         throw std::runtime_error("Not connected");
-
-    if (length == 0)
-        return;
-
-    size_t max_size = get_data_buffer_size();
-    uint32_t remaining = length;
-
-    while (remaining > 0)
-    {
-        uint32_t chunk_size = std::min<uint32_t>(remaining, max_size);
-        std::vector<uint8_t> zero_data(chunk_size, 0x00);
-        upload_memory(address, zero_data);
-        address += chunk_size;
-        remaining -= chunk_size;
-    }
+    
+    std::vector<uint8_t> zero_buffer(length, 0);
+    upload_memory(address, zero_buffer);
 }
 
 void TCPGecko::write_str(uint32_t address, const std::string &str, bool null_terminated)
@@ -297,10 +286,14 @@ uint32_t TCPGecko::follow_pointer(uint32_t base_address, const std::vector<int32
     }
 }
 
-void TCPGecko::upload_code_list(std::vector<uint8_t> data)
+void TCPGecko::clear_code_list()
 {
-    for (size_t i = 0; i < 8; i++)
-        data.push_back(0x00);
+    clear_memory(CODE_LIST_START_ADDRESS, 0xA640);
+}
+
+void TCPGecko::upload_code_list(const std::vector<uint8_t> &data)
+{
+    clear_code_list();
     upload_memory(CODE_LIST_START_ADDRESS, data);
 }
 
