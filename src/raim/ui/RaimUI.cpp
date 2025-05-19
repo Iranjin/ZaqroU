@@ -117,7 +117,7 @@ void RaimUI::MainUI()
                 config->set_nested("connection.ip_address", std::string(ip_buffer));
                 config->save();
                 get_notification_manager()->AddNotification("TCPGecko", 
-                    std::format("Connected to: {}\nUser: {}", std::string(ip_buffer), tcp->get_account_id()));
+                    std::format("Connected to: {}", std::string(ip_buffer)));
             }
             catch(const std::exception &e)
             {
