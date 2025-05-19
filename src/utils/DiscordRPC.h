@@ -24,6 +24,7 @@ private:
     RichPresence m_rich_presence;
     std::string m_client_id;
 
+    void Connect();
     void SendHandshake();
     void SendActivity();
 

@@ -41,11 +41,52 @@ namespace
 DiscordRPC::DiscordRPC(const std::string &client_id)
     : m_socket(m_io_context), m_client_id(client_id)
 {
+    Connect();
+}
+
+void DiscordRPC::Connect()
+{
     std::string socket_path;
-    // if (const char *runtime_dir = std::getenv("XDG_RUNTIME_DIR"))
-    //     socket_path = std::string(runtime_dir) + "/discord-ipc-0";
+
+    #ifdef __APPLE__
     if (const char *tmp_dir = std::getenv("TMPDIR"))
         socket_path = std::string(tmp_dir) + "/discord-ipc-0";
+#elif defined(__linux__)
+    const char *tmp_dirs[] = {
+        std::getenv("XDG_RUNTIME_DIR"),
+        std::getenv("TMPDIR"),
+        std::getenv("TMP"),
+        std::getenv("TEMP"),
+        "/tmp"
+    };
+
+    const char *patterns[] = {
+        "%s/discord-ipc-%d",
+        "%s/app/com.discordapp.Discord/discord-ipc-%d",
+        "%s/snap.discord-canary/discord-ipc-%d",
+        "%s/snap.discord/discord-ipc-%d"
+    };
+
+    for (const char *dir : tmp_dirs)
+    {
+        if (!dir)
+            continue;
+
+        for (const char *pattern : patterns)
+        {
+            for (int i = 0; i < 10; ++i) {
+                char path[108];
+                std::snprintf(path, sizeof(path), pattern, dir, i);
+                if (access(path, F_OK) == 0)
+                {
+                    socket_path = path;
+                    goto found;
+                }
+            }
+        }
+    }
+found:;
+#endif
     
     if (!socket_path.empty())
     {
@@ -95,13 +136,7 @@ void DiscordRPC::Reconnect()
     try
     {
         m_socket.close();
-
-        std::string socket_path;
-        if (const char *tmp_dir = std::getenv("TMPDIR"))
-            socket_path = std::string(tmp_dir) + "/discord-ipc-0";
-
-        m_socket.connect(boost::asio::local::stream_protocol::endpoint(socket_path));
-        SendHandshake();
+        Connect();
     }
     catch (const std::exception &e)
     {

@@ -119,7 +119,7 @@ void Raim::Discord_RPC_Update()
     {
         lock.unlock();
 
-#ifdef __APPLE__
+#ifndef _WIN32
         DiscordRPC::RichPresence rp;
         static int32_t start_time = std::time(nullptr);
 
