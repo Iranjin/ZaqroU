@@ -46,9 +46,12 @@ DiscordRPC::DiscordRPC(const std::string &client_id)
     //     socket_path = std::string(runtime_dir) + "/discord-ipc-0";
     if (const char *tmp_dir = std::getenv("TMPDIR"))
         socket_path = std::string(tmp_dir) + "/discord-ipc-0";
-    m_socket.connect(boost::asio::local::stream_protocol::endpoint(socket_path));
-
-    SendHandshake();
+    
+    if (!socket_path.empty())
+    {
+        m_socket.connect(boost::asio::local::stream_protocol::endpoint(socket_path));
+        SendHandshake();
+    }
 }
 
 void DiscordRPC::SendHandshake()
