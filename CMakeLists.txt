@@ -39,6 +39,7 @@ endif()
 
 target_include_directories(Zaqro_U PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(Zaqro_U PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(Zaqro_U PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
@@ -63,3 +64,33 @@ target_link_libraries(Zaqro_U PRIVATE
     Boost::system
     nlohmann_json::nlohmann_json
 )
+
+# ========================================
+# 📦 Embed all TTF fonts from res/fonts/
+# ========================================
+file(GLOB FONT_FILES ${CMAKE_CURRENT_SOURCE_DIR}/res/fonts/*.ttf)
+
+set(GENERATED_FONT_HEADERS "")
+
+foreach(FONT_PATH ${FONT_FILES})
+    get_filename_component(FONT_NAME ${FONT_PATH} NAME_WE)
+    string(REPLACE "-" "_" SAFE_FONT_NAME ${FONT_NAME})
+    set(HEADER_PATH ${CMAKE_CURRENT_BINARY_DIR}/${SAFE_FONT_NAME}_ttf.h)
+    set(TEMP_TTF ${CMAKE_CURRENT_BINARY_DIR}/${SAFE_FONT_NAME}.ttf)
+
+    add_custom_command(
+        OUTPUT ${HEADER_PATH}
+        COMMAND ${CMAKE_COMMAND} -E copy ${FONT_PATH} ${TEMP_TTF}
+        COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_CURRENT_BINARY_DIR} xxd -i ${SAFE_FONT_NAME}.ttf > ${HEADER_PATH}
+        DEPENDS ${FONT_PATH}
+        COMMENT "Embedding font: ${SAFE_FONT_NAME}.ttf"
+        VERBATIM
+    )
+
+    list(APPEND GENERATED_FONT_HEADERS ${HEADER_PATH})
+endforeach()
+
+add_custom_target(EmbedFontHeaders ALL DEPENDS ${GENERATED_FONT_HEADERS})
+
+add_dependencies(Zaqro_U EmbedFontHeaders)
+target_sources(Zaqro_U PRIVATE ${GENERATED_FONT_HEADERS})

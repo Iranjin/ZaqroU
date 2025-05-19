@@ -17,6 +17,9 @@
 #include "ui/RaimUI.h"
 #include "ui/style/RaimUI_Theme.h"
 
+#include "HackNerdFont_Regular_ttf.h"
+#include "NotoSansJP_Regular_ttf.h"
+
 
 Raim::Raim(GLFWwindow *window)
     : m_window(window),
@@ -47,52 +50,42 @@ Raim::~Raim()
 
 void Raim::LoadFonts()
 {
-    auto download_font = [](const std::string &path) {
-        std::string font_path = get_save_dir() + path;
-        std::string font_url = FILE_SERVER_URL + path;
-
-        if (std::filesystem::exists(font_path))
-            return;
-        
-        std::string folder_parent_path = std::filesystem::path(font_path).parent_path();
-        
-        std::vector<char> data;
-        download_file(font_url, data);
-
-        std::filesystem::create_directories(folder_parent_path);
-
-        save_to_file(font_path, data);
-    };
-    
     ImGuiIO &io = ImGui::GetIO();
 
     ImFontConfig font_config;
 
+    font_config.FontDataOwnedByAtlas = false;
+
     { // English font
-        std::string font_path = "res/fonts/HackNerdFont-Regular.ttf";
-        std::string res_font_path = std::format("{}/{}", get_save_dir(), font_path);
-        
-        download_font(font_path);
+        font_config.MergeMode = false;
 
         static ImWchar const glyph_ranges[] = {
             0x0020, 0xfffd,
             0,
         };
 
-        io.Fonts->AddFontFromFileTTF(res_font_path.c_str(), 64.0f, &font_config, glyph_ranges);
+        io.Fonts->AddFontFromMemoryTTF(
+            (void *) HackNerdFont_Regular_ttf, 
+            HackNerdFont_Regular_ttf_len,
+            32.0f, 
+            &font_config,
+            glyph_ranges
+        );
     }
 
     { // Japanese font
-        std::string font_path = "res/fonts/NotoSansJP-Regular.ttf";
-        std::string res_font_path = std::format("{}/{}", get_save_dir(), font_path);
-        
-        download_font(font_path);
-
         font_config.MergeMode = true;
-        io.Fonts->AddFontFromFileTTF(res_font_path.c_str(), 88.0f, &font_config, io.Fonts->GetGlyphRangesJapanese());
+
+        io.Fonts->AddFontFromMemoryTTF(
+            (void *) NotoSansJP_Regular_ttf,
+            NotoSansJP_Regular_ttf_len,
+            44.0f,
+            &font_config,
+            io.Fonts->GetGlyphRangesJapanese()
+        );
     }
 
-    io.FontGlobalScale = 0.25f;
+    io.FontGlobalScale = 0.50f;
 }
 
 void Raim::LoadTitles()
