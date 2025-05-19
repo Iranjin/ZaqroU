@@ -16,6 +16,22 @@ class TCPGecko;
 class CodesTab : public IRaimTab
 {
 private:
+    struct ScrollRequest
+    {
+        bool requested = false;
+        size_t target_index = 0;
+        bool align_bottom = false;
+
+        void reset()
+        {
+            requested = false;
+            target_index = 0;
+            align_bottom = false;
+        }
+    };
+
+    ScrollRequest m_scroll_request;
+
     enum class CodePopupMode
     {
         None,
@@ -68,6 +84,9 @@ public:
     void ControlsFrame(const ImVec2 &available);
 
     void CodePopup();
+
+
+    void CodesFrame_ScrollToIndex(size_t index, bool align_bottom = false);
 
     void SendCodes();
     void DisableCodes();

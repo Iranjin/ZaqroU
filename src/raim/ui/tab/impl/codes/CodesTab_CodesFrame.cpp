@@ -294,17 +294,17 @@ void CodesTab::CodesFrame()
                     m_selected_indices.insert(new_index);
                     m_active_index = new_index;
 
-                    float itemHeight = ImGui::GetFrameHeightWithSpacing();
+                    float item_height = ImGui::GetFrameHeightWithSpacing();
                     float scrollY = ImGui::GetScrollY();
                     float maxScrollY = ImGui::GetScrollMaxY();
                     float windowHeight = ImGui::GetWindowHeight();
 
-                    float itemYPos = itemHeight * newFilteredPos;
+                    float itemYPos = item_height * newFilteredPos;
 
                     if (itemYPos < scrollY)
                         ImGui::SetScrollY(itemYPos);
-                    else if (itemYPos + itemHeight > scrollY + windowHeight)
-                        ImGui::SetScrollY(itemYPos + itemHeight - windowHeight);
+                    else if (itemYPos + item_height > scrollY + windowHeight)
+                        ImGui::SetScrollY(itemYPos + item_height - windowHeight);
                 }
             }
         }
@@ -320,6 +320,23 @@ void CodesTab::CodesFrame()
             if (io.KeyShift && ImGui::IsKeyPressed(ImGuiKey_Z)) // Redo
                 m_codes.redo();
         }
+    }
+
+    if (m_scroll_request.requested)
+    {
+        auto it = std::find(m_filtered_indices.begin(), m_filtered_indices.end(), m_scroll_request.target_index);
+        if (it != m_filtered_indices.end())
+        {
+            size_t filtered_pos = std::distance(m_filtered_indices.begin(), it);
+            float item_height = ImGui::GetFrameHeightWithSpacing();
+
+            if (m_scroll_request.align_bottom)
+                ImGui::SetScrollY(item_height * (m_filtered_indices.size() - filtered_pos));
+            else
+                ImGui::SetScrollY(item_height * filtered_pos);
+        }
+
+        m_scroll_request.reset();
     }
 
     for (size_t i = 0; i < m_filtered_indices.size(); ++i)

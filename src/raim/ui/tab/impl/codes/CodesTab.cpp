@@ -5,9 +5,12 @@
 #include <utils/tcp_gecko/TCPGecko.h>
 #include <utils/TitleIdParser.h>
 #include <utils/common.h>
+#include <raim/ui/tab/RaimTabManager.h>
 #include <raim/ui/NotificationManager.h>
-#include "../../../RaimUI.h"
-#include "../../../../Raim.h"
+#include <raim/ui/tab/impl/codes/CodesTab.h>
+#include <raim/ui/tab/IRaimTab.h>
+#include <raim/ui/RaimUI.h>
+#include <raim/Raim.h>
 #include "backend/CodeLoader.h"
 
 #include <imgui.h>
@@ -21,6 +24,13 @@ CodesTab::CodesTab(RaimUI *raimUI)
 std::shared_ptr<TCPGecko> CodesTab::get_tcp_gecko()
 {
     return get_raim()->get_tcp_gecko();
+}
+
+void CodesTab::CodesFrame_ScrollToIndex(size_t index, bool align_bottom)
+{
+    m_scroll_request.requested = true;
+    m_scroll_request.target_index = index;
+    m_scroll_request.align_bottom = align_bottom;
 }
 
 void CodesTab::SendCodes()
@@ -237,6 +247,7 @@ void CodesTab::OnConnected()
         m_selected_indices.clear();
         m_active_index = -1;
         CodeLoader::load_from_file(codes_file_path, m_codes);
+        CodesFrame_ScrollToIndex(0, true);
 
         get_raim_ui()->get_notification_manager()->AddNotification("CodesTab", std::format("Loaded \"{}\"", codes_file_path));
     }

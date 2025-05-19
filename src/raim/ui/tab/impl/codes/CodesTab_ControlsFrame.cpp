@@ -81,6 +81,7 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
         {
             m_codes.clear();
             CodeLoader::load_from_file(path, m_codes);
+            CodesFrame_ScrollToIndex(0, true);
             m_loaded_path = path;
         }
 
@@ -118,12 +119,14 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
             std::string ext = filepath.extension().string();
 
             m_codes.begin_modify();
-            if (ext == ".bin")
-                CodeLoader::load_from_file(path, m_codes);
-            else if (ext == ".xml")
+            if (ext == ".xml")
                 CodeLoader::load_from_xml_file(path, m_codes);
+            else // .bin
+                CodeLoader::load_from_file(path, m_codes);
             m_codes.end_modify();
 
+            CodesFrame_ScrollToIndex(0, true);
+            
             get_raim_ui()->get_notification_manager()->AddNotification(m_notif_title, std::format("Imported \"{}\"", path));
         }
     }
