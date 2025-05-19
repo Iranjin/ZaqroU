@@ -4,25 +4,35 @@
 #include <chrono>
 #include <future>
 #include <string>
+#include <thread>
+#include <chrono>
+#include <atomic>
 
 #include <GLFW/glfw3.h>
 
 
 class Config;
 class RaimUI;
+class TitleIdParser;
 class TCPGecko;
+class DiscordRPC;
 
 class Raim
 {
 private:
-    GLFWwindow *mWindow;
-    RaimUI *mRaimUI;
-    std::shared_ptr<Config> mConfig;
-    std::shared_ptr<TCPGecko> mTCPGecko;
-    std::string mConfigPath;
-    std::future<void> mSaveFuture;
+    GLFWwindow *m_window;
+    RaimUI *m_raim_ui;
+    std::shared_ptr<Config> m_config;
+    std::shared_ptr<TCPGecko> m_tcp_gecko;
+    std::shared_ptr<TitleIdParser> m_title_id_parser;
+    std::string m_config_path;
 
-    std::chrono::steady_clock::time_point mLastSaveTime;
+    // Discord RPC
+    std::shared_ptr<DiscordRPC> m_discord_rpc;
+    std::atomic<bool> m_rpc_thread_running{true};
+    std::thread m_rpc_thread;
+    std::mutex m_rpc_thread_mutex;
+    std::condition_variable m_rpc_thread_cv;
     
 public:
     Raim(GLFWwindow *window);
@@ -31,10 +41,13 @@ public:
     void Update();
 
     void LoadFonts();
+    void LoadTitles();
 
-    RaimUI* getRaimUI() const { return mRaimUI; }
-    std::shared_ptr<Config> getConfig() const { return mConfig; }
-    std::shared_ptr<TCPGecko> getTCPGecko() const { return mTCPGecko; }
-    std::string getConfigPath() const { return mConfigPath; }
-    GLFWwindow *getWindow() const { return mWindow; }
+    void Discord_RPC_Update();
+
+    RaimUI* get_raim_ui() const { return m_raim_ui; }
+    std::shared_ptr<Config> get_config() const { return m_config; }
+    std::shared_ptr<TCPGecko> get_tcp_gecko() const { return m_tcp_gecko; }
+    std::string get_config_path() const { return m_config_path; }
+    GLFWwindow *get_window() const { return m_window; }
 };

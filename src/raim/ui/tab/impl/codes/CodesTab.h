@@ -23,40 +23,40 @@ private:
         Edit
     };
 
-    CodeEntryManager mCodes;
+    CodeEntryManager m_codes;
 
-    CodePopupMode mPopupMode = CodePopupMode::None;
-    CodeEntry mPopupEntry;
-    size_t mEditTargetIndex = -1;
+    CodePopupMode m_popup_mode = CodePopupMode::None;
+    CodeEntry m_popup_entry;
+    size_t m_edit_target_index = -1;
 
-    std::unordered_set<size_t> mSelectedIndices;
-    size_t mActiveIndex = -1;
+    std::unordered_set<size_t> m_selected_indices;
+    size_t m_active_index = -1;
 
-    const char *mNotifTitle = "CodesTab";
+    const char *m_notif_title = "CodesTab";
 
-    bool mShowSearchBar = false;
-    char mSearchQuery[256] = "";
-    std::vector<size_t> mFilteredIndices;
+    bool m_show_search_bar = false;
+    char m_search_query[256] = "";
+    std::vector<size_t> m_filtered_indices;
 
-    bool mConnected = false,
-         mLastConnected = false;
-    std::string mLoadedPath;
+    bool m_connected = false,
+         m_last_connected = false;
+    std::string m_loaded_path;
 
-    bool mListUpdated = false;
+    bool m_list_updated = false;
     
 public:
-    CodesTab(RaimUI *raimUI);
+    CodesTab(RaimUI *raim_ui);
 
-    std::shared_ptr<TCPGecko> getTCPGecko();
+    std::shared_ptr<TCPGecko> get_tcp_gecko();
 
-    void CodesFrame_MouseClick(ImGuiIO &io, bool &isSelected, size_t &i);
+    void CodesFrame_MouseClick(ImGuiIO &io, bool &is_selected, size_t &i);
     void CodesFrame_DragAndDrop(size_t &i);
     void CodesFrame_ContextMenu();
     void CodesFrame_Search();
     void CodesFrame();
 
     std::string CodeFrame_GetSelectedText(std::vector<std::string> &lines, int &selection_start, int &selection_end);
-    int CodeFrame_GetCharIndexFromPos(std::vector<std::string> &lines, const ImVec2 &pos, ImVec2 &startPos, ImVec2 &textSize, ImVec2 &scroll_pos, float &lineHeight, float &lineNumberWidth);
+    int CodeFrame_GetCharIndexFromPos(std::vector<std::string> &lines, const ImVec2 &pos, ImVec2 &start_pos, ImVec2 &text_size, ImVec2 &scroll_pos, float &line_height, float &line_number_width);
     void CodeFrame_DrawTextSelection(ImDrawList *draw_list, const std::vector<std::string> &lines, const ImVec2 &start_pos, float line_number_width, float line_height, const ImVec2 &char_size, const ImVec2 &scroll_pos, int sel_start, int sel_end);
     void CodeFrame_ContextMenu(std::vector<std::string> &lines, int &selection_start, int &selection_end);
     void CodeFrame();

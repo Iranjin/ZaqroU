@@ -8,9 +8,9 @@ GrayScaleTheme::GrayScaleTheme()
 {
 }
 
-void GrayScaleTheme::Apply() const
+void GrayScaleTheme::apply() const
 {
-    IRaimUITheme::Apply();
+    IRaimUITheme::apply();
 
     ImGuiStyle &style = ImGui::GetStyle();
     ImVec4* colors = style.Colors;
@@ -28,6 +28,7 @@ void GrayScaleTheme::Apply() const
     colors[ImGuiCol_Text]              = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
     colors[ImGuiCol_WindowBg]          = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
     colors[ImGuiCol_PopupBg]           = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+    colors[ImGuiCol_TableHeaderBg]     = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
     colors[ImGuiCol_TableRowBg]        = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
     colors[ImGuiCol_Border]            = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -47,7 +48,7 @@ void GrayScaleTheme::Apply() const
     colors[ImGuiCol_SliderGrabActive]  = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 
     colors[ImGuiCol_Tab]               = ImVec4(0.30f, 0.30f, 0.30f, 1.0f);
-    colors[ImGuiCol_TabHovered]        = ImVec4(0.20f, 0.20f, 0.20f, 1.0f);
+    colors[ImGuiCol_TabHovered]        = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
     colors[ImGuiCol_TabActive]         = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
 
     colors[ImGuiCol_Header]            = ImVec4(0.30f, 0.30f, 0.30f, 1.0f);

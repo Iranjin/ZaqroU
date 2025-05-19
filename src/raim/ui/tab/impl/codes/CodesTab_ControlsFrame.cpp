@@ -16,17 +16,17 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
 {
     std::string titles_path = get_save_dir() + "/titles";
     
-    float bottomHeight = (available.y - ImGui::GetStyle().ItemSpacing.y) / 3.0f;
+    float bottom_height = (available.y - ImGui::GetStyle().ItemSpacing.y) / 3.0f;
 
     ImGui::BeginChild("ControlsFrame", ImVec2(-FLT_MIN, -FLT_MIN), ImGuiChildFlags_Border, ImGuiWindowFlags_AlwaysUseWindowPadding);
 
-    std::shared_ptr<TCPGecko> tcp = getTCPGecko();
+    std::shared_ptr<TCPGecko> tcp = get_tcp_gecko();
     
     // Line 1 START
     if (ImGui::Button("Add Code"))
     {
-        mPopupEntry = CodeEntry();
-        mPopupMode = CodePopupMode::Add;
+        m_popup_entry = CodeEntry();
+        m_popup_mode = CodePopupMode::Add;
         ImGui::OpenPopup("CodePopup");
     }
 
@@ -35,7 +35,7 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
     {
         std::string saved_file_path;
         
-        if (mLoadedPath.empty())
+        if (m_loaded_path.empty())
         {
             std::filesystem::create_directories(titles_path);
 
@@ -49,20 +49,20 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
 
             if (path)
             {
-                CodeLoader::save_to_file(path, mCodes);
+                CodeLoader::save_to_file(path, m_codes);
                 saved_file_path = path;
             }
         }
         else
         {
-            std::string folder_path = std::filesystem::path(mLoadedPath).parent_path();
+            std::string folder_path = std::filesystem::path(m_loaded_path).parent_path();
             std::filesystem::create_directories(folder_path);
-            CodeLoader::save_to_file(mLoadedPath, mCodes);
-            saved_file_path = mLoadedPath;
+            CodeLoader::save_to_file(m_loaded_path, m_codes);
+            saved_file_path = m_loaded_path;
         }
 
         if (!saved_file_path.empty())
-            getRaimUI()->getNotificationManager()->AddNotification(mNotifTitle, std::format("Saved \"{}\"", saved_file_path));
+            get_raim_ui()->get_notification_manager()->AddNotification(m_notif_title, std::format("Saved \"{}\"", saved_file_path));
     }
 
     ImGui::BeginDisabled(tcp->is_connected());
@@ -79,23 +79,23 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
 
         if (path)
         {
-            mCodes.clear();
-            CodeLoader::load_from_file(path, mCodes);
-            mLoadedPath = path;
+            m_codes.clear();
+            CodeLoader::load_from_file(path, m_codes);
+            m_loaded_path = path;
         }
 
-        mListUpdated = true;
+        m_list_updated = true;
     }
     ImGui::EndDisabled();
 
-    ImGui::BeginDisabled(mLoadedPath.empty() || tcp->is_connected());
+    ImGui::BeginDisabled(m_loaded_path.empty() || tcp->is_connected());
     ImGui::SameLine();
     if (ImGui::Button("Unload Code List"))
     {
-        mCodes.clear();
-        mLoadedPath.clear();
-        mSelectedIndices.clear();
-        mActiveIndex = -1;
+        m_codes.clear();
+        m_loaded_path.clear();
+        m_selected_indices.clear();
+        m_active_index = -1;
     }
     ImGui::EndDisabled();
 
@@ -117,27 +117,27 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
             std::filesystem::path filepath = path;
             std::string ext = filepath.extension().string();
 
-            mCodes.begin_modify();
+            m_codes.begin_modify();
             if (ext == ".bin")
-                CodeLoader::load_from_file(path, mCodes);
+                CodeLoader::load_from_file(path, m_codes);
             else if (ext == ".xml")
-                CodeLoader::load_from_xml_file(path, mCodes);
-            mCodes.end_modify();
+                CodeLoader::load_from_xml_file(path, m_codes);
+            m_codes.end_modify();
 
-            getRaimUI()->getNotificationManager()->AddNotification(mNotifTitle, std::format("Imported \"{}\"", path));
+            get_raim_ui()->get_notification_manager()->AddNotification(m_notif_title, std::format("Imported \"{}\"", path));
         }
     }
 
-    bool has_enabled_entry = mCodes.has_enabled_entry();
+    bool has_enabled_entry = m_codes.has_enabled_entry();
 
     ImGui::SameLine();
     ImGui::BeginDisabled(!has_enabled_entry);
     if (ImGui::Button("Untick All"))
     {
-        mCodes.begin_modify();
-        for (CodeEntry &entry : mCodes)
+        m_codes.begin_modify();
+        for (CodeEntry &entry : m_codes)
             entry.enabled = false;
-        mCodes.end_modify();
+        m_codes.end_modify();
     }
     ImGui::EndDisabled();
     // Line 1 END

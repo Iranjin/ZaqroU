@@ -7,8 +7,7 @@
 
 
 TCPGecko::TCPGecko()
-    : m_socket(m_io_context), m_connected(false),
-      m_nagle_enabled(false)
+    : m_socket(m_io_context), m_nagle_enabled(false)
 {
 }
 
@@ -20,22 +19,36 @@ TCPGecko::~TCPGecko()
 
 void TCPGecko::connect(const std::string &ip_address, uint16_t port)
 {
-    boost::asio::ip::tcp::endpoint endpoint(
-        boost::asio::ip::make_address(ip_address), port);
-    m_socket.connect(endpoint);
-    m_connected = true;
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    
+    try
+    {
+        boost::asio::ip::tcp::endpoint endpoint(
+            boost::asio::ip::make_address(ip_address), port);
+        m_socket.connect(endpoint);
+        m_ip_address = ip_address;
 
-    set_nagle_enabled(m_nagle_enabled);
+        set_nagle_enabled(m_nagle_enabled);
+    }
+    catch (const std::exception &e)
+    {
+        m_socket.close();
+        throw;
+    }
 }
 
 void TCPGecko::disconnect()
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    
     m_socket.close();
-    m_connected = false;
+    m_ip_address.clear();
 }
 
 std::vector<uint8_t> TCPGecko::read_memory(uint32_t address, uint32_t length)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
     if (!is_connected())
         throw std::runtime_error("Not connected");
     
@@ -65,6 +78,8 @@ std::vector<uint8_t> TCPGecko::read_memory(uint32_t address, uint32_t length)
 
 void TCPGecko::write_mem_32(uint32_t address, uint32_t value)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
     if (!is_connected())
         throw std::runtime_error("Not connected");
     
@@ -80,6 +95,8 @@ void TCPGecko::write_mem_32(uint32_t address, uint32_t value)
 
 void TCPGecko::write_mem_16(uint32_t address, uint16_t value)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    
     if (!is_connected())
         throw std::runtime_error("Not connected");
 
@@ -95,6 +112,8 @@ void TCPGecko::write_mem_16(uint32_t address, uint16_t value)
 
 void TCPGecko::write_mem_8(uint32_t address, uint8_t value)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    
     if (!is_connected())
         throw std::runtime_error("Not connected");
 
@@ -110,6 +129,8 @@ void TCPGecko::write_mem_8(uint32_t address, uint8_t value)
 
 void TCPGecko::write_float(uint32_t address, float value)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    
     if (!is_connected())
         throw std::runtime_error("Not connected");
 
@@ -128,6 +149,8 @@ void TCPGecko::write_float(uint32_t address, float value)
 
 void TCPGecko::write_double(uint32_t address, double value)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    
     if (!is_connected())
         throw std::runtime_error("Not connected");
 
@@ -160,6 +183,8 @@ void TCPGecko::write_double(uint32_t address, double value)
 
 void TCPGecko::upload_memory(uint32_t address, const std::vector<uint8_t> &data)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    
     if (!is_connected())
         throw std::runtime_error("Not connected");
     
@@ -231,6 +256,8 @@ void TCPGecko::write_wstr(uint32_t address, const std::wstring &wstr, bool null_
 
 uint32_t TCPGecko::follow_pointer(uint32_t base_address, const std::vector<int32_t> &offsets, bool use_memory_read)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    
     if (!is_connected())
         throw std::runtime_error("Not connected");
 
@@ -289,6 +316,8 @@ bool TCPGecko::is_code_handler_enabled()
 
 size_t TCPGecko::get_data_buffer_size()
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    
     if (!is_connected())
         throw std::runtime_error("Not connected");
 
@@ -304,6 +333,8 @@ size_t TCPGecko::get_data_buffer_size()
 
 uint32_t TCPGecko::get_symbol(const std::string &rplname, const std::string &symname, uint8_t data_flag)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    
     if (!is_connected())
         throw std::runtime_error("Not connected");
     
@@ -345,6 +376,8 @@ uint32_t TCPGecko::get_symbol(const std::string &rplname, const std::string &sym
 
 uint64_t TCPGecko::call(uint32_t address, const std::vector<uint32_t> &args, int recv_size)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    
     if (!is_connected())
         throw std::runtime_error("Not connected");
 
@@ -458,7 +491,7 @@ std::string TCPGecko::get_account_id()
     catch (const std::exception &e)
     {
         free(buffer_address);
-        throw e;
+        throw;
     }
 }
 
@@ -504,6 +537,8 @@ std::wstring TCPGecko::get_mii_name()
 
 std::string TCPGecko::get_server_version()
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    
     if (!is_connected())
         throw std::runtime_error("Not connected");
 
@@ -522,6 +557,8 @@ std::string TCPGecko::get_server_version()
 
 uint32_t TCPGecko::get_persistent_id()
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    
     if (!is_connected())
         throw std::runtime_error("Not connected");
 
@@ -535,6 +572,8 @@ uint32_t TCPGecko::get_persistent_id()
 
 uint32_t TCPGecko::get_os_version()
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    
     if (!is_connected())
         throw std::runtime_error("Not connected");
 
@@ -548,6 +587,8 @@ uint32_t TCPGecko::get_os_version()
 
 uint32_t TCPGecko::get_version_hash()
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    
     if (!is_connected())
         throw std::runtime_error("Not connected");
 
@@ -561,6 +602,8 @@ uint32_t TCPGecko::get_version_hash()
 
 uint32_t TCPGecko::get_code_handler_address()
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    
     if (!is_connected())
         throw std::runtime_error("Not connected");
 

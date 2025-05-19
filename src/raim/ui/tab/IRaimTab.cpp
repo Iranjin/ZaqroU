@@ -6,10 +6,10 @@
 #include "../../Raim.h"
 
 
-Raim *IRaimTab::getRaim()
+Raim *IRaimTab::get_raim()
 {
-    return mRaimUI->getRaim();
+    return m_raim_ui->get_raim();
 }
 
-NotificationManager *IRaimTab::getNotificationManager() { return mRaimUI->getNotificationManager(); }
-std::shared_ptr<Config> IRaimTab::getConfig() { return mRaimUI->getRaim()->getConfig(); }
+NotificationManager *IRaimTab::get_notification_manager() { return m_raim_ui->get_notification_manager(); }
+std::shared_ptr<Config> IRaimTab::get_config() { return m_raim_ui->get_raim()->get_config(); }

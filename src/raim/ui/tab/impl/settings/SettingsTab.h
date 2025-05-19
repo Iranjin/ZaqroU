@@ -15,6 +15,7 @@ private:
     enum TabType
     {
         TAB_GENERAL,
+        TAB_CONNECTION,
         TAB_APPEARANCE,
     };
 

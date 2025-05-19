@@ -5,7 +5,7 @@
 
 void CodesTab::CommentFrame()
 {
-    if (mActiveIndex == -1)
+    if (m_active_index == -1)
         return;
     
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));
@@ -16,8 +16,8 @@ void CodesTab::CommentFrame()
 
     ImGui::InputTextMultiline(
         "##CommentText",
-        (char*) mCodes[mActiveIndex].comment.c_str(),
-        mCodes[mActiveIndex].comment.size() + 1,
+        (char*) m_codes[m_active_index].comment.c_str(),
+        m_codes[m_active_index].comment.size() + 1,
         ImVec2(-FLT_MIN, -FLT_MIN),
         ImGuiInputTextFlags_ReadOnly
     );

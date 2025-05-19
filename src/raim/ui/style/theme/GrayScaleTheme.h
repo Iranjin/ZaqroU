@@ -8,5 +8,5 @@ class GrayScaleTheme : public IRaimUITheme
 public:
     GrayScaleTheme();
 
-    void Apply() const override;
+    void apply() const override;
 };

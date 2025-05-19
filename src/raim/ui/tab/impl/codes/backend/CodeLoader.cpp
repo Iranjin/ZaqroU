@@ -78,10 +78,10 @@ void CodeLoader::load_from_xml_file(const std::string &filename, CodeEntryManage
         };
 
         XMLElement *raw_asm_elem = entry_elem->FirstChildElement("raw_assembly");
-        get_bool(raw_asm_elem, entry.rawAssembly);
+        get_bool(raw_asm_elem, entry.raw_assembly);
 
         XMLElement *raw_write_elem = entry_elem->FirstChildElement("assembly_ram_write");
-        get_bool(raw_write_elem, entry.assemblyRamWrite);
+        get_bool(raw_write_elem, entry.assembly_ram_write);
 
         XMLElement *enabled_elem = entry_elem->FirstChildElement("enabled");
         get_bool(enabled_elem, entry.enabled);
@@ -119,9 +119,9 @@ void CodeLoader::save_to_file(const std::string &filename, const CodeEntryManage
         raw_stream.write(entry.authors.c_str(), authors_len);
 
         uint8_t flags = 0;
-        if (entry.rawAssembly)
+        if (entry.raw_assembly)
             flags |= 1;
-        if (entry.assemblyRamWrite)
+        if (entry.assembly_ram_write)
             flags |= 2;
         if (entry.enabled)
             flags |= 4;
@@ -187,8 +187,8 @@ void CodeLoader::load_version_1(std::istream &in, CodeEntryManager &manager)
 
         uint8_t flags;
         iss.read(reinterpret_cast<char*>(&flags), 1);
-        entry.rawAssembly = flags & 1;
-        entry.assemblyRamWrite = flags & 2;
+        entry.raw_assembly = flags & 1;
+        entry.assembly_ram_write = flags & 2;
         entry.enabled = flags & 4;
 
         uint16_t commentLen;

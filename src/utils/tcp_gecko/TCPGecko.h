@@ -19,8 +19,9 @@ class TCPGecko
 private:
     boost::asio::io_context m_io_context;
     boost::asio::ip::tcp::socket m_socket;
-    bool m_connected;
     bool m_nagle_enabled;
+    std::string m_ip_address;
+    std::recursive_mutex m_mutex;
     
 public:
     TCPGecko();
@@ -37,7 +38,9 @@ public:
         m_nagle_enabled = enabled;
     }
     
+    inline bool is_connected() const { return !m_ip_address.empty(); }
     inline bool is_nagle_enabled() const { return m_nagle_enabled; }
+    inline std::string get_ip_address() const { return m_ip_address; }
 
     std::vector<uint8_t> read_memory(uint32_t address, uint32_t length = 0x4);
     void write_mem_32(uint32_t address, uint32_t value);
@@ -77,8 +80,6 @@ public:
     uint32_t get_os_version();
     uint32_t get_version_hash();
     uint32_t get_code_handler_address();
-
-    inline bool is_connected() const { return m_connected; }
 
     static bool valid_range(uint32_t address, uint32_t length);
     static bool valid_access(uint32_t address, uint32_t length, const std::string &access);

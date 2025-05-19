@@ -16,107 +16,107 @@ void CodesTab::CodesFrame_Search()
 {
     ImGuiIO &io = ImGui::GetIO();
 
-    static bool searchBarFirstTime = false;
+    static bool search_bar_first_time = false;
     
-    if (mShowSearchBar)
+    if (m_show_search_bar)
     {
-        if (searchBarFirstTime)
+        if (search_bar_first_time)
         {
             ImGui::SetKeyboardFocusHere();
-            searchBarFirstTime = false;
+            search_bar_first_time = false;
         }
 
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-        ImGui::InputTextWithHint("##SearchBar", "Search...", mSearchQuery, IM_ARRAYSIZE(mSearchQuery));
+        ImGui::InputTextWithHint("##SearchBar", "Search...", m_search_query, IM_ARRAYSIZE(m_search_query));
 
         if (ImGui::IsItemFocused() && ImGui::IsKeyPressed(ImGuiKey_Escape))
-            mShowSearchBar = false;
+            m_show_search_bar = false;
 
-        mFilteredIndices.clear();
-        for (size_t i = 0; i < mCodes.size(); ++i)
+        m_filtered_indices.clear();
+        for (size_t i = 0; i < m_codes.size(); ++i)
         {
-            std::string name, authorsCombined, query;
+            std::string name, authors_combined, query;
 
-            for (char c : mCodes[i].name)
+            for (char c : m_codes[i].name)
                 if (!std::isspace(c))
                     name += std::tolower(c);
 
-            for (char c : mCodes[i].authors)
+            for (char c : m_codes[i].authors)
                 if (!std::isspace(c))
-                    authorsCombined += std::tolower(c);
+                    authors_combined += std::tolower(c);
 
-            std::string query_raw(mSearchQuery);
+            std::string query_raw(m_search_query);
             for (char c : query_raw)
                 if (!std::isspace(c))
                     query += std::tolower(c);
 
             if (query.empty() ||
                 name.find(query) != std::string::npos ||
-                authorsCombined.find(query) != std::string::npos)
+                authors_combined.find(query) != std::string::npos)
             {
-                mFilteredIndices.push_back(i);
+                m_filtered_indices.push_back(i);
             }
         }
 
     }
     else
     {
-        mFilteredIndices.clear();
-        for (size_t i = 0; i < mCodes.size(); ++i)
-            mFilteredIndices.push_back(i);
+        m_filtered_indices.clear();
+        for (size_t i = 0; i < m_codes.size(); ++i)
+            m_filtered_indices.push_back(i);
         
-        searchBarFirstTime = true;
+        search_bar_first_time = true;
     }
 }
 
-void CodesTab::CodesFrame_MouseClick(ImGuiIO &io, bool &isSelected, size_t &i)
+void CodesTab::CodesFrame_MouseClick(ImGuiIO &io, bool &is_selected, size_t &i)
 {
     if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
     {
         if (io.KeyCtrl) // 複数選択
         {
-            if (isSelected)
-                mSelectedIndices.erase(i);
+            if (is_selected)
+                m_selected_indices.erase(i);
             else
-                mSelectedIndices.insert(i);
+                m_selected_indices.insert(i);
         }
         else if (io.KeyShift) // 範囲選択
         {
-            if (mSelectedIndices.empty()) 
+            if (m_selected_indices.empty()) 
             {
-                mSelectedIndices.insert(i);
+                m_selected_indices.insert(i);
             }
             else
             {
-                size_t start = std::min(mActiveIndex, i);
-                size_t end = std::max(mActiveIndex, i);
+                size_t start = std::min(m_active_index, i);
+                size_t end = std::max(m_active_index, i);
                 
                 for (size_t j = start; j <= end; ++j)
-                    mSelectedIndices.insert(j);
+                    m_selected_indices.insert(j);
             }
         }
         else // 単一選択
         {
-            if (mSelectedIndices.count(i) == 0)
+            if (m_selected_indices.count(i) == 0)
             {
-                mSelectedIndices.clear();
-                mSelectedIndices.insert(i);
+                m_selected_indices.clear();
+                m_selected_indices.insert(i);
             }
-            mCodes.begin_modify();
-            mCodes[i].enabled = !mCodes[i].enabled;
-            mCodes.end_modify();
+            m_codes.begin_modify();
+            m_codes[i].enabled = !m_codes[i].enabled;
+            m_codes.end_modify();
         }
 
-        mActiveIndex = i;
+        m_active_index = i;
     }
 
     if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
     {
-        mActiveIndex = i;
-        if (mSelectedIndices.size() <= 1)
+        m_active_index = i;
+        if (m_selected_indices.size() <= 1)
         {
-            mSelectedIndices.clear();
-            mSelectedIndices.insert(i);
+            m_selected_indices.clear();
+            m_selected_indices.insert(i);
         }
         ImGui::OpenPopup("RightClickMenu");
     }
@@ -126,15 +126,15 @@ void CodesTab::CodesFrame_DragAndDrop(size_t &i)
 {
     if (ImGui::BeginDragDropSource())
     {
-        std::vector<int> dragIndices(mSelectedIndices.begin(), mSelectedIndices.end());
-        std::sort(dragIndices.begin(), dragIndices.end());
+        std::vector<int> drag_indices(m_selected_indices.begin(), m_selected_indices.end());
+        std::sort(drag_indices.begin(), drag_indices.end());
 
-        ImGui::SetDragDropPayload("ENTRIES_MOVE", dragIndices.data(), dragIndices.size() * sizeof(int));
+        ImGui::SetDragDropPayload("ENTRIES_MOVE", drag_indices.data(), drag_indices.size() * sizeof(int));
         
-        if (dragIndices.size() == 1)
-            ImGui::Text("Move Entry: %s", mCodes[dragIndices[0]].name.c_str());
+        if (drag_indices.size() == 1)
+            ImGui::Text("Move Entry: %s", m_codes[drag_indices[0]].name.c_str());
         else
-            ImGui::Text("Move %zu Entries", dragIndices.size());
+            ImGui::Text("Move %zu Entries", drag_indices.size());
 
         ImGui::EndDragDropSource();
     }
@@ -143,28 +143,28 @@ void CodesTab::CodesFrame_DragAndDrop(size_t &i)
     {
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("ENTRIES_MOVE"))
         {
-            const int *srcIndices = static_cast<const int*>(payload->Data);
+            const int *src_indices = static_cast<const int*>(payload->Data);
             size_t count = payload->DataSize / sizeof(int);
-            std::vector<int> indices(srcIndices, srcIndices + count);
+            std::vector<int> indices(src_indices, src_indices + count);
 
             std::sort(indices.begin(), indices.end());
 
-            std::vector<CodeEntry> movingEntries;
+            std::vector<CodeEntry> moving_entries;
             for (int idx : indices)
-                movingEntries.push_back(mCodes[idx]);
+                moving_entries.push_back(m_codes[idx]);
 
-            mCodes.begin_modify();
+            m_codes.begin_modify();
             for (auto it = indices.rbegin(); it != indices.rend(); ++it)
-                mCodes.remove_entry(*it);
+                m_codes.remove_entry(*it);
 
-            size_t insertPos = i;
-            for (size_t j = 0; j < movingEntries.size(); ++j)
-                mCodes.insert_entry(insertPos + j, movingEntries[j]);
-            mCodes.end_modify();
+            size_t insert_pos = i;
+            for (size_t j = 0; j < moving_entries.size(); ++j)
+                m_codes.insert_entry(insert_pos + j, moving_entries[j]);
+            m_codes.end_modify();
 
-            mSelectedIndices.clear();
-            for (size_t j = 0; j < movingEntries.size(); ++j)
-                mSelectedIndices.insert(insertPos + j);
+            m_selected_indices.clear();
+            for (size_t j = 0; j < moving_entries.size(); ++j)
+                m_selected_indices.insert(insert_pos + j);
         }
         ImGui::EndDragDropTarget();
     }
@@ -176,48 +176,48 @@ void CodesTab::CodesFrame_ContextMenu()
     {
         if (ImGui::MenuItem("Edit"))
         {
-            if (!mSelectedIndices.empty())
+            if (!m_selected_indices.empty())
             {
-                size_t selected = *mSelectedIndices.begin();
-                mPopupEntry = mCodes[selected];
-                mEditTargetIndex = selected;
-                mPopupMode = CodePopupMode::Edit;
+                size_t selected = *m_selected_indices.begin();
+                m_popup_entry = m_codes[selected];
+                m_edit_target_index = selected;
+                m_popup_mode = CodePopupMode::Edit;
                 ImGui::OpenPopup("CodePopup");
             }
         }
         if (ImGui::MenuItem("Delete"))
         {
-            std::vector<size_t> sortedIndices(mSelectedIndices.begin(), mSelectedIndices.end());
-            std::sort(sortedIndices.begin(), sortedIndices.end());
+            std::vector<size_t> sorted_indices(m_selected_indices.begin(), m_selected_indices.end());
+            std::sort(sorted_indices.begin(), sorted_indices.end());
 
-            mCodes.begin_modify();
-            for (auto it = sortedIndices.rbegin(); it != sortedIndices.rend(); ++it)
+            m_codes.begin_modify();
+            for (auto it = sorted_indices.rbegin(); it != sorted_indices.rend(); ++it)
             {
-                size_t selectedIndex = *it;
-                mCodes.remove_entry(selectedIndex);
-                mSelectedIndices.erase(selectedIndex);
+                size_t selected_index = *it;
+                m_codes.remove_entry(selected_index);
+                m_selected_indices.erase(selected_index);
             }
-            mCodes.end_modify();
+            m_codes.end_modify();
 
-            mActiveIndex = -1;
+            m_active_index = -1;
         }
         if (ImGui::MenuItem("Duplicate"))
         {
-            std::vector<size_t> newIndices;
+            std::vector<size_t> new_indices;
 
-            mCodes.begin_modify();
-            size_t currentIndex = mCodes.size();
-            for (size_t selectedIndex : mSelectedIndices)
+            m_codes.begin_modify();
+            size_t current_index = m_codes.size();
+            for (size_t selected_index : m_selected_indices)
             {
-                mCodes.insert_entry(currentIndex, mCodes[selectedIndex]);
-                newIndices.push_back(currentIndex);
-                currentIndex++;
+                m_codes.insert_entry(current_index, m_codes[selected_index]);
+                new_indices.push_back(current_index);
+                current_index++;
             }
-            mCodes.end_modify();
+            m_codes.end_modify();
 
-            mSelectedIndices.clear();
-            for (size_t newIndex : newIndices)
-                mSelectedIndices.insert(newIndex);
+            m_selected_indices.clear();
+            for (size_t new_index : new_indices)
+                m_selected_indices.insert(new_index);
         }
 
         ImGui::EndPopup();
@@ -234,41 +234,41 @@ void CodesTab::CodesFrame()
     // ショートカット
     if (ImGui::IsWindowFocused() && !io.WantCaptureKeyboard)
     {
-        if (!mFilteredIndices.empty())
+        if (!m_filtered_indices.empty())
         {
             if (ImGui::IsKeyPressed(ImGuiKey_Escape))
             {
-                mSelectedIndices.clear();
-                mActiveIndex = -1;
+                m_selected_indices.clear();
+                m_active_index = -1;
             }
 
             if (ImGui::IsKeyPressed(ImGuiKey_Enter) || ImGui::IsKeyPressed(ImGuiKey_KeypadEnter))
             {
-                bool newState = !mCodes[*mSelectedIndices.begin()].enabled;
+                bool newState = !m_codes[*m_selected_indices.begin()].enabled;
 
-                mCodes.begin_modify();
-                for (size_t i : mSelectedIndices)
-                    mCodes[i].enabled = newState;
-                mCodes.end_modify();
+                m_codes.begin_modify();
+                for (size_t i : m_selected_indices)
+                    m_codes[i].enabled = newState;
+                m_codes.end_modify();
             }
 
             if (io.KeyCtrl)
             {
                 if (ImGui::IsKeyPressed(ImGuiKey_A))
                 {
-                    mSelectedIndices.clear();
-                    for (size_t i : mFilteredIndices)
-                        mSelectedIndices.insert(i);
-                    mActiveIndex = mFilteredIndices.empty() ? -1 : mFilteredIndices.back();
+                    m_selected_indices.clear();
+                    for (size_t i : m_filtered_indices)
+                        m_selected_indices.insert(i);
+                    m_active_index = m_filtered_indices.empty() ? -1 : m_filtered_indices.back();
                 }
             }
 
-            if (!mSelectedIndices.empty())
+            if (!m_selected_indices.empty())
             {
                 size_t currentFilteredPos = -1;
-                for (size_t j = 0; j < mFilteredIndices.size(); ++j)
+                for (size_t j = 0; j < m_filtered_indices.size(); ++j)
                 {
-                    if (mFilteredIndices[j] == mActiveIndex)
+                    if (m_filtered_indices[j] == m_active_index)
                     {
                         currentFilteredPos = j;
                         break;
@@ -283,16 +283,16 @@ void CodesTab::CodesFrame()
                 }
                 else if (ImGui::IsKeyPressed(ImGuiKey_DownArrow))
                 {
-                    if (currentFilteredPos >= 0 && currentFilteredPos < mFilteredIndices.size() - 1)
+                    if (currentFilteredPos >= 0 && currentFilteredPos < m_filtered_indices.size() - 1)
                         newFilteredPos = currentFilteredPos + 1;
                 }
 
                 if (newFilteredPos != -1)
                 {
-                    size_t newIndex = mFilteredIndices[newFilteredPos];
-                    mSelectedIndices.clear();
-                    mSelectedIndices.insert(newIndex);
-                    mActiveIndex = newIndex;
+                    size_t new_index = m_filtered_indices[newFilteredPos];
+                    m_selected_indices.clear();
+                    m_selected_indices.insert(new_index);
+                    m_active_index = new_index;
 
                     float itemHeight = ImGui::GetFrameHeightWithSpacing();
                     float scrollY = ImGui::GetScrollY();
@@ -312,30 +312,30 @@ void CodesTab::CodesFrame()
         if (io.KeyCtrl)
         {
             if (ImGui::IsKeyPressed(ImGuiKey_F)) // Search
-                mShowSearchBar = !mShowSearchBar;
+                m_show_search_bar = !m_show_search_bar;
             
             if (ImGui::IsKeyPressed(ImGuiKey_Z)) // Undo
-                mCodes.undo();
+                m_codes.undo();
             
             if (io.KeyShift && ImGui::IsKeyPressed(ImGuiKey_Z)) // Redo
-                mCodes.redo();
+                m_codes.redo();
         }
     }
 
-    for (size_t i = 0; i < mFilteredIndices.size(); ++i)
+    for (size_t i = 0; i < m_filtered_indices.size(); ++i)
     {
-        size_t index = mFilteredIndices[i];
+        size_t index = m_filtered_indices[i];
 
-        ImVec2 fullWidth = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeightWithSpacing());
-        bool isSelected = mSelectedIndices.count(index) > 0;
+        ImVec2 full_width = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeightWithSpacing());
+        bool is_selected = m_selected_indices.count(index) > 0;
 
-        if (isSelected)
+        if (is_selected)
         {
             ImU32 color = ImGui::GetColorU32(ImGuiCol_Header);
-            ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+            ImVec2 cursor_pos = ImGui::GetCursorScreenPos();
             ImGui::GetWindowDrawList()->AddRectFilled(
-                cursorPos,
-                ImVec2(cursorPos.x + fullWidth.x, cursorPos.y + ImGui::GetFrameHeight()),
+                cursor_pos,
+                ImVec2(cursor_pos.x + full_width.x, cursor_pos.y + ImGui::GetFrameHeight()),
                 ImColor(ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]),
                 ImGui::GetStyle().FrameRounding
             );
@@ -344,34 +344,34 @@ void CodesTab::CodesFrame()
         ImGui::PushID(i);
 
         ImVec2 checkboxPos = ImGui::GetCursorPos();
-        ImGui::InvisibleButton("##EntryWidget", ImVec2(fullWidth.x, ImGui::GetFrameHeight()));
+        ImGui::InvisibleButton("##EntryWidget", ImVec2(full_width.x, ImGui::GetFrameHeight()));
 
-        CodesFrame_MouseClick(io, isSelected, index);
+        CodesFrame_MouseClick(io, is_selected, index);
         CodesFrame_DragAndDrop(index);
 
-        std::string label = mCodes[index].name;
-        if (!mCodes[index].authors.empty())
-            label += std::format(" [{}]", mCodes[index].authors);
+        std::string label = m_codes[index].name;
+        if (!m_codes[index].authors.empty())
+            label += std::format(" [{}]", m_codes[index].authors);
 
-        std::string displayLabel = label;
+        std::string display_label = label;
 
-        float maxLabelWidth = fullWidth.x - ImGui::GetStyle().FramePadding.x * 2.0f - ImGui::GetFontSize();
+        float max_label_width = full_width.x - ImGui::GetStyle().FramePadding.x * 2.0f - ImGui::GetFontSize();
         ImVec2 textSize = ImGui::CalcTextSize(label.c_str());
 
-        bool wasTruncated = false;
-        if (textSize.x > maxLabelWidth)
+        bool was_truncated = false;
+        if (textSize.x > max_label_width)
         {
-            wasTruncated = true;
-            while (displayLabel.length() > 3 &&
-                   ImGui::CalcTextSize((displayLabel.substr(0, displayLabel.length() - 3) + "...").c_str()).x > maxLabelWidth)
-                displayLabel.pop_back();
-            displayLabel = displayLabel.substr(0, displayLabel.length() - 3) + "...";
+            was_truncated = true;
+            while (display_label.length() > 3 &&
+                   ImGui::CalcTextSize((display_label.substr(0, display_label.length() - 3) + "...").c_str()).x > max_label_width)
+                display_label.pop_back();
+            display_label = display_label.substr(0, display_label.length() - 3) + "...";
         }
 
         ImGui::SetCursorPos(checkboxPos);
-        ImGui::Checkbox(displayLabel.c_str(), &mCodes[index].enabled);
+        ImGui::Checkbox(display_label.c_str(), &m_codes[index].enabled);
 
-        if (wasTruncated && ImGui::IsItemHovered())
+        if (was_truncated && ImGui::IsItemHovered())
             ImGui::SetTooltip("%s", label.c_str());
 
         CodesFrame_ContextMenu();
@@ -381,10 +381,10 @@ void CodesTab::CodesFrame()
 
     ImGui::PopStyleVar();
 
-    if (mListUpdated)
+    if (m_list_updated)
     {
         ImGui::SetScrollHereY(1.0f);
-        mListUpdated = false;
+        m_list_updated = false;
     }
 
     ImGui::EndChild();

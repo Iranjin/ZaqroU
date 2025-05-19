@@ -18,7 +18,7 @@ private:
     AsyncTask<std::string> m_set_game_mode_description_task;
 
 public:
-    DebugTab(RaimUI *raimUI);
+    DebugTab(RaimUI *raim_ui);
 
     void Update() override;
     void UpdateBackground() override;

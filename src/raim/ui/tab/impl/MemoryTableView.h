@@ -6,8 +6,8 @@
 #include <vector>
 #include <cstdint>
 
-#include <utils/tcp_gecko/TCPGecko.h>
 
+class TCPGecko;
 
 class MemoryTableView
 {
@@ -24,21 +24,21 @@ public:
 public:
     MemoryTableView(std::shared_ptr<TCPGecko> tcp);
 
-    void SetMemory(const std::vector<uint8_t> &memory, uint32_t baseAddress);
-    void SetViewMode(EViewMode hexMode);
-    void Draw();
+    void set_memory(const std::vector<uint8_t> &memory, uint32_t base_address);
+    void set_view_mode(EViewMode hexMode);
+    void draw();
 
-    void JumpToAddress(uint32_t address);
-    void UpdateMemory(uint32_t address, uint32_t value);
+    void jump_to_address(uint32_t address);
+    void update_memory(uint32_t address, uint32_t value);
 
-    uint32_t GetSelectedAddress() const;
-    uint32_t GetSelectedValue() const;
+    uint32_t get_selected_address() const;
+    uint32_t get_selected_value() const;
 
-    uint8_t GetBytesPerCell() const { return m_bytes_per_cell; }
-    const char *GetViewFormat() const { return m_view_format.c_str(); }
+    uint8_t get_bytes_per_cell() const { return m_bytes_per_cell; }
+    const char *get_view_format() const { return m_view_format.c_str(); }
 
 private:
-    void FormatValue(char *str, size_t size, const char *buf);
+    void format_value(char *str, size_t size, const char *buf);
 
     std::vector<uint8_t> m_memory;
     uint32_t m_base_address;

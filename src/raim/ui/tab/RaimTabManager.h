@@ -9,18 +9,20 @@ class IRaimTab;
 class RaimTabManager
 {
 private:
-    RaimUI *mRaimUI;
-    std::vector<IRaimTab*> mTabs;
-    IRaimTab *mActiveTab = nullptr;
+    RaimUI *m_raim_ui;
+    std::vector<IRaimTab*> m_tabs;
+    IRaimTab *m_active_tab = nullptr;
 
-    bool mLastConnected = false;
+    bool m_last_connected = false;
 
     void AllocTabs();
     void DeallocTabs();
 
 public:
-    RaimTabManager(RaimUI *raimUI);
+    RaimTabManager(RaimUI *raim_ui);
     ~RaimTabManager();
 
     void Update();
+
+    IRaimTab *get_active_tab() const { return m_active_tab; }
 };

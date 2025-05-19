@@ -9,16 +9,16 @@
 
 struct TitleEntry
 {
-    std::string titleId;
+    std::string title_id;
     std::string description;
     std::string product;
     std::string company;
 
     std::string getFormattedId() const
     {
-        std::string idPart = product.length() >= 4 ? product.substr(product.length() - 4) : product;
-        std::string companyPart = company.length() >= 2 ? company.substr(company.length() - 2) : company;
-        return idPart + companyPart;
+        std::string id_part = product.length() >= 4 ? product.substr(product.length() - 4) : product;
+        std::string company_part = company.length() >= 2 ? company.substr(company.length() - 2) : company;
+        return id_part + company_part;
     }
 };
 
@@ -28,15 +28,18 @@ private:
     std::string m_path;
     std::vector<TitleEntry> entries;
 
-    void parseTitles(tinyxml2::XMLElement *root);
+    void parse_titles(tinyxml2::XMLElement *root);
 
 public:
-    TitleIdParser(const std::string &xmlPath);
+    TitleIdParser(const std::string &xml_path);
 
     bool load();
-    const std::vector<TitleEntry> &getEntries() const;
+    const std::vector<TitleEntry> &get_entries() const;
 
-    static std::string fromUint64(uint64_t titleId);
+    static std::string from_Uint64(uint64_t title_id);
 
-    const TitleEntry *findEntryByUint64(uint64_t titleId) const;
+    const TitleEntry *find_entry_by_Uint64(uint64_t title_id) const;
+
+    void set_path(const std::string &path) { m_path = path; }
+    std::string get_path() const { return m_path; }
 };

@@ -9,10 +9,10 @@
 #include <imgui.h>
 
 
-SettingsTab::SettingsTab(RaimUI *raimUI)
-    : IRaimTab(raimUI, "Settings")
+SettingsTab::SettingsTab(RaimUI *raim_ui)
+    : IRaimTab(raim_ui, "Settings")
 {
-    AddSetting(TAB_APPEARANCE, "Theme", "appearance.theme", getRaimUI()->getUITheme()->AllThemes()[0]);
+    AddSetting(TAB_APPEARANCE, "Theme", "appearance.theme", get_raim_ui()->get_ui_theme()->all_themes()[0]);
     AddSetting(TAB_APPEARANCE, "Font scale", "appearance.font_scale", 1.0f, 0.5f, 2.0f);
 }
 
@@ -20,46 +20,46 @@ template <>
 void SettingsTab::AddSetting<IRaimUITheme*>(TabType tab, const char* label, const char* key, IRaimUITheme* defaultValue)
 {
     mTabSettings[tab].emplace_back(std::make_unique<Setting<std::string>>(
-        label, key, defaultValue ? defaultValue->GetName() : "",
-        [raimUI = getRaimUI()](const std::string &label, std::string &themeName) {
-            RaimUI_Theme *uiTheme = raimUI->getUITheme();
-            const auto &themes = uiTheme->AllThemes();
+        label, key, defaultValue ? defaultValue->get_name() : "",
+        [raim_ui = get_raim_ui()](const std::string &label, std::string &theme_name) {
+            RaimUI_Theme *uiTheme = raim_ui->get_ui_theme();
+            const auto &themes = uiTheme->all_themes();
 
-            std::vector<std::string> themeDisplayNames;
+            std::vector<std::string> theme_display_names;
 
-            int currentIndex = -1;
+            int current_index = -1;
 
             for (int i = 0; i < themes.size(); ++i)
             {
-                std::string name = themes[i]->GetName();
-                std::string displayName = themes[i]->GetDisplayName();
+                std::string name = themes[i]->get_name();
+                std::string displayName = themes[i]->get_display_name();
 
-                themeDisplayNames.push_back(displayName);
+                theme_display_names.push_back(displayName);
 
-                if (name == themeName)
-                    currentIndex = i;
+                if (name == theme_name)
+                    current_index = i;
             }
 
-            bool changed = ImGui::Combo(("##" + label).c_str(), &currentIndex, 
+            bool changed = ImGui::Combo(("##" + label).c_str(), &current_index, 
                                         [](void *data, int idx, const char **out_text) -> bool {
-                                            auto &themeDisplayNames = *reinterpret_cast<std::vector<std::string>*>(data);
-                                            *out_text = themeDisplayNames[idx].c_str();
+                                            auto &theme_display_names = *reinterpret_cast<std::vector<std::string>*>(data);
+                                            *out_text = theme_display_names[idx].c_str();
                                             return true;
                                         },
-                                        &themeDisplayNames, (int) themeDisplayNames.size());
+                                        &theme_display_names, (int) theme_display_names.size());
 
-            if (changed && currentIndex >= 0)
+            if (changed && current_index >= 0)
             {
-                themeName = themes[currentIndex]->GetName();
-                themes[currentIndex]->Apply();
+                theme_name = themes[current_index]->get_name();
+                themes[current_index]->apply();
                 return true;
             }
 
             return false;
         },
-        [raimUI = getRaimUI()](const std::string& themeName) {
-            for (IRaimUITheme *t : raimUI->getUITheme()->AllThemes())
-                if (t->GetName() == themeName) t->Apply();
+        [raim_ui = get_raim_ui()](const std::string& theme_name) {
+            for (IRaimUITheme *t : raim_ui->get_ui_theme()->all_themes())
+                if (t->get_name() == theme_name) t->apply();
         }
     ));
 }
@@ -114,18 +114,18 @@ void SettingsTab::AddSetting<double>(TabType tab, const char *label, const char 
 
 void SettingsTab::OnTabOpened()
 {
-    std::shared_ptr<Config> config = getConfig();
+    std::shared_ptr<Config> config = get_config();
 
     for (const auto &tab : mTabSettings)
     {
         for (const std::unique_ptr<ISetting> &setting : tab.second)
-            setting->Load(config);
+            setting->load(config);
     }
 }
 
 void SettingsTab::Update()
 {
-    std::shared_ptr<Config> config = getConfig();
+    std::shared_ptr<Config> config = get_config();
     bool changed = false;
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8, 4));
@@ -139,6 +139,7 @@ void SettingsTab::Update()
             switch (tab.first)
             {
                 case TAB_GENERAL: tabName = "General"; break;
+                case TAB_CONNECTION: tabName = "Connection"; break;
                 case TAB_APPEARANCE: tabName = "Appearance"; break;
             }
 
@@ -148,7 +149,7 @@ void SettingsTab::Update()
                 {
                     ImGui::PushID(setting.get());
                     ImGui::PushItemWidth(-1);
-                    changed |= setting->Update(config);
+                    changed |= setting->update(config);
                     ImGui::PopItemWidth();
                     ImGui::Spacing();
                     ImGui::PopID();

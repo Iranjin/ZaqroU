@@ -18,13 +18,13 @@ MemoryTableView::MemoryTableView(std::shared_ptr<TCPGecko> tcp)
 {
 }
 
-void MemoryTableView::SetMemory(const std::vector<uint8_t> &memory, uint32_t base_address)
+void MemoryTableView::set_memory(const std::vector<uint8_t> &memory, uint32_t base_address)
 {
     m_memory = memory;
     m_base_address = base_address;
 }
 
-void MemoryTableView::SetViewMode(EViewMode mode)
+void MemoryTableView::set_view_mode(EViewMode mode)
 {
     m_view_mode = mode;
 
@@ -49,7 +49,7 @@ void MemoryTableView::SetViewMode(EViewMode mode)
     }
 }
 
-void MemoryTableView::FormatValue(char *str, size_t size, const char *buf)
+void MemoryTableView::format_value(char *str, size_t size, const char *buf)
 {
     switch (m_view_mode)
     {
@@ -99,7 +99,7 @@ void MemoryTableView::FormatValue(char *str, size_t size, const char *buf)
     }
 }
 
-void MemoryTableView::JumpToAddress(uint32_t address)
+void MemoryTableView::jump_to_address(uint32_t address)
 {
     int offset = address - m_base_address;
     if (offset >= 0 && offset + 3 < static_cast<int>(m_memory.size()))
@@ -110,7 +110,7 @@ void MemoryTableView::JumpToAddress(uint32_t address)
     }
 }
 
-void MemoryTableView::UpdateMemory(uint32_t address, uint32_t value)
+void MemoryTableView::update_memory(uint32_t address, uint32_t value)
 {
     int offset = address - m_base_address;
     if (offset >= 0 && offset + m_bytes_per_cell - 1 < static_cast<int>(m_memory.size()))
@@ -123,7 +123,7 @@ void MemoryTableView::UpdateMemory(uint32_t address, uint32_t value)
     }
 }
 
-uint32_t MemoryTableView::GetSelectedAddress() const
+uint32_t MemoryTableView::get_selected_address() const
 {
     if (m_selected_cell.row >= 0 && m_selected_cell.col > 0)
     {
@@ -132,9 +132,9 @@ uint32_t MemoryTableView::GetSelectedAddress() const
     return 0;
 }
 
-uint32_t MemoryTableView::GetSelectedValue() const
+uint32_t MemoryTableView::get_selected_value() const
 {
-    uint32_t addr = GetSelectedAddress();
+    uint32_t addr = get_selected_address();
     int index = addr - m_base_address;
 
     if (index >= 0 && index + m_bytes_per_cell - 1 < static_cast<int>(m_memory.size()))
@@ -150,7 +150,7 @@ uint32_t MemoryTableView::GetSelectedValue() const
     return 0;
 }
 
-void MemoryTableView::Draw()
+void MemoryTableView::draw()
 {
     if (m_memory.empty())
         return;
@@ -191,7 +191,7 @@ void MemoryTableView::Draw()
                     int i = row + (col - 1) * m_bytes_per_cell;
 
                     if (i + m_bytes_per_cell - 1 < static_cast<int>(m_memory.size()))
-                        FormatValue(buf, sizeof(buf), reinterpret_cast<const char*>(&m_memory[i]));
+                        format_value(buf, sizeof(buf), reinterpret_cast<const char*>(&m_memory[i]));
                     else
                         snprintf(buf, sizeof(buf), "--------");
 

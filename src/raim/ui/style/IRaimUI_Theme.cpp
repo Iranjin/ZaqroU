@@ -3,7 +3,7 @@
 #include <imgui.h>
 
 
-void IRaimUITheme::Apply() const // Default
+void IRaimUITheme::apply() const // Default
 {
     ImGuiStyle &style = ImGui::GetStyle();
 
@@ -22,6 +22,7 @@ void IRaimUITheme::Apply() const // Default
     colors[ImGuiCol_Text]                  = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
     colors[ImGuiCol_WindowBg]              = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
     colors[ImGuiCol_PopupBg]               = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+    colors[ImGuiCol_TableHeaderBg]         = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
     colors[ImGuiCol_TableRowBg]            = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
     colors[ImGuiCol_Border]                = ImVec4(0.35f, 0.35f, 0.35f, 1.0f);
     colors[ImGuiCol_CheckMark]             = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
@@ -38,7 +39,7 @@ void IRaimUITheme::Apply() const // Default
     colors[ImGuiCol_TitleBgActive]         = ImVec4(0.4f,  0.1f,  0.1f,  1.0f);
     colors[ImGuiCol_TitleBgCollapsed]      = ImVec4(0.8f,  0.3f,  0.3f,  1.0f);
 
-    colors[ImGuiCol_FrameBg]               = ImVec4(0.20f, 0.20f, 0.20f, 1.0f);
+    colors[ImGuiCol_FrameBg]               = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
     colors[ImGuiCol_FrameBgHovered]        = ImVec4(0.25f, 0.25f, 0.25f, 1.0f);
     colors[ImGuiCol_FrameBgActive]         = ImVec4(0.30f, 0.30f, 0.30f, 1.0f);
 

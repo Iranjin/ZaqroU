@@ -132,10 +132,10 @@ void CodesTab::CodeFrame_ContextMenu(std::vector<std::string> &lines, int &selec
 
 void CodesTab::CodeFrame()
 {
-    if (mActiveIndex == -1)
+    if (m_active_index == -1)
         return;
 
-    const std::string& code = mCodes[mActiveIndex].codes;
+    const std::string& code = m_codes[m_active_index].codes;
     static int selection_start = -1;
     static int selection_end = -1;
     static bool dragging = false;

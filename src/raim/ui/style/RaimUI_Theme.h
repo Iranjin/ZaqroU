@@ -35,18 +35,18 @@ public:
         }
     }
 
-    const std::vector<IRaimUITheme*> &AllThemes()
+    const std::vector<IRaimUITheme*> &all_themes()
     {
         return mThemes;
     }
 
-    const IRaimUITheme *FromName(const std::string &name)
+    const IRaimUITheme *from_name(const std::string &name)
     {
-        for (IRaimUITheme *theme : AllThemes())
+        for (IRaimUITheme *theme : all_themes())
         {
-            if (theme->GetName() == name)
+            if (theme->get_name() == name)
                 return theme;
         }
-        return AllThemes()[0];
+        return all_themes()[0];
     }
 };

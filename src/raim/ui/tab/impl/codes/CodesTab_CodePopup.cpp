@@ -5,7 +5,7 @@
 
 void CodesTab::CodePopup()
 {
-    if (mPopupMode != CodePopupMode::None)
+    if (m_popup_mode != CodePopupMode::None)
         ImGui::OpenPopup("CodePopup");
     else
         return;
@@ -27,9 +27,9 @@ void CodesTab::CodePopup()
         static bool initialized = false;
         if (!initialized)
         {
-            if (mPopupMode == CodePopupMode::Edit && mEditTargetIndex >= 0 && mEditTargetIndex < (int)mCodes.size())
+            if (m_popup_mode == CodePopupMode::Edit && m_edit_target_index >= 0 && m_edit_target_index < (int)m_codes.size())
             {
-                const CodeEntry& entry = mCodes[mEditTargetIndex];
+                const CodeEntry& entry = m_codes[m_edit_target_index];
                 strncpy(inputTitle, entry.name.c_str(), sizeof(inputTitle));
                 inputTitle[sizeof(inputTitle) - 1] = '\0';
 
@@ -42,7 +42,7 @@ void CodesTab::CodePopup()
                 strncpy(inputComment, entry.comment.c_str(), sizeof(inputComment));
                 inputComment[sizeof(inputComment) - 1] = '\0';
 
-                inputAssemblyRamWrite = entry.assemblyRamWrite;
+                inputAssemblyRamWrite = entry.assembly_ram_write;
             }
             else
             {
@@ -85,19 +85,19 @@ void CodesTab::CodePopup()
             entry.name = inputTitle;
             entry.authors = inputAuthors;
             entry.comment = inputComment;
-            entry.assemblyRamWrite = inputAssemblyRamWrite;
-            entry.enabled = mCodes[mEditTargetIndex].enabled;
+            entry.assembly_ram_write = inputAssemblyRamWrite;
+            entry.enabled = m_codes[m_edit_target_index].enabled;
             entry.codes = inputCode;
 
-            mCodes.begin_modify();
-            if (mPopupMode == CodePopupMode::Add)
-                mCodes.add_entry(entry);
-            else if (mPopupMode == CodePopupMode::Edit && mEditTargetIndex >= 0 && mEditTargetIndex < (int)mCodes.size())
-                mCodes[mEditTargetIndex] = entry;
-            mCodes.end_modify();
+            m_codes.begin_modify();
+            if (m_popup_mode == CodePopupMode::Add)
+                m_codes.add_entry(entry);
+            else if (m_popup_mode == CodePopupMode::Edit && m_edit_target_index >= 0 && m_edit_target_index < (int)m_codes.size())
+                m_codes[m_edit_target_index] = entry;
+            m_codes.end_modify();
 
             initialized = false;
-            mPopupMode = CodePopupMode::None;
+            m_popup_mode = CodePopupMode::None;
             ImGui::CloseCurrentPopup();
         }
 
@@ -115,7 +115,7 @@ void CodesTab::CodePopup()
         if (clickedOutside)
         {
             initialized = false;
-            mPopupMode = CodePopupMode::None;
+            m_popup_mode = CodePopupMode::None;
             ImGui::CloseCurrentPopup();
         }
 

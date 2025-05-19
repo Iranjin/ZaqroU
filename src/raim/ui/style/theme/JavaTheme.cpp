@@ -8,9 +8,9 @@ JavaTheme::JavaTheme()
 {
 }
 
-void JavaTheme::Apply() const
+void JavaTheme::apply() const
 {
-    IRaimUITheme::Apply();
+    IRaimUITheme::apply();
 
     ImGuiStyle &style = ImGui::GetStyle();
     ImVec4 *colors = style.Colors;
@@ -18,6 +18,7 @@ void JavaTheme::Apply() const
     colors[ImGuiCol_Text]                  = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
     colors[ImGuiCol_WindowBg]              = ImVec4(0.93f, 0.93f, 0.93f, 1.0f);
     colors[ImGuiCol_PopupBg]               = ImVec4(0.93f, 0.93f, 0.93f, 1.0f);
+    colors[ImGuiCol_TableHeaderBg]         = ImVec4(0.85f, 0.85f, 0.85f, 1.0f);
     colors[ImGuiCol_TableRowBg]            = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
     colors[ImGuiCol_TableRowBgAlt]         = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
     colors[ImGuiCol_Border]                = ImVec4(0.70f, 0.70f, 0.70f, 1.0f);

@@ -32,11 +32,11 @@ bool TitleIdParser::load()
         return false;
     }
 
-    parseTitles(root);
+    parse_titles(root);
     return true;
 }
 
-void TitleIdParser::parseTitles(XMLElement *root)
+void TitleIdParser::parse_titles(XMLElement *root)
 {
     entries.clear();
 
@@ -49,7 +49,7 @@ void TitleIdParser::parseTitles(XMLElement *root)
         const char *prod = title->FirstChildElement("product") ? title->FirstChildElement("product")->GetText() : nullptr;
         const char *comp = title->FirstChildElement("company") ? title->FirstChildElement("company")->GetText() : nullptr;
 
-        if (idAttr) entry.titleId = idAttr;
+        if (idAttr) entry.title_id = idAttr;
         if (desc) entry.description = desc;
         if (prod) entry.product = prod;
         if (comp) entry.company = comp;
@@ -58,29 +58,29 @@ void TitleIdParser::parseTitles(XMLElement *root)
     }
 }
 
-const std::vector<TitleEntry> &TitleIdParser::getEntries() const
+const std::vector<TitleEntry> &TitleIdParser::get_entries() const
 {
     return entries;
 }
 
-std::string TitleIdParser::fromUint64(uint64_t titleId)
+std::string TitleIdParser::from_Uint64(uint64_t title_id)
 {
-    uint32_t high = (uint32_t) (titleId >> 32);
-    uint32_t low = (uint32_t) (titleId & 0xFFFFFFFF);
+    uint32_t high = (uint32_t) (title_id >> 32);
+    uint32_t low = (uint32_t) (title_id & 0xFFFFFFFF);
 
-    char formattedId[20];
-    snprintf(formattedId, sizeof(formattedId), "%08X-%08X", high, low);
+    char formatted_id[20];
+    snprintf(formatted_id, sizeof(formatted_id), "%08X-%08X", high, low);
 
-    return std::string(formattedId);
+    return std::string(formatted_id);
 }
 
-const TitleEntry *TitleIdParser::findEntryByUint64(uint64_t titleId) const
+const TitleEntry *TitleIdParser::find_entry_by_Uint64(uint64_t title_id) const
 {
-    std::string idStr = fromUint64(titleId);
+    std::string id_str = from_Uint64(title_id);
 
     for (const TitleEntry &entry : entries)
     {
-        if (entry.titleId == idStr)
+        if (entry.title_id == id_str)
             return &entry;
     }
     return nullptr;

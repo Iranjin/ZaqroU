@@ -8,9 +8,9 @@ DarkTheme::DarkTheme()
 {
 }
 
-void DarkTheme::Apply() const
+void DarkTheme::apply() const
 {
-    IRaimUITheme::Apply();
+    IRaimUITheme::apply();
 
     ImGuiStyle &style = ImGui::GetStyle();
     ImVec4 *colors = style.Colors;
@@ -18,6 +18,7 @@ void DarkTheme::Apply() const
     colors[ImGuiCol_Text]                  = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
     colors[ImGuiCol_WindowBg]              = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
     colors[ImGuiCol_PopupBg]               = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+    colors[ImGuiCol_TableHeaderBg]         = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
     colors[ImGuiCol_TableRowBg]            = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
     colors[ImGuiCol_Border]                = ImVec4(0.35f, 0.35f, 0.35f, 1.0f);
     colors[ImGuiCol_CheckMark]             = ImVec4(0.1f, 0.5f, 1.0f, 1.0f);
@@ -30,7 +31,7 @@ void DarkTheme::Apply() const
     colors[ImGuiCol_TitleBgActive]         = ImVec4(0.50f, 0.50f, 0.50f, 1.0f);
     colors[ImGuiCol_TitleBgCollapsed]      = ImVec4(0.60f, 0.60f, 0.60f, 1.0f);
 
-    colors[ImGuiCol_FrameBg]               = ImVec4(0.20f, 0.20f, 0.20f, 1.0f);
+    colors[ImGuiCol_FrameBg]               = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
     colors[ImGuiCol_FrameBgHovered]        = ImVec4(0.25f, 0.25f, 0.25f, 1.0f);
     colors[ImGuiCol_FrameBgActive]         = ImVec4(0.30f, 0.30f, 0.30f, 1.0f);
 

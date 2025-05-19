@@ -8,5 +8,5 @@ class JavaTheme : public IRaimUITheme
 public:
     JavaTheme();
 
-    void Apply() const override;
+    void apply() const override;
 };

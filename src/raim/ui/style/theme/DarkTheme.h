@@ -8,5 +8,5 @@ class DarkTheme : public IRaimUITheme
 public:
     DarkTheme();
 
-    void Apply() const override;
+    void apply() const override;
 };

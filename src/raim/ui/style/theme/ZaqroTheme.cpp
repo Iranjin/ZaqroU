@@ -6,10 +6,10 @@
 ZaqroTheme::ZaqroTheme()
     : IRaimUITheme("Zaqro")
 {
-    SetDisplayName(GetDisplayName() + " (Default)");
+    set_display_name(get_display_name() + " (Default)");
 }
 
-void ZaqroTheme::Apply() const
+void ZaqroTheme::apply() const
 {
-    IRaimUITheme::Apply();
+    IRaimUITheme::apply();
 }

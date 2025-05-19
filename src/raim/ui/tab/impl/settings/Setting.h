@@ -13,66 +13,66 @@ template <typename T>
 class Setting : public ISetting
 {
 public:
-    Setting(const std::string& label, const std::string& key, T defaultValue,
-            std::function<bool(const std::string&, T&)> uiFunc,
-            std::function<void(const T&)> onReset = nullptr)
-        : mLabel(label), mKey(key), mDefaultValue(defaultValue), mValue(defaultValue),
-          mUIFunc(uiFunc), mOnReset(onReset)
+    Setting(const std::string& label, const std::string& key, T default_value,
+            std::function<bool(const std::string&, T&)> ui_func,
+            std::function<void(const T&)> on_reset = nullptr)
+        : m_label(label), m_key(key), m_default_value(default_value), m_value(default_value),
+          m_ui_func(ui_func), m_on_reset(on_reset)
     {
     }
 
-    void Save(std::shared_ptr<Config> config) override
+    void save(std::shared_ptr<Config> config) override
     {
-        config->set_nested(mKey, mValue);
+        config->set_nested(m_key, m_value);
     }
 
-    void Load(std::shared_ptr<Config> config) override
+    void load(std::shared_ptr<Config> config) override
     {
-        mValue = config->get_nested(mKey, mValue);
+        m_value = config->get_nested(m_key, m_value);
     }
 
-    bool Update(std::shared_ptr<Config> config) override
+    bool update(std::shared_ptr<Config> config) override
     {
-        ImGui::SeparatorText(mLabel.c_str());
+        ImGui::SeparatorText(m_label.c_str());
         
-        T old = mValue;
-        if (mUIFunc(mLabel, mValue))
+        T old = m_value;
+        if (m_ui_func(m_label, m_value))
         {
-            if (old != mValue)
+            if (old != m_value)
             {
-                Save(config);
+                save(config);
                 return true;
             }
         }
         
         if (IsModified() && ImGui::Button("Reset"))
         {
-            ResetToDefault();
-            Save(config);
+            reset_to_default();
+            save(config);
             return true;
         }
         
         return false;
     }
 
-    void ResetToDefault() override
+    void reset_to_default() override
     {
-        mValue = mDefaultValue;
+        m_value = m_default_value;
 
-        if (mOnReset)
-            mOnReset(mValue);
+        if (m_on_reset)
+            m_on_reset(m_value);
     }
 
     bool IsModified() const
     {
-        return mValue != mDefaultValue;
+        return m_value != m_default_value;
     }
 
 private:
-    std::string mLabel;
-    std::string mKey;
-    T mDefaultValue;
-    T mValue;
-    std::function<bool(const std::string&, T&)> mUIFunc;
-    std::function<void(const T&)> mOnReset;
+    std::string m_label;
+    std::string m_key;
+    T m_default_value;
+    T m_value;
+    std::function<bool(const std::string&, T&)> m_ui_func;
+    std::function<void(const T&)> m_on_reset;
 };

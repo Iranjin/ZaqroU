@@ -18,7 +18,7 @@ DebugTab::DebugTab(RaimUI *raimUI)
 
 void DebugTab::Update()
 {
-    std::shared_ptr<TCPGecko> tcp = getRaim()->getTCPGecko();
+    std::shared_ptr<TCPGecko> tcp = get_raim()->get_tcp_gecko();
 
     ImGui::BeginDisabled(!tcp->is_connected());
 
@@ -28,14 +28,14 @@ void DebugTab::Update()
         m_account_id_task.run([tcp]() {
             return tcp->get_account_id();
         });
-        getRaimUI()->set_allow_disconnect(false);
+        get_raim_ui()->set_allow_disconnect(false);
     }
     if (ImGui::Button("GetMiiName") && !m_mii_name_task.is_running())
     {
         m_mii_name_task.run([tcp]() {
             return tcp->get_mii_name();
         });
-        getRaimUI()->set_allow_disconnect(false);
+        get_raim_ui()->set_allow_disconnect(false);
     }
     
     if (ImGui::InputText("SetGameModeDescription",
@@ -48,7 +48,7 @@ void DebugTab::Update()
             tcp->set_game_mode_description(string_to_wstring(std::string(description)));
             return description;
         });
-        getRaimUI()->set_allow_disconnect(false);
+        get_raim_ui()->set_allow_disconnect(false);
     }
     // if (ImGui::Button("Debug") && !m_debug_task.is_running())
     // {
@@ -77,12 +77,12 @@ void DebugTab::UpdateBackground()
 {
     if (std::optional<std::string> result = m_account_id_task.get_result())
     {
-        getNotificationManager()->AddNotification("DebugTab", "AccountId: " + *result, 7.5f,
+        get_notification_manager()->AddNotification("DebugTab", "AccountId: " + *result, 7.5f,
             [result]() {
                 ImGui::SetClipboardText(result->c_str());
             });
 
-        getRaimUI()->set_allow_disconnect(true);
+        get_raim_ui()->set_allow_disconnect(true);
     }
     if (std::optional<std::wstring> result = m_mii_name_task.get_result())
     {
@@ -90,7 +90,7 @@ void DebugTab::UpdateBackground()
         {
             std::string str = wstring_to_string(*result);
             
-            getNotificationManager()->AddNotification("DebugTab", "MiiName: " + str, 7.5f,
+            get_notification_manager()->AddNotification("DebugTab", "MiiName: " + str, 7.5f,
                 [str]() {
                     ImGui::SetClipboardText(str.c_str());
                 });
@@ -100,13 +100,13 @@ void DebugTab::UpdateBackground()
             std::cerr << e.what() << '\n';
         }
 
-        getRaimUI()->set_allow_disconnect(true);
+        get_raim_ui()->set_allow_disconnect(true);
     }
     if (std::optional<std::string> result = m_set_game_mode_description_task.get_result())
     {
         try
         {
-            getNotificationManager()->AddNotification("DebugTab", *result, 7.5f,
+            get_notification_manager()->AddNotification("DebugTab", *result, 7.5f,
                 [result]() {
                     ImGui::SetClipboardText(result->c_str());
                 });
@@ -116,6 +116,6 @@ void DebugTab::UpdateBackground()
             std::cerr << e.what() << '\n';
         }
 
-        getRaimUI()->set_allow_disconnect(true);
+        get_raim_ui()->set_allow_disconnect(true);
     }
 }

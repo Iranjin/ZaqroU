@@ -19,12 +19,8 @@
 RaimUI::RaimUI(Raim *app_instance)
     : m_raim(app_instance)
 {
-    m_ui_theme = new RaimUI_Theme(); // NOTE: 必ずRaimTabManagerよりも前に前に生成すること
+    m_ui_theme = new RaimUI_Theme();
     m_tab_manager = new RaimTabManager(this);
-
-    // m_title_id_parser = new TitleIdParser("Titles.xml");
-    // m_title_id_parser->load();
-
     m_notif_manager = new NotificationManager();
 }
 
@@ -32,17 +28,14 @@ RaimUI::~RaimUI()
 {
     delete m_tab_manager;
     delete m_ui_theme;
-
-    // delete m_title_id_parser;
-
     delete m_notif_manager;
 }
 
 void RaimUI::Init()
 {
-    std::string themeName = getConfig()->get_nested("appearance.theme", std::string("dark"));
-    const IRaimUITheme* theme = m_ui_theme->FromName(themeName);
-    theme->Apply();
+    std::string themeName = get_config()->get_nested("appearance.theme", std::string("dark"));
+    const IRaimUITheme *theme = m_ui_theme->from_name(themeName);
+    theme->apply();
 }
 
 void RaimUI::Update()
@@ -71,7 +64,7 @@ void RaimUI::MainUI()
     ImGui::Begin("FullScreenWindow", nullptr, window_flags);
     ImGui::PopStyleVar(2);
     
-    ImGui::SetWindowFontScale(getConfig()->get_nested("appearance.font_scale", 1.0f));
+    ImGui::SetWindowFontScale(get_config()->get_nested("appearance.font_scale", 1.0f));
 
     ImVec2 available = ImGui::GetContentRegionAvail();
     float button_height = ImGui::GetFrameHeightWithSpacing() * 1.1f;
@@ -90,8 +83,8 @@ void RaimUI::MainUI()
     }
     ImGui::EndChild();
 
-    std::shared_ptr<TCPGecko> tcp = getRaim()->getTCPGecko();
-    std::shared_ptr<Config> config = getConfig();
+    std::shared_ptr<TCPGecko> tcp = get_raim()->get_tcp_gecko();
+    std::shared_ptr<Config> config = get_config();
 
     try
     {
@@ -123,18 +116,18 @@ void RaimUI::MainUI()
                 tcp->connect(ip_buffer);
                 config->set_nested("connection.ip_address", std::string(ip_buffer));
                 config->save();
-                getNotificationManager()->AddNotification("TCPGecko", 
+                get_notification_manager()->AddNotification("TCPGecko", 
                     std::format("Connected to: {}\nUser: {}", std::string(ip_buffer), tcp->get_account_id()));
             }
             catch(const std::exception &e)
             {
-                getNotificationManager()->AddErrorNotification("TCPGecko", e.what());
+                get_notification_manager()->AddErrorNotification("TCPGecko", e.what());
             }
         };
 
         auto disconnect = [&]() {
             tcp->disconnect();
-            getNotificationManager()->AddNotification("TCPGecko", 
+            get_notification_manager()->AddNotification("TCPGecko", 
                 std::format("Disconnected from: {}", std::string(ip_buffer)));
         };
 
@@ -186,10 +179,9 @@ void RaimUI::MainUI()
 
             ImVec2 mouse_pos = ImGui::GetIO().MouseClickedPos[0];
 
-            bool clickedOutside =
-                (mouse_pos.x < window_pos.x || mouse_pos.x > window_end.x ||
-                mouse_pos.y < window_pos.y || mouse_pos.y > window_end.y) &&
-                ImGui::IsMouseClicked(0);
+            bool clickedOutside = (mouse_pos.x < window_pos.x || mouse_pos.x > window_end.x ||
+                                   mouse_pos.y < window_pos.y || mouse_pos.y > window_end.y) &&
+                ImGui::IsMouseClicked(ImGuiKey_MouseLeft);
 
             if (ImGui::Button("OK", ImVec2(ImGui::GetContentRegionAvail().x, 0)) || clickedOutside)
             {
@@ -206,4 +198,4 @@ void RaimUI::MainUI()
     ImGui::End();
 }
 
-std::shared_ptr<Config> RaimUI::getConfig() { return m_raim->getConfig(); }
+std::shared_ptr<Config> RaimUI::get_config() const { return m_raim->get_config(); }

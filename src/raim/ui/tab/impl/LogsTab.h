@@ -6,7 +6,7 @@
 class LogsTab : public IRaimTab
 {
 public:
-    LogsTab(RaimUI *raimUI);
+    LogsTab(RaimUI *raim_ui);
 
     void Update() override;
 };

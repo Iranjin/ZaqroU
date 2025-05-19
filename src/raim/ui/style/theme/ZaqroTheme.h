@@ -8,5 +8,5 @@ class ZaqroTheme : public IRaimUITheme
 public:
     ZaqroTheme();
 
-    void Apply() const override;
+    void apply() const override;
 };

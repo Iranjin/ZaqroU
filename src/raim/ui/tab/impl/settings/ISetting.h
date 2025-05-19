@@ -10,8 +10,8 @@ class ISetting
 public:
     virtual ~ISetting() = default;
 
-    virtual void Save(std::shared_ptr<Config> config) = 0;
-    virtual void Load(std::shared_ptr<Config> config) = 0;
-    virtual bool Update(std::shared_ptr<Config> config) = 0;
-    virtual void ResetToDefault() = 0;
+    virtual void save(std::shared_ptr<Config> config) = 0;
+    virtual void load(std::shared_ptr<Config> config) = 0;
+    virtual bool update(std::shared_ptr<Config> config) = 0;
+    virtual void reset_to_default() = 0;
 };

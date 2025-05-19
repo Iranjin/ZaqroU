@@ -15,8 +15,8 @@
 #include <imgui.h>
 
 
-RaimTabManager::RaimTabManager(RaimUI *raimUI)
-    : mRaimUI(raimUI)
+RaimTabManager::RaimTabManager(RaimUI *raim_ui)
+    : m_raim_ui(raim_ui)
 {
     AllocTabs();
 }
@@ -28,20 +28,20 @@ RaimTabManager::~RaimTabManager()
 
 void RaimTabManager::AllocTabs()
 {
-    mTabs = {
-        new CodesTab(mRaimUI),
-        new MemoryEditorTab(mRaimUI),
-        new SettingsTab(mRaimUI),
-        new LogsTab(mRaimUI),
+    m_tabs = {
+        new CodesTab(m_raim_ui),
+        new MemoryEditorTab(m_raim_ui),
+        new SettingsTab(m_raim_ui),
+        new LogsTab(m_raim_ui),
 #ifdef DEBUG_MODE
-        new DebugTab(mRaimUI),
+        new DebugTab(m_raim_ui),
 #endif
     };
 }
 
 void RaimTabManager::DeallocTabs()
 {
-    for (IRaimTab *tab : mTabs)
+    for (IRaimTab *tab : m_tabs)
     {
         delete tab;
         tab = nullptr;
@@ -53,28 +53,28 @@ void RaimTabManager::Update()
     bool on_connected = false;
     bool on_disconnected = false;
 
-    std::shared_ptr<TCPGecko> tcp = mRaimUI->getRaim()->getTCPGecko();
+    std::shared_ptr<TCPGecko> tcp = m_raim_ui->get_raim()->get_tcp_gecko();
 
     bool connected = tcp->is_connected();
-    if (connected != mLastConnected)
+    if (connected != m_last_connected)
     {
         if (connected)
             on_connected = true;
         else
             on_disconnected = true;
-        mLastConnected = connected;
+        m_last_connected = connected;
     }
 
     if (ImGui::BeginTabBar("MainTabs"))
     {
-        IRaimTab *currentTab = nullptr;
+        IRaimTab *current_tab = nullptr;
 
-        for (IRaimTab *tab : mTabs)
+        for (IRaimTab *tab : m_tabs)
         {
-            bool opened = ImGui::BeginTabItem(tab->getTabName());
+            bool opened = ImGui::BeginTabItem(tab->get_tab_name());
             if (opened)
             {
-                currentTab = tab;
+                current_tab = tab;
                 ImGui::BeginChild("TabFrame", ImVec2(0, 0), ImGuiChildFlags_Borders, ImGuiWindowFlags_AlwaysUseWindowPadding);
                 tab->Update();
                 ImGui::EndChild();
@@ -89,25 +89,25 @@ void RaimTabManager::Update()
                 tab->OnDisconnected();
         }
 
-        if (currentTab != mActiveTab)
+        if (current_tab != m_active_tab)
         {
-            if (mActiveTab)
-                mActiveTab->OnTabClosed();
+            if (m_active_tab)
+                m_active_tab->OnTabClosed();
 
-            if (currentTab)
-                currentTab->OnTabOpened();
+            if (current_tab)
+                current_tab->OnTabOpened();
 
-            mActiveTab = currentTab;
+            m_active_tab = current_tab;
         }
 
         ImGui::EndTabBar();
     }
     else
     {
-        if (mActiveTab)
+        if (m_active_tab)
         {
-            mActiveTab->OnTabClosed();
-            mActiveTab = nullptr;
+            m_active_tab->OnTabClosed();
+            m_active_tab = nullptr;
         }
     }
 }
