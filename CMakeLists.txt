@@ -31,8 +31,13 @@ if(APPLE)
         MACOSX_BUNDLE TRUE
         MACOSX_BUNDLE_ICON_FILE "${APP_ICON}"
     )
+elseif(WIN32)
+    add_executable(Zaqro_U ${SOURCES} res/windows/icon.rc)
+    set_target_properties(Zaqro_U PROPERTIES OUTPUT_NAME "Zaqro U")
+    target_compile_definitions(Zaqro_U PRIVATE _WIN32_WINNT=0x0601 CURL_STATICLIB)
 else()
     add_executable(Zaqro_U ${SOURCES})
+    set_target_properties(Zaqro_U PROPERTIES OUTPUT_NAME "Zaqro U")
 endif()
 
 # target_compile_definitions(Zaqro_U PRIVATE DEBUG_MODE)
@@ -51,10 +56,6 @@ find_package(tinyxml2 REQUIRED)
 find_package(tinyfiledialogs REQUIRED)
 find_package(Boost REQUIRED system)
 find_package(nlohmann_json REQUIRED system)
-
-if(WIN32)
-    target_compile_definitions(Zaqro_U PRIVATE _WIN32_WINNT=0x0601)
-endif()
 
 target_link_libraries(Zaqro_U PRIVATE
     glfw
