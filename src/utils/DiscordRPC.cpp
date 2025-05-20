@@ -1,6 +1,10 @@
 #include "DiscordRPC.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <unistd.h>
+#endif
 #include <cstdlib>
 #include <iostream>
 #include <random>
@@ -119,11 +123,18 @@ void DiscordRPC::SendActivity()
         activity_data["timestamps"] = {
             {"start", m_rich_presence.start_time}
         };
+    
+    int pid =
+#ifdef _WIN32
+        static_cast<int>(GetCurrentProcessId());
+#else
+        static_cast<int>(::getpid());
+#endif
 
     json activity = {
         {"cmd", "SET_ACTIVITY"},
         {"args", {
-            {"pid", static_cast<int>(::getpid())},
+            {"pid", pid},
             {"activity", activity_data}
         }},
         {"nonce", GenerateNonce()}
