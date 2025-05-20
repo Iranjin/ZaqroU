@@ -98,8 +98,7 @@ void Raim::LoadTitles()
         std::vector<char> data;
         std::string titles_url = std::format("{}/res/titles.xml", FILE_SERVER_URL);
         download_file(titles_url, data);
-        const std::string folder_parent_path = std::filesystem::path(titles_path).parent_path();
-        std::filesystem::create_directories(folder_parent_path);
+        std::filesystem::create_directories(std::filesystem::path(titles_path).parent_path());
         save_to_file(titles_path, data);
     }
     m_title_id_parser->load();

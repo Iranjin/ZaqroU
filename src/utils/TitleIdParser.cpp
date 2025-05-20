@@ -8,9 +8,6 @@
 #include "downloader.h"
 
 
-using namespace tinyxml2;
-
-
 TitleIdParser::TitleIdParser(const std::string &xml_path)
     : m_path(xml_path)
 {
@@ -18,14 +15,14 @@ TitleIdParser::TitleIdParser(const std::string &xml_path)
 
 bool TitleIdParser::load()
 {
-    XMLDocument doc;
-    if (doc.LoadFile(m_path.c_str()) != XML_SUCCESS)
+    tinyxml2::XMLDocument doc;
+    if (doc.LoadFile(m_path.c_str()) != tinyxml2::XML_SUCCESS)
     {
         std::cerr << "Failed to load XML file: " << m_path << std::endl;
         return false;
     }
 
-    XMLElement *root = doc.FirstChildElement("titles");
+    tinyxml2::XMLElement *root = doc.FirstChildElement("titles");
     if (!root)
     {
         std::cerr << "No <titles> root element found." << std::endl;
@@ -36,31 +33,31 @@ bool TitleIdParser::load()
     return true;
 }
 
-void TitleIdParser::parse_titles(XMLElement *root)
+void TitleIdParser::parse_titles(tinyxml2::XMLElement *root)
 {
-    entries.clear();
+    m_entries.clear();
 
-    for (XMLElement *title = root->FirstChildElement("title"); title != nullptr; title = title->NextSiblingElement("title"))
+    for (tinyxml2::XMLElement *title = root->FirstChildElement("title"); title != nullptr; title = title->NextSiblingElement("title"))
     {
         TitleEntry entry;
 
-        const char *idAttr = title->Attribute("id");
+        const char *id_attr = title->Attribute("id");
         const char *desc = title->FirstChildElement("description") ? title->FirstChildElement("description")->GetText() : nullptr;
         const char *prod = title->FirstChildElement("product") ? title->FirstChildElement("product")->GetText() : nullptr;
         const char *comp = title->FirstChildElement("company") ? title->FirstChildElement("company")->GetText() : nullptr;
 
-        if (idAttr) entry.title_id = idAttr;
+        if (id_attr) entry.title_id = id_attr;
         if (desc) entry.description = desc;
         if (prod) entry.product = prod;
         if (comp) entry.company = comp;
 
-        entries.push_back(entry);
+        m_entries.push_back(entry);
     }
 }
 
 const std::vector<TitleEntry> &TitleIdParser::get_entries() const
 {
-    return entries;
+    return m_entries;
 }
 
 std::string TitleIdParser::from_Uint64(uint64_t title_id)
@@ -78,7 +75,7 @@ const TitleEntry *TitleIdParser::find_entry_by_Uint64(uint64_t title_id) const
 {
     std::string id_str = from_Uint64(title_id);
 
-    for (const TitleEntry &entry : entries)
+    for (const TitleEntry &entry : m_entries)
     {
         if (entry.title_id == id_str)
             return &entry;

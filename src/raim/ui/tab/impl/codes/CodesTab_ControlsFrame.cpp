@@ -56,7 +56,7 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
         }
         else
         {
-            std::string folder_path = std::filesystem::path(m_loaded_path).parent_path();
+            std::string folder_path = std::filesystem::path(m_loaded_path).parent_path().string();
             std::filesystem::create_directories(folder_path);
             CodeLoader::save_to_file(m_loaded_path, m_codes);
             saved_file_path = m_loaded_path;
@@ -116,8 +116,7 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
 
         if (path)
         {
-            std::filesystem::path filepath = path;
-            std::string ext = filepath.extension().string();
+            std::string ext = std::filesystem::path(path).extension().string();
 
             m_codes.begin_modify();
             if (ext == ".xml")

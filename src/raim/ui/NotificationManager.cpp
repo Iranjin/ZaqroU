@@ -20,7 +20,7 @@ void NotificationManager::AddNotification(const std::string &title, const std::s
     if (m_notification_logs.size() > m_max_log_count)
         m_notification_logs.pop_front();
 
-    Notification notif = { title, message, NotifType::INFORMATION, display_time, 0.0f, 0.0f, padding, on_click };
+    Notification notif = { title, message, NotifType::NOTIF_INFORMATION, display_time, 0.0f, 0.0f, padding, on_click };
     m_notifications.insert(m_notifications.begin(), notif);
 
     float currentY = padding;
@@ -44,7 +44,7 @@ void NotificationManager::AddWarnNotification(const std::string &title, const st
     if (m_notification_logs.size() > m_max_log_count)
         m_notification_logs.pop_front();
 
-    Notification notif = { title, message, NotifType::WARNING, display_time, 0.0f, 0.0f, padding, on_click };
+    Notification notif = { title, message, NotifType::NOTIF_WARNING, display_time, 0.0f, 0.0f, padding, on_click };
     m_notifications.insert(m_notifications.begin(), notif);
 
     float current_y = padding;
@@ -68,7 +68,7 @@ void NotificationManager::AddErrorNotification(const std::string &title, const s
     if (m_notification_logs.size() > m_max_log_count)
         m_notification_logs.pop_front();
 
-    Notification notif = { title, message, NotifType::ERROR, display_time, 0.0f, 0.0f, padding, on_click };
+    Notification notif = { title, message, NotifType::NOTIF_ERROR, display_time, 0.0f, 0.0f, padding, on_click };
     m_notifications.insert(m_notifications.begin(), notif);
 
     float current_y = padding;
@@ -159,9 +159,9 @@ void NotificationManager::Update()
         ImVec4 color;
         switch (notif.type)
         {
-        case (NotifType::INFORMATION): color = ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled); break;
-        case (NotifType::WARNING): color = ImVec4(1.0f, 1.0f, 0.0f, 1.0f); break;
-        case (NotifType::ERROR): color = ImVec4(1.0f, 0.0f, 0.0f, 1.0f); break;
+        case (NotifType::NOTIF_INFORMATION): color = ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled); break;
+        case (NotifType::NOTIF_WARNING): color = ImVec4(1.0f, 1.0f, 0.0f, 1.0f); break;
+        case (NotifType::NOTIF_ERROR): color = ImVec4(1.0f, 0.0f, 0.0f, 1.0f); break;
         }
         
         ImGui::TextColored(color, "%s", notif.title.c_str());

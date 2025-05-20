@@ -26,7 +26,7 @@ class TitleIdParser
 {
 private:
     std::string m_path;
-    std::vector<TitleEntry> entries;
+    std::vector<TitleEntry> m_entries;
 
     void parse_titles(tinyxml2::XMLElement *root);
 

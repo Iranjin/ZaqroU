@@ -52,6 +52,10 @@ find_package(tinyfiledialogs REQUIRED)
 find_package(Boost REQUIRED system)
 find_package(nlohmann_json REQUIRED system)
 
+if(WIN32)
+    target_compile_definitions(Zaqro_U PRIVATE _WIN32_WINNT=0x0601)
+endif()
+
 target_link_libraries(Zaqro_U PRIVATE
     glfw
     imgui::imgui

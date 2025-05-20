@@ -19,11 +19,11 @@ public:
 private:
     using OnClickEvent = std::function<void()>;
 
-    enum class NotifType
+    enum NotifType
     {
-        INFORMATION,
-        WARNING,
-        ERROR
+        NOTIF_INFORMATION,
+        NOTIF_WARNING,
+        NOTIF_ERROR
     };
 
     struct Notification

@@ -28,8 +28,7 @@ bool Config::save(const std::string& filename) const
     if (empty())
         return false;
     
-    std::filesystem::path path(filename);
-    std::filesystem::create_directories(path.parent_path());
+    std::filesystem::create_directories(std::filesystem::path(filename).parent_path());
 
     std::ofstream out(filename);
 

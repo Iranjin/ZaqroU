@@ -1,6 +1,7 @@
 #include "CodeEntryManager.h"
 
 #include <algorithm>
+#include <iterator>
 
 
 void CodeEntryManager::begin_modify()

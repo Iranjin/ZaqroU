@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include <cstdint>
+#include <string>
 
 
 class TCPGecko;
