@@ -19,25 +19,20 @@ if(APPLE)
     set(APP_ICON "Zaqro U.icns")
 
     set_source_files_properties(
-        res/images/${APP_ICON}
+        res/icons/${APP_ICON}
         PROPERTIES
         MACOSX_PACKAGE_LOCATION "Resources"
     )
 
-    add_executable(Zaqro_U MACOSX_BUNDLE ${SOURCES} res/images/${APP_ICON})
+    add_executable(Zaqro_U MACOSX_BUNDLE ${SOURCES} res/icons/${APP_ICON})
 
     set_target_properties(Zaqro_U PROPERTIES
         OUTPUT_NAME "Zaqro U"
         MACOSX_BUNDLE TRUE
         MACOSX_BUNDLE_ICON_FILE "${APP_ICON}"
     )
-elseif(WIN32)
-    add_executable(Zaqro_U ${SOURCES} res/windows/icon.rc)
-    set_target_properties(Zaqro_U PROPERTIES OUTPUT_NAME "Zaqro U")
-    target_compile_definitions(Zaqro_U PRIVATE _WIN32_WINNT=0x0601 CURL_STATICLIB)
 else()
     add_executable(Zaqro_U ${SOURCES})
-    set_target_properties(Zaqro_U PROPERTIES OUTPUT_NAME "Zaqro U")
 endif()
 
 # target_compile_definitions(Zaqro_U PRIVATE DEBUG_MODE)
