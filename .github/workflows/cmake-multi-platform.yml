@@ -84,3 +84,38 @@ jobs:
         with:
           name: Zaqro_U-windows
           path: build/Release/
+
+  build-macos:
+    name: 🍎 Build on macOS
+    runs-on: macos-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v3
+
+      - name: 📦 Setup vcpkg
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git
+          ./vcpkg/bootstrap-vcpkg.sh
+
+      - name: 📦 Install vcpkg dependencies
+        run: |
+          ./vcpkg/vcpkg install glfw3 opengl glad imgui curl lz4 tinyxml2 tinyfiledialogs boost-asio nlohmann-json
+
+      - name: 🔧 Configure CMake
+        run: |
+          cmake -B build -S . \
+            -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: 🏗️ Build project
+        run: cmake --build build --config Release
+
+      - name: 🔍 Check build output (for debugging)
+        run: ls -l build/
+
+      - name: 📤 Upload artifact (macOS)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Zaqro_U-macos
+          path: build/
