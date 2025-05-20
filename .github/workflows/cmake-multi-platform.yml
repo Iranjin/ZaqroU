@@ -41,6 +41,15 @@ jobs:
       - name: 🏗️ Build project
         run: cmake --build build --config Release
 
+      - name: 🔍 Check build output (for debugging)
+        run: ls -l build/
+
+      - name: 📤 Upload artifact (Linux)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Zaqro_U-linux
+          path: build/
+
   build-windows:
     name: 🪟 Build on Windows
     runs-on: windows-latest
@@ -60,9 +69,18 @@ jobs:
 
       - name: 🔧 Configure CMake
         run: |
-          cmake -B build -S . ^
-            -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake ^
+          cmake -B build -S . `
+            -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake `
             -DCMAKE_BUILD_TYPE=Release
 
       - name: 🏗️ Build project
         run: cmake --build build --config Release
+
+      - name: 🔍 Check build output (for debugging)
+        run: dir build\Release\
+
+      - name: 📤 Upload artifact (Windows)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Zaqro_U-windows
+          path: build/Release/
