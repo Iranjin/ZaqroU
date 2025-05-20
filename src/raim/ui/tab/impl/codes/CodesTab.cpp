@@ -251,5 +251,9 @@ void CodesTab::OnConnected()
 
         get_raim_ui()->get_notification_manager()->AddNotification("CodesTab", std::format("Loaded \"{}\"", codes_file_path));
     }
+    else
+    {
+        m_codes.clear();
+    }
     m_loaded_path = codes_file_path;
 }
