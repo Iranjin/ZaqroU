@@ -1,6 +1,7 @@
 #include "Raim.h"
 
 #include <cstdint>
+#include <format>
 
 #include <imgui.h>
 

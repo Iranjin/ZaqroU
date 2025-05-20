@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <format>
 
 #include <GLFW/glfw3.h>
 #include <imgui.h>

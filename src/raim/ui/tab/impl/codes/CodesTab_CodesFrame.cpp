@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <algorithm>
 #include <cctype>
+#include <format>
 
 #include <utils/tcp_gecko/TCPGecko.h>
 #include <utils/Config.h>

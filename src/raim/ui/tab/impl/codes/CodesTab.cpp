@@ -1,6 +1,7 @@
 #include "CodesTab.h"
 
 #include <filesystem>
+#include <format>
 
 #include <utils/tcp_gecko/TCPGecko.h>
 #include <utils/TitleIdParser.h>

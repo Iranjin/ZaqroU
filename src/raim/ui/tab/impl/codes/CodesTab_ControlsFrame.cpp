@@ -1,6 +1,7 @@
 #include "CodesTab.h"
 
 #include <filesystem>
+#include <format>
 
 #include <utils/tcp_gecko/TCPGecko.h>
 #include <utils/common.h>
@@ -126,7 +127,7 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
             m_codes.end_modify();
 
             CodesFrame_ScrollToIndex(0, true);
-            
+
             get_raim_ui()->get_notification_manager()->AddNotification(m_notif_title, std::format("Imported \"{}\"", path));
         }
     }
