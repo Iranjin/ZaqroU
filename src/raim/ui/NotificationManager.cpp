@@ -159,9 +159,9 @@ void NotificationManager::Update()
         ImVec4 color;
         switch (notif.type)
         {
-        case (INFORMATION): color = ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled); break;
-        case (WARNING): color = ImVec4(1.0f, 1.0f, 0.0f, 1.0f); break;
-        case (ERROR): color = ImVec4(1.0f, 0.0f, 0.0f, 1.0f); break;
+        case (NotifType::INFORMATION): color = ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled); break;
+        case (NotifType::WARNING): color = ImVec4(1.0f, 1.0f, 0.0f, 1.0f); break;
+        case (NotifType::ERROR): color = ImVec4(1.0f, 0.0f, 0.0f, 1.0f); break;
         }
         
         ImGui::TextColored(color, "%s", notif.title.c_str());
