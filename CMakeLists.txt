@@ -31,6 +31,15 @@ if(APPLE)
         MACOSX_BUNDLE TRUE
         MACOSX_BUNDLE_ICON_FILE "${APP_ICON}"
     )
+elseif(WIN32)
+    set(GENERATED_RC ${CMAKE_CURRENT_BINARY_DIR}/icon_resource.rc)
+    set(ICON_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/res/icons/Zaqro U.ico")
+    file(WRITE ${GENERATED_RC} "IDI_ICON1 ICON \"${ICON_SOURCE}\"\n")
+
+    enable_language(RC)
+    list(APPEND SOURCES ${GENERATED_RC})
+
+    add_executable(Zaqro_U WIN32 ${SOURCES})
 else()
     add_executable(Zaqro_U ${SOURCES})
 endif()
