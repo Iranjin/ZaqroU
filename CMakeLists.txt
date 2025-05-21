@@ -40,6 +40,8 @@ elseif(WIN32)
     list(APPEND SOURCES ${GENERATED_RC})
 
     add_executable(Zaqro_U WIN32 ${SOURCES})
+    
+    target_compile_definitions(Zaqro_U PRIVATE _WIN32_WINNT=0x0601)
 else()
     add_executable(Zaqro_U ${SOURCES})
 endif()
