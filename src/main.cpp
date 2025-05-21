@@ -89,6 +89,10 @@ int WINAPI WinMain(HINSTANCE hInstance,
                    LPSTR     lpCmdLine,
                    int       nCmdShow)
 {
+    HICON hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
+    SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM) hIcon);
+    SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM) hIcon);
+
     return main(__argc, __argv);
 }
 #endif
