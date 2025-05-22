@@ -95,8 +95,12 @@ found:;
     
     if (!socket_path.empty())
     {
-        m_socket.connect(boost::asio::local::stream_protocol::endpoint(socket_path));
-        SendHandshake();
+        try
+        {
+            m_socket.connect(boost::asio::local::stream_protocol::endpoint(socket_path));
+            SendHandshake();
+        }
+        catch(const std::exception &e) { }
     }
 }
 
@@ -150,10 +154,7 @@ void DiscordRPC::Reconnect()
         m_socket.close();
         Connect();
     }
-    catch (const std::exception &e)
-    {
-        std::cerr << "DiscordRPC Reconnect failed: " << e.what() << std::endl;
-    }
+    catch (const std::exception &e) { }
 }
 
 void DiscordRPC::Update()
@@ -164,25 +165,18 @@ void DiscordRPC::Update()
     }
     catch (const std::exception &e)
     {
-        std::cerr << "DiscordRPC Update error: " << e.what() << std::endl;
         Reconnect();
 
         try
         {
             SendActivity();
         }
-        catch (const std::exception& e)
-        {
-            std::cerr << "DiscordRPC Update retry failed: " << e.what() << std::endl;
-        }
+        catch (const std::exception &e) { }
     }
-    catch (...)
-    {
-        std::cerr << "DiscordRPC Update unknown error occurred." << std::endl;
-    }
+    catch (...) { }
 }
 
-void DiscordRPC::SetPresence(const RichPresence& presence)
+void DiscordRPC::SetPresence(const RichPresence &presence)
 {
     m_rich_presence = presence;
 }
