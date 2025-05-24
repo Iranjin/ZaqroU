@@ -41,9 +41,6 @@ jobs:
       - name: 🏗️ Build project
         run: cmake --build build --config Release
 
-      - name: 🔍 Check build output (for debugging)
-        run: ls -l build/
-
       - name: 📤 Upload artifact (Linux)
         uses: actions/upload-artifact@v4
         with:
@@ -76,14 +73,11 @@ jobs:
       - name: 🏗️ Build project
         run: cmake --build build --config Release
 
-      - name: 🔍 Check build output (for debugging)
-        run: dir build\Release\
-
       - name: 📤 Upload artifact (Windows)
         uses: actions/upload-artifact@v4
         with:
           name: Zaqro_U-windows
-          path: build/bin/Release/
+          path: build/bin/
 
   build-macos:
     name: 🍎 Build on macOS
@@ -110,9 +104,6 @@ jobs:
 
       - name: 🏗️ Build project
         run: cmake --build build --config Release
-
-      - name: 🔍 Check build output (for debugging)
-        run: ls -l build/
 
       - name: 📤 Upload artifact (macOS)
         uses: actions/upload-artifact@v4
