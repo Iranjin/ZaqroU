@@ -3,6 +3,13 @@ project(Zaqro_U)
 
 set(CMAKE_CXX_STANDARD 20)
 
+# ===============================
+# 実行ファイル・ライブラリ出力先の明示
+# ===============================
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 file(GLOB_RECURSE CPP_SOURCES CONFIGURE_DEPENDS src/*.cpp)
@@ -37,10 +44,15 @@ endif()
 
 # target_compile_definitions(Zaqro_U PRIVATE DEBUG_MODE)
 
-target_include_directories(Zaqro_U PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_include_directories(Zaqro_U PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_include_directories(Zaqro_U PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(Zaqro_U PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_BINARY_DIR}
+)
 
+# ===============================
+# 外部依存ライブラリの検索
+# ===============================
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)

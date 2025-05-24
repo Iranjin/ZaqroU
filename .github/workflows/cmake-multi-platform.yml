@@ -48,7 +48,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Zaqro_U-linux
-          path: build/
+          path: build/bin/
 
   build-windows:
     name: 🪟 Build on Windows
@@ -83,7 +83,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Zaqro_U-windows
-          path: build/Release/
+          path: build/bin/Release/
 
   build-macos:
     name: 🍎 Build on macOS
@@ -118,4 +118,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Zaqro_U-macos
-          path: build/
+          path: build/bin/
