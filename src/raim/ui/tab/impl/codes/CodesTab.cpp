@@ -5,6 +5,7 @@
 
 #include <utils/tcp_gecko/TCPGecko.h>
 #include <utils/TitleIdParser.h>
+#include <utils/Config.h>
 #include <utils/common.h>
 #include <raim/ui/tab/RaimTabManager.h>
 #include <raim/ui/NotificationManager.h>
@@ -257,4 +258,16 @@ void CodesTab::OnConnected()
         m_codes.clear();
     }
     m_loaded_path = codes_file_path;
+}
+
+void CodesTab::SaveCodes(bool check_auto_save)
+{
+    if (check_auto_save && !get_config()->get_nested("codes.code_list.auto_save", true))
+        return;
+    
+    std::string folder_path = std::filesystem::path(m_loaded_path).parent_path().string();
+    std::filesystem::create_directories(folder_path);
+
+    if (!m_loaded_path.empty())
+        CodeLoader::save_to_file(m_loaded_path, m_codes);
 }

@@ -11,5 +11,5 @@ void CodesTab::Update()
     ControlsFrame(available);
     ImGui::EndChild();
 
-    CodePopup();
+    CodeWindow();
 }

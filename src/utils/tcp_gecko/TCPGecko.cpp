@@ -42,7 +42,14 @@ void TCPGecko::disconnect()
     std::lock_guard<std::recursive_mutex> lock(m_mutex);
     
     m_socket.close();
-    m_ip_address.clear();
+}
+
+std::string TCPGecko::get_ip_address() const
+{
+    if (!is_connected())
+        throw std::runtime_error("Not connected");
+    
+    return m_ip_address;
 }
 
 std::vector<uint8_t> TCPGecko::read_memory(uint32_t address, uint32_t length)

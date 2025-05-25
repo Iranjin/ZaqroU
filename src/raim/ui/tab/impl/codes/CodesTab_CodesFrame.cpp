@@ -106,6 +106,8 @@ void CodesTab::CodesFrame_MouseClick(ImGuiIO &io, bool &is_selected, size_t &i)
             m_codes.begin_modify();
             m_codes[i].enabled = !m_codes[i].enabled;
             m_codes.end_modify();
+
+            SaveCodes(true);
         }
 
         m_active_index = i;
@@ -180,10 +182,10 @@ void CodesTab::CodesFrame_ContextMenu()
             if (!m_selected_indices.empty())
             {
                 size_t selected = *m_selected_indices.begin();
-                m_popup_entry = m_codes[selected];
+                m_code_window_entry = m_codes[selected];
                 m_edit_target_index = selected;
-                m_popup_mode = CodePopupMode::Edit;
-                ImGui::OpenPopup("CodePopup");
+                m_code_window_mode = CodeWindowMode::Edit;
+                ImGui::OpenPopup("CodeWindow");
             }
         }
         if (ImGui::MenuItem("Delete"))
@@ -245,12 +247,14 @@ void CodesTab::CodesFrame()
 
             if (ImGui::IsKeyPressed(ImGuiKey_Enter) || ImGui::IsKeyPressed(ImGuiKey_KeypadEnter))
             {
-                bool newState = !m_codes[*m_selected_indices.begin()].enabled;
+                bool new_state = !m_codes[*m_selected_indices.begin()].enabled;
 
                 m_codes.begin_modify();
                 for (size_t i : m_selected_indices)
-                    m_codes[i].enabled = newState;
+                    m_codes[i].enabled = new_state;
                 m_codes.end_modify();
+
+                SaveCodes(true);
             }
 
             if (io.KeyCtrl)
@@ -266,31 +270,31 @@ void CodesTab::CodesFrame()
 
             if (!m_selected_indices.empty())
             {
-                size_t currentFilteredPos = -1;
+                size_t current_filtered_pos = -1;
                 for (size_t j = 0; j < m_filtered_indices.size(); ++j)
                 {
                     if (m_filtered_indices[j] == m_active_index)
                     {
-                        currentFilteredPos = j;
+                        current_filtered_pos = j;
                         break;
                     }
                 }
 
-                size_t newFilteredPos = -1;
+                size_t new_filtered_pos = -1;
                 if (ImGui::IsKeyPressed(ImGuiKey_UpArrow))
                 {
-                    if (currentFilteredPos > 0)
-                        newFilteredPos = currentFilteredPos - 1;
+                    if (current_filtered_pos > 0)
+                        new_filtered_pos = current_filtered_pos - 1;
                 }
                 else if (ImGui::IsKeyPressed(ImGuiKey_DownArrow))
                 {
-                    if (currentFilteredPos >= 0 && currentFilteredPos < m_filtered_indices.size() - 1)
-                        newFilteredPos = currentFilteredPos + 1;
+                    if (current_filtered_pos >= 0 && current_filtered_pos < m_filtered_indices.size() - 1)
+                        new_filtered_pos = current_filtered_pos + 1;
                 }
 
-                if (newFilteredPos != -1)
+                if (new_filtered_pos != -1)
                 {
-                    size_t new_index = m_filtered_indices[newFilteredPos];
+                    size_t new_index = m_filtered_indices[new_filtered_pos];
                     m_selected_indices.clear();
                     m_selected_indices.insert(new_index);
                     m_active_index = new_index;
@@ -300,7 +304,7 @@ void CodesTab::CodesFrame()
                     float maxScrollY = ImGui::GetScrollMaxY();
                     float windowHeight = ImGui::GetWindowHeight();
 
-                    float itemYPos = item_height * newFilteredPos;
+                    float itemYPos = item_height * new_filtered_pos;
 
                     if (itemYPos < scrollY)
                         ImGui::SetScrollY(itemYPos);
@@ -314,12 +318,16 @@ void CodesTab::CodesFrame()
         {
             if (ImGui::IsKeyPressed(ImGuiKey_F)) // Search
                 m_show_search_bar = !m_show_search_bar;
-            
-            if (ImGui::IsKeyPressed(ImGuiKey_Z)) // Undo
-                m_codes.undo();
-            
-            if (io.KeyShift && ImGui::IsKeyPressed(ImGuiKey_Z)) // Redo
-                m_codes.redo();
+
+            if (ImGui::IsKeyPressed(ImGuiKey_Z))
+            {
+                if (!io.KeyShift)
+                    m_codes.redo();
+                else
+                    m_codes.undo();
+                
+                SaveCodes(true);
+            }
         }
     }
 

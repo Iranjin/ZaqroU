@@ -14,6 +14,7 @@ SettingsTab::SettingsTab(RaimUI *raim_ui)
 {
     AddSetting(TAB_APPEARANCE, "Theme", "appearance.theme", get_raim_ui()->get_ui_theme()->all_themes()[0]);
     AddSetting(TAB_APPEARANCE, "Font scale", "appearance.font_scale", 1.0f, 0.5f, 2.0f);
+    AddSetting(TAB_GENERAL, "Auto save code list", "codes.code_list.auto_save", true);
 }
 
 template <>

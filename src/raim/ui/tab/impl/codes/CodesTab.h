@@ -32,7 +32,7 @@ private:
 
     ScrollRequest m_scroll_request;
 
-    enum class CodePopupMode
+    enum class CodeWindowMode
     {
         None,
         Add,
@@ -41,8 +41,8 @@ private:
 
     CodeEntryManager m_codes;
 
-    CodePopupMode m_popup_mode = CodePopupMode::None;
-    CodeEntry m_popup_entry;
+    CodeWindowMode m_code_window_mode = CodeWindowMode::None;
+    CodeEntry m_code_window_entry;
     size_t m_edit_target_index = -1;
 
     std::unordered_set<size_t> m_selected_indices;
@@ -79,14 +79,13 @@ public:
 
     void CommentFrame();
 
-
     void CodesTable(const ImVec2 &available);
     void ControlsFrame(const ImVec2 &available);
-
-    void CodePopup();
-
-
+    void CodeWindow();
+    
     void CodesFrame_ScrollToIndex(size_t index, bool align_bottom = false);
+
+    void SaveCodes(bool check_auto_save = false);
 
     void SendCodes();
     void DisableCodes();

@@ -6,8 +6,8 @@
 #include <utils/tcp_gecko/TCPGecko.h>
 #include <utils/common.h>
 #include <raim/ui/NotificationManager.h>
-#include "../../../RaimUI.h"
 #include "backend/CodeLoader.h"
+#include "../../../RaimUI.h"
 
 #include <tinyfiledialogs/tinyfiledialogs.h>
 #include <imgui.h>
@@ -23,12 +23,18 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
 
     std::shared_ptr<TCPGecko> tcp = get_tcp_gecko();
     
-    // Line 1 START
+    // Line 1 BEGIN
     if (ImGui::Button("Add Code"))
     {
-        m_popup_entry = CodeEntry();
-        m_popup_mode = CodePopupMode::Add;
-        ImGui::OpenPopup("CodePopup");
+        if (m_code_window_mode == CodeWindowMode::None)
+        {
+            m_code_window_entry = CodeEntry();
+            m_code_window_mode = CodeWindowMode::Add;
+        }
+        else
+        {
+            m_code_window_mode = CodeWindowMode::None;
+        }
     }
 
     ImGui::SameLine();
@@ -56,9 +62,7 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
         }
         else
         {
-            std::string folder_path = std::filesystem::path(m_loaded_path).parent_path().string();
-            std::filesystem::create_directories(folder_path);
-            CodeLoader::save_to_file(m_loaded_path, m_codes);
+            SaveCodes();
             saved_file_path = m_loaded_path;
         }
 
@@ -125,6 +129,8 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
                 CodeLoader::load_from_file(path, m_codes);
             m_codes.end_modify();
 
+            SaveCodes(true);
+
             CodesFrame_ScrollToIndex(0, true);
 
             get_raim_ui()->get_notification_manager()->AddNotification(m_notif_title, std::format("Imported \"{}\"", path));
@@ -145,7 +151,7 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
     ImGui::EndDisabled();
     // Line 1 END
 
-    // Line 2 START
+    // Line 2 BEGIN
     ImGui::BeginDisabled(!tcp->is_connected());
     ImGui::BeginDisabled(!has_enabled_entry);
     if (ImGui::Button("Send Codes"))

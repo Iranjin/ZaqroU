@@ -38,9 +38,10 @@ public:
         m_nagle_enabled = enabled;
     }
     
-    inline bool is_connected() const { return !m_ip_address.empty(); }
+    inline bool is_connected() const { return m_socket.is_open(); }
     inline bool is_nagle_enabled() const { return m_nagle_enabled; }
-    inline std::string get_ip_address() const { return m_ip_address; }
+
+    std::string get_ip_address() const;
 
     std::vector<uint8_t> read_memory(uint32_t address, uint32_t length = 0x4);
     void write_mem_32(uint32_t address, uint32_t value);
