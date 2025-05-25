@@ -49,6 +49,14 @@ cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=/path/to/vcpkg/scripts/buildsystems/v
 cmake --build build
 ```
 
+### Ninja を使用する場合:
+```bash
+git clone https://github.com/Iranjin/ZaqroU.git
+cd ZaqroU
+cmake -B build -S . -G Ninja -DCMAKE_TOOLCHAIN_FILE=/opt/vcpkg/scripts/buildsystems/vcpkg.cmake
+ninja -C build
+```
+
 ## Licenses
 
 This project includes third-party code from [wine-discord-ipc-bridge](https://github.com/0e4ef622/wine-discord-ipc-bridge),
