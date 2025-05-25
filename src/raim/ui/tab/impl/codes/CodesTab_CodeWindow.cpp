@@ -76,7 +76,7 @@ void CodesTab::CodeWindow()
     float multiline_height = avail - fixed_height;
     if (multiline_height < 100.0f) multiline_height = 100.0f;
 
-    ImGui::Columns(2, "EntryFields", false);
+    ImGui::Columns(2, "CodeWindowFields", false);
     ImGui::TextUnformatted("Code");
     ImGui::InputTextMultiline("##Code", input_code, IM_ARRAYSIZE(input_code), ImVec2(-FLT_MIN, multiline_height));
     ImGui::NextColumn();
@@ -86,7 +86,19 @@ void CodesTab::CodeWindow()
 
     ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
+    // ImGui::NextColumn();
     ImGui::Checkbox("Assembly RAM Writes", &input_assembly_ram_write);
+    // ImGui::NextColumn();
+    // static bool s_display_code_wizard = false;
+    // if (ImGui::Button("Code Wizard", ImVec2(ImGui::GetContentRegionAvail().x, 0)))
+    //     s_display_code_wizard = !s_display_code_wizard;
+    // if (s_display_code_wizard)
+    // {
+    //     ImGui::Begin("Code Wizard", &s_display_code_wizard);
+        
+    //     ImGui::End();
+    // }
+    // ImGui::Columns(1);
 
     ImGui::Dummy(ImVec2(0.0f, 5.0f));
 

@@ -91,5 +91,6 @@ public:
     void DisableCodes();
 
     void Update() override;
+    void UpdateBackground() override;
     void OnConnected() override;
 };

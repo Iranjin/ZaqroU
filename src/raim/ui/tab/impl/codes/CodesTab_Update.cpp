@@ -10,6 +10,9 @@ void CodesTab::Update()
     CodesTable(available);
     ControlsFrame(available);
     ImGui::EndChild();
+}
 
+void CodesTab::UpdateBackground()
+{
     CodeWindow();
 }
