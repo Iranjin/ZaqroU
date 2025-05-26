@@ -30,7 +30,7 @@ jobs:
 
       - name: 📦 Install vcpkg dependencies
         run: |
-          ./vcpkg/vcpkg install glfw3 opengl glad imgui curl lz4 tinyxml2 tinyfiledialogs boost-asio nlohmann-json
+          ./vcpkg/vcpkg install
 
       - name: 🔧 Configure CMake
         run: |
@@ -62,7 +62,7 @@ jobs:
 
       - name: 📦 Install vcpkg dependencies
         run: |
-          .\vcpkg\vcpkg.exe install glfw3 opengl glad imgui curl lz4 tinyxml2 tinyfiledialogs boost-asio nlohmann-json
+          .\vcpkg\vcpkg.exe install
 
       - name: 🔧 Configure CMake
         run: |
@@ -94,7 +94,7 @@ jobs:
 
       - name: 📦 Install vcpkg dependencies
         run: |
-          ./vcpkg/vcpkg install glfw3 opengl glad imgui curl lz4 tinyxml2 tinyfiledialogs boost-asio nlohmann-json
+          ./vcpkg/vcpkg install
 
       - name: 🔧 Configure CMake
         run: |
