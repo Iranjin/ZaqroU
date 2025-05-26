@@ -28,10 +28,6 @@ jobs:
           git clone https://github.com/microsoft/vcpkg.git
           ./vcpkg/bootstrap-vcpkg.sh
 
-      - name: 📦 Install vcpkg dependencies
-        run: |
-          ./vcpkg/vcpkg install glfw3 opengl glad imgui curl lz4 tinyxml2 tinyfiledialogs boost-asio nlohmann-json
-
       - name: 🔧 Configure CMake
         run: |
           cmake -B build -S . \
@@ -60,10 +56,6 @@ jobs:
           git clone https://github.com/microsoft/vcpkg.git
           .\vcpkg\bootstrap-vcpkg.bat
 
-      - name: 📦 Install vcpkg dependencies
-        run: |
-          .\vcpkg\vcpkg.exe install glfw3 opengl glad imgui curl lz4 tinyxml2 tinyfiledialogs boost-asio nlohmann-json
-
       - name: 🔧 Configure CMake
         run: |
           cmake -B build -S . `
@@ -91,10 +83,6 @@ jobs:
         run: |
           git clone https://github.com/microsoft/vcpkg.git
           ./vcpkg/bootstrap-vcpkg.sh
-
-      - name: 📦 Install vcpkg dependencies
-        run: |
-          ./vcpkg/vcpkg install glfw3 opengl glad imgui curl lz4 tinyxml2 tinyfiledialogs boost-asio nlohmann-json
 
       - name: 🔧 Configure CMake
         run: |

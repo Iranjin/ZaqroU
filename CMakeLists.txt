@@ -61,8 +61,8 @@ find_package(CURL REQUIRED)
 find_package(lz4 REQUIRED)
 find_package(tinyxml2 REQUIRED)
 find_package(tinyfiledialogs REQUIRED)
-find_package(Boost REQUIRED system)
-find_package(nlohmann_json REQUIRED system)
+find_package(Boost REQUIRED COMPONENTS system)
+find_package(nlohmann_json REQUIRED)
 
 target_link_libraries(Zaqro_U PRIVATE
     glfw
