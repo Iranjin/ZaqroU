@@ -86,6 +86,7 @@ public:
     void CodesFrame_ScrollToIndex(size_t index, bool align_bottom = false);
 
     void SaveCodes(bool check_auto_save = false);
+    void LoadCodes(const std::string &path, bool overwrite = true, bool save_path = true);
 
     void SendCodes();
     void DisableCodes();

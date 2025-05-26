@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <format>
+#include <cstdint>
 
 #include <utils/tcp_gecko/TCPGecko.h>
 #include <utils/TitleIdParser.h>
@@ -244,14 +245,8 @@ void CodesTab::OnConnected()
 
     if (std::filesystem::exists(codes_file_path))
     {
-        m_codes.clear();
         m_loaded_path.clear();
-        m_selected_indices.clear();
-        m_active_index = -1;
-        CodeLoader::load_from_file(codes_file_path, m_codes);
-        CodesFrame_ScrollToIndex(0, true);
-
-        get_raim_ui()->get_notification_manager()->AddNotification("CodesTab", std::format("Loaded \"{}\"", codes_file_path));
+        LoadCodes(codes_file_path);
     }
     else
     {
@@ -272,4 +267,40 @@ void CodesTab::SaveCodes(bool check_auto_save)
     std::filesystem::create_directories(folder_path);
 
     CodeLoader::save_to_file(m_loaded_path, m_codes);
+}
+
+void CodesTab::LoadCodes(const std::string &path, bool overwrite, bool save_path)
+{
+    NotificationManager *notif_mngr = get_raim_ui()->get_notification_manager();
+    
+    try
+    {
+        uint8_t version = CodeLoader::get_version_from_file(path);
+        if (version > CODELOADER_VERSION)
+        {
+            notif_mngr->AddNotification(m_notif_title, "Versions are not compatible!");
+            return;
+        }
+    
+        m_selected_indices.clear();
+        m_active_index = -1;
+
+        if (overwrite)
+            m_codes.clear();
+        
+        std::string ext = std::filesystem::path(path).extension().string();
+        if (ext == ".xml")
+            CodeLoader::load_from_xml_file(path, m_codes);
+        else
+            CodeLoader::load_from_file(path, m_codes);
+
+        CodesFrame_ScrollToIndex(0, true);
+
+        notif_mngr->AddNotification(m_notif_title, std::format("{} \"{}\"", overwrite ? "Loaded" : "Imported", path));
+    }
+    catch(const std::exception &e)
+    {
+        notif_mngr->AddNotification(m_notif_title, e.what());
+        return;
+    }
 }

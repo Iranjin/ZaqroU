@@ -83,12 +83,7 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
             0);
 
         if (path)
-        {
-            m_codes.clear();
-            CodeLoader::load_from_file(path, m_codes);
-            CodesFrame_ScrollToIndex(0, true);
-            m_loaded_path = path;
-        }
+            LoadCodes(path);
 
         m_list_updated = true;
     }
@@ -120,20 +115,13 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
 
         if (path)
         {
-            std::string ext = std::filesystem::path(path).extension().string();
-
             m_codes.begin_modify();
-            if (ext == ".xml")
-                CodeLoader::load_from_xml_file(path, m_codes);
-            else // .bin
-                CodeLoader::load_from_file(path, m_codes);
+            LoadCodes(path, false, false);
             m_codes.end_modify();
 
             SaveCodes(true);
 
             CodesFrame_ScrollToIndex(0, true);
-
-            get_raim_ui()->get_notification_manager()->AddNotification(m_notif_title, std::format("Imported \"{}\"", path));
         }
     }
 

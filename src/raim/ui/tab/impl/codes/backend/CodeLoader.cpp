@@ -13,6 +13,25 @@
 #include "CodeEntryManager.h"
 
 
+uint8_t CodeLoader::get_version_from_file(const std::string &filename)
+{
+    std::ifstream in(filename, std::ios::binary);
+    if (!in)
+        throw std::runtime_error("Failed to open file.");
+
+    char magic[4];
+    in.read(magic, 4);
+    if (in.gcount() != 4 || std::string(magic, 4) != "RAIM")
+        throw std::runtime_error("Magic number mismatch or file too short.");
+
+    uint8_t version;
+    in.read(reinterpret_cast<char*>(&version), 1);
+    if (in.gcount() != 1)
+        throw std::runtime_error("Failed to read version byte.");
+
+    return version;
+}
+
 void CodeLoader::load_from_file(const std::string &filename, CodeEntryManager &manager)
 {
     std::ifstream in(filename, std::ios::binary);
@@ -26,6 +45,9 @@ void CodeLoader::load_from_file(const std::string &filename, CodeEntryManager &m
 
     uint8_t version;
     in.read(reinterpret_cast<char*>(&version), 1);
+
+    if (version > CODELOADER_VERSION)
+        throw std::runtime_error("Unsupported version.");
 
     switch(version)
     {
@@ -69,12 +91,12 @@ void CodeLoader::load_from_xml_file(const std::string &filename, CodeEntryManage
             authors_elem->GetText() != nullptr)
             entry.authors = authors_elem->GetText();
 
-        auto get_bool = [](XMLElement *elem, bool &outVal)
+        auto get_bool = [](XMLElement *elem, bool &out_val)
         {
             if (elem == nullptr || elem->GetText() == nullptr)
                 return;
             std::string text = elem->GetText();
-            outVal = (text == "true" || text == "1");
+            out_val = (text == "true" || text == "1");
         };
 
         XMLElement *raw_asm_elem = entry_elem->FirstChildElement("raw_assembly");
@@ -136,8 +158,8 @@ void CodeLoader::save_to_file(const std::string &filename, const CodeEntryManage
     std::vector<char> raw_data(raw_data_str.begin(), raw_data_str.end());
 
     std::vector<char> compressed_data(LZ4_compressBound(raw_data.size()));
-    int compressedSize = LZ4_compress_default(raw_data.data(), compressed_data.data(), raw_data.size(), compressed_data.size());
-    if (compressedSize <= 0)
+    int compressed_size = LZ4_compress_default(raw_data.data(), compressed_data.data(), raw_data.size(), compressed_data.size());
+    if (compressed_size <= 0)
         throw std::runtime_error("Compression failed.");
 
     std::ofstream out(filename, std::ios::binary);
@@ -149,41 +171,41 @@ void CodeLoader::save_to_file(const std::string &filename, const CodeEntryManage
     out.write(reinterpret_cast<const char*>(&version), 1);
     uint32_t rawSize = static_cast<uint32_t>(raw_data.size());
     out.write(reinterpret_cast<const char*>(&rawSize), 4);
-    out.write(compressed_data.data(), compressedSize);
+    out.write(compressed_data.data(), compressed_size);
 }
 
 void CodeLoader::load_version_1(std::istream &in, CodeEntryManager &manager)
 {
-    uint32_t rawSize;
-    in.read(reinterpret_cast<char*>(&rawSize), 4);
+    uint32_t raw_size;
+    in.read(reinterpret_cast<char*>(&raw_size), 4);
 
     std::vector<char> compressed_data((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
 
-    std::vector<char> rawData(rawSize);
-    int decompressedSize = LZ4_decompress_safe(compressed_data.data(), rawData.data(), compressed_data.size(), rawSize);
+    std::vector<char> raw_data(raw_size);
+    int decompressedSize = LZ4_decompress_safe(compressed_data.data(), raw_data.data(), compressed_data.size(), raw_size);
     if (decompressedSize < 0)
         throw std::runtime_error("Decompression failed.");
 
-    std::istringstream iss(std::string(rawData.data(), rawSize), std::ios::binary);
+    std::istringstream iss(std::string(raw_data.data(), raw_size), std::ios::binary);
 
-    uint32_t entryCount;
-    iss.read(reinterpret_cast<char*>(&entryCount), 4);
+    uint32_t entry_count;
+    iss.read(reinterpret_cast<char*>(&entry_count), 4);
 
-    for (uint32_t i = 0; i < entryCount; ++i)
+    for (uint32_t i = 0; i < entry_count; ++i)
     {
         CodeEntry entry;
 
-        uint8_t nameLen;
-        iss.read(reinterpret_cast<char*>(&nameLen), 1);
-        entry.name = readString(iss, nameLen);
+        uint8_t name_len;
+        iss.read(reinterpret_cast<char*>(&name_len), 1);
+        entry.name = read_string(iss, name_len);
 
-        uint16_t codesLen;
-        iss.read(reinterpret_cast<char*>(&codesLen), 2);
-        entry.codes = readString(iss, codesLen);
+        uint16_t codes_len;
+        iss.read(reinterpret_cast<char*>(&codes_len), 2);
+        entry.codes = read_string(iss, codes_len);
 
-        uint8_t authorsLen;
-        iss.read(reinterpret_cast<char*>(&authorsLen), 1);
-        entry.authors = readString(iss, authorsLen);
+        uint8_t authors_len;
+        iss.read(reinterpret_cast<char*>(&authors_len), 1);
+        entry.authors = read_string(iss, authors_len);
 
         uint8_t flags;
         iss.read(reinterpret_cast<char*>(&flags), 1);
@@ -191,15 +213,15 @@ void CodeLoader::load_version_1(std::istream &in, CodeEntryManager &manager)
         entry.assembly_ram_write = flags & 2;
         entry.enabled = flags & 4;
 
-        uint16_t commentLen;
-        iss.read(reinterpret_cast<char*>(&commentLen), 2);
-        entry.comment = readString(iss, commentLen);
+        uint16_t comment_len;
+        iss.read(reinterpret_cast<char*>(&comment_len), 2);
+        entry.comment = read_string(iss, comment_len);
 
         manager.add_entry(entry);
     }
 }
 
-std::string CodeLoader::readString(std::istream &in, size_t length)
+std::string CodeLoader::read_string(std::istream &in, size_t length)
 {
     std::string str(length, '\0');
     in.read(&str[0], length);
