@@ -33,6 +33,11 @@ Zaqro U は、Wii U 向けのチートツールです。C++20 を使用してお
 - [tinyfiledialogs](https://sourceforge.net/projects/tinyfiledialogs/) — クロスプラットフォームなファイルダイアログ  
 - [Boost.Asio](https://www.boost.org/doc/libs/release/libs/asio/) — ソケット通信ライブラリ（Wii U との TCP 通信）
 
+## ライブラリのインストール方法（vcpkg 経由）
+```bash
+vcpkg install glfw3 OpenGL glad imgui CURL lz4 tinyxml2 tinyfiledialogs boost-asio nlohmann-json
+```
+
 ## ビルド方法
 
 ⚠️ **/path/to/vcpkg は実際の vcpkg のパスに置き換えてください。**
