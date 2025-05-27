@@ -257,16 +257,23 @@ void CodesTab::OnConnected()
 
 void CodesTab::SaveCodes(bool check_auto_save)
 {
-    if (check_auto_save && !get_config()->get_nested("codes.code_list.auto_save", true))
-        return;
-    
     if (m_loaded_path.empty())
         return;
     
-    std::string folder_path = std::filesystem::path(m_loaded_path).parent_path().string();
-    std::filesystem::create_directories(folder_path);
+    if (check_auto_save && !get_config()->get_nested("codes.code_list.auto_save", true))
+        return;
+    
+    try
+    {
+        std::string folder_path = std::filesystem::path(m_loaded_path).parent_path().string();
+        std::filesystem::create_directories(folder_path);
 
-    CodeLoader::save_to_file(m_loaded_path, m_codes);
+        CodeLoader::save_to_file(m_loaded_path, m_codes);
+    }
+    catch(const std::exception &e)
+    {
+        get_raim_ui()->get_notification_manager()->AddNotification(m_notif_title, e.what());
+    }
 }
 
 void CodesTab::LoadCodes(const std::string &path, bool overwrite, bool save_path)
@@ -293,6 +300,9 @@ void CodesTab::LoadCodes(const std::string &path, bool overwrite, bool save_path
             CodeLoader::load_from_xml_file(path, m_codes);
         else
             CodeLoader::load_from_file(path, m_codes);
+        
+        if (save_path)
+            m_loaded_path = path;
 
         CodesFrame_ScrollToIndex(0, true);
 
