@@ -4,6 +4,7 @@
 
 #include <utils/tcp_gecko/TCPGecko.h>
 #include <utils/StrUtils.h>
+#include <utils/pretendo_clients/PNASClient.h>
 #include <raim/ui/NotificationManager.h>
 #include <raim/ui/RaimUI.h>
 #include <raim/Raim.h>
@@ -12,12 +13,37 @@
 
 
 DebugTab::DebugTab(RaimUI *raimUI)
-    : IRaimTab(raimUI, "Debug")
+    : IRaimTab(raimUI, "Debug"),
+      m_pnas(std::make_shared<PNASClient>())
 {
 }
 
 void DebugTab::Update()
 {
+    static char s_get_principal_id_by_account_id[32] = "";
+    if (ImGui::InputText("get_principal_id_by_account_id",
+                         s_get_principal_id_by_account_id,
+                         IM_ARRAYSIZE(s_get_principal_id_by_account_id),
+                         ImGuiInputTextFlags_EnterReturnsTrue) && 
+        !m_pnas_principal_id_task.is_running())
+    {
+        m_pnas_principal_id_task.run([&]() {
+            return m_pnas->get_principal_id(s_get_principal_id_by_account_id);
+        });
+    }
+
+    static char s_get_account_id_by_account_id[32] = "";
+    if (ImGui::InputText("get_account_id_by_account_id",
+                         s_get_account_id_by_account_id,
+                         IM_ARRAYSIZE(s_get_account_id_by_account_id),
+                         ImGuiInputTextFlags_EnterReturnsTrue) && 
+        !m_pnas_account_id_task.is_running())
+    {
+        m_pnas_account_id_task.run([&]() {
+            return m_pnas->get_account_id(std::stoul(s_get_account_id_by_account_id));
+        });
+    }
+    
     std::shared_ptr<TCPGecko> tcp = get_raim()->get_tcp_gecko();
 
     ImGui::BeginDisabled(!tcp->is_connected());
@@ -75,6 +101,21 @@ void DebugTab::Update()
 
 void DebugTab::UpdateBackground()
 {
+    if (std::optional<PrincipalId> pid = m_pnas_principal_id_task.get_result())
+    {
+        get_notification_manager()->AddNotification("DebugTab", std::format("PrincipalId: {}", *pid), 7.5f,
+            [pid]() {
+                ImGui::SetClipboardText(std::format("{}", *pid).c_str());
+            });
+    }
+    if (std::optional<std::string> account_id = m_pnas_account_id_task.get_result())
+    {
+        get_notification_manager()->AddNotification("DebugTab", std::format("AccountId: {}", *account_id), 7.5f,
+            [account_id]() {
+                ImGui::SetClipboardText(account_id->c_str());
+            });
+    }
+    
     if (std::optional<std::string> result = m_account_id_task.get_result())
     {
         get_notification_manager()->AddNotification("DebugTab", "AccountId: " + *result, 7.5f,
