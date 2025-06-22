@@ -13,6 +13,17 @@ struct CodeEntry
     bool enabled;
     std::string comment;
 
+    bool empty() const
+    {
+        return name.empty() &&
+               codes.empty() &&
+               authors.empty() &&
+               !raw_assembly &&
+               !assembly_ram_write &&
+               !enabled &&
+               comment.empty();
+    }
+
     bool operator==(const CodeEntry &other) const
     {
         return this->name == other.name && 

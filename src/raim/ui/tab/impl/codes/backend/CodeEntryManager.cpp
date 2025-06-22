@@ -75,7 +75,6 @@ bool CodeEntryManager::undo()
     return true;
 }
 
-// FIXME: 一回しかredoできない
 bool CodeEntryManager::redo()
 {
     if (m_redo_stack.empty())
@@ -87,9 +86,16 @@ bool CodeEntryManager::redo()
     for (const Change &c : changes)
     {
         if (c.index < m_entries.size())
-            m_entries[c.index] = c.new_value;
-        else if (c.index == m_entries.size())
+        {
+            if (c.new_value == CodeEntry{})
+                m_entries.erase(m_entries.begin() + c.index);
+            else
+                m_entries[c.index] = c.new_value;
+        }
+        else if (c.index == m_entries.size() && c.new_value != CodeEntry{})
+        {
             m_entries.push_back(c.new_value);
+        }
     }
 
     m_undo_stack.push_back(changes);
