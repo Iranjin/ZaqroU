@@ -42,6 +42,7 @@ private:
     CodeEntryManager m_codes;
 
     CodeWindowMode m_code_window_mode = CodeWindowMode::None;
+    bool m_code_window_initialized = false;
     CodeEntry m_code_window_entry;
     size_t m_edit_target_index = -1;
 
@@ -82,6 +83,10 @@ public:
     void CodesTable(const ImVec2 &available);
     void ControlsFrame(const ImVec2 &available);
     void CodeWindow();
+
+    void OpenAddCodeWindow();
+    void OpenEditCodeWindow(size_t index);
+    void CloseCodeWindow();
     
     void CodesFrame_ScrollToIndex(size_t index, bool align_bottom = false);
 

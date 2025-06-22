@@ -182,10 +182,7 @@ void CodesTab::CodesFrame_ContextMenu()
             if (!m_selected_indices.empty())
             {
                 size_t selected = *m_selected_indices.begin();
-                m_code_window_entry = m_codes[selected];
-                m_edit_target_index = selected;
-                m_code_window_mode = CodeWindowMode::Edit;
-                ImGui::OpenPopup("CodeWindow");
+                OpenEditCodeWindow(selected);
             }
         }
         if (ImGui::MenuItem("Delete"))

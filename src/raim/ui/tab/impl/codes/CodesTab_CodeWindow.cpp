@@ -5,10 +5,14 @@
 
 void CodesTab::CodeWindow()
 {
-    if (m_code_window_mode == CodeWindowMode::None)
-        return;
+    std::string window_title = "null";
 
-    static bool initialized = false;
+    switch (m_code_window_mode)
+    {
+    case CodeWindowMode::Add: window_title = "Add Code"; break;
+    case CodeWindowMode::Edit: window_title = "Edit Code"; break;
+    default: return;
+    }
 
     static char input_title[64] = "";
     static char input_authors[64] = "";
@@ -18,20 +22,19 @@ void CodesTab::CodeWindow()
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
 
-    if (!initialized)
+    if (!m_code_window_initialized)
     {
         ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
         ImGui::SetNextWindowSize(ImVec2(500, 600));
     }
+    ImGui::Begin(window_title.c_str(), (bool *) &m_code_window_mode);
 
-    ImGui::Begin("Code", (bool*)&m_code_window_mode);
-
-    if (!initialized)
+    if (!m_code_window_initialized)
     {
-        if (m_code_window_mode == CodeWindowMode::Edit && m_edit_target_index >= 0 && m_edit_target_index < (int)m_codes.size())
+        if (m_code_window_mode == CodeWindowMode::Edit && m_edit_target_index >= 0 && m_edit_target_index < (int) m_codes.size())
         {
-            const CodeEntry& entry = m_codes[m_edit_target_index];
+            const CodeEntry &entry = m_codes[m_edit_target_index];
             strncpy(input_title, entry.name.c_str(), sizeof(input_title));
             input_title[sizeof(input_title) - 1] = '\0';
 
@@ -54,7 +57,7 @@ void CodesTab::CodeWindow()
             input_comment[0] = '\0';
             input_assembly_ram_write = false;
         }
-        initialized = true;
+        m_code_window_initialized = true;
     }
 
     // Title
@@ -120,11 +123,33 @@ void CodesTab::CodeWindow()
             m_codes[m_edit_target_index] = entry;
         m_codes.end_modify();
 
-        initialized = false;
+        m_code_window_initialized = false;
         m_code_window_mode = CodeWindowMode::None;
     }
 
     ImGui::End();
 
     ImGui::PopStyleVar();
+}
+
+void CodesTab::OpenAddCodeWindow()
+{
+    m_code_window_entry = CodeEntry();
+    m_code_window_mode = CodeWindowMode::Add;
+    m_code_window_initialized = false;
+}
+
+void CodesTab::OpenEditCodeWindow(size_t index)
+{
+    m_code_window_entry = m_codes[index];
+    m_edit_target_index = index;
+    m_code_window_mode = CodeWindowMode::Edit;
+    m_code_window_initialized = false;
+}
+
+void CodesTab::CloseCodeWindow()
+{
+    m_edit_target_index = -1;
+    m_code_window_mode = CodeWindowMode::None;
+    m_code_window_initialized = false;
 }

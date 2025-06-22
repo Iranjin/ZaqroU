@@ -52,15 +52,23 @@ bool CodeEntryManager::undo()
 {
     if (m_undo_stack.empty())
         return false;
+    
     std::vector<Change> changes = m_undo_stack.back();
     m_undo_stack.pop_back();
 
     for (const Change &c : changes)
     {
         if (c.index < m_entries.size())
-            m_entries[c.index] = c.old_value;
+        {
+            if (c.old_value == CodeEntry{})
+                m_entries.erase(m_entries.begin() + c.index);
+            else
+                m_entries[c.index] = c.old_value;
+        }
         else if (c.index == m_entries.size() && c.old_value != CodeEntry{})
+        {
             m_entries.push_back(c.old_value);
+        }
     }
 
     m_redo_stack.push_back(changes);
@@ -72,6 +80,7 @@ bool CodeEntryManager::redo()
 {
     if (m_redo_stack.empty())
         return false;
+    
     std::vector<Change> changes = m_redo_stack.back();
     m_redo_stack.pop_back();
 
@@ -79,7 +88,7 @@ bool CodeEntryManager::redo()
     {
         if (c.index < m_entries.size())
             m_entries[c.index] = c.new_value;
-        else if (c.index == m_entries.size() && c.new_value != CodeEntry{})
+        else if (c.index == m_entries.size())
             m_entries.push_back(c.new_value);
     }
 

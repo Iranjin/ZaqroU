@@ -27,14 +27,9 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
     if (ImGui::Button("Add Code"))
     {
         if (m_code_window_mode == CodeWindowMode::None)
-        {
-            m_code_window_entry = CodeEntry();
-            m_code_window_mode = CodeWindowMode::Add;
-        }
+            OpenAddCodeWindow();
         else
-        {
-            m_code_window_mode = CodeWindowMode::None;
-        }
+            CloseCodeWindow();
     }
 
     ImGui::SameLine();
