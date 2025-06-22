@@ -226,9 +226,8 @@ void CodesTab::CodesFrame_ContextMenu()
 
 void CodesTab::CodesFrame()
 {
-    ImGui::BeginChild("CodesFrameChild", ImVec2(0, 0), ImGuiChildFlags_None);
+    ImGui::BeginChild("CodesFrameChild", ImVec2(0, 0));
     
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
     ImGuiIO &io = ImGui::GetIO();
 
     // ショートカット
@@ -373,8 +372,50 @@ void CodesTab::CodesFrame()
         CodesFrame_DragAndDrop(index);
 
         std::string label = m_codes[index].name;
+
         if (!m_codes[index].authors.empty())
-            label += std::format(" [{}]", m_codes[index].authors);
+        {
+            std::vector<std::string> author_names;
+            std::string author_name;
+
+            auto push_trimmed = [&](std::string &str)
+            {
+                size_t start = str.find_first_not_of(' ');
+                size_t end = str.find_last_not_of(' ');
+                if (start != std::string::npos && end != std::string::npos)
+                    author_names.push_back(str.substr(start, end - start + 1));
+                else
+                    author_names.push_back("");
+                str.clear();
+            };
+
+            for (char c : m_codes[index].authors)
+            {
+                if (c == ',')
+                {
+                    if (!author_name.empty())
+                        push_trimmed(author_name);
+                }
+                else
+                {
+                    author_name += c;
+                }
+            }
+            if (!author_name.empty())
+                push_trimmed(author_name);
+
+            if (!author_names.empty())
+            {
+                label += " [";
+                for (size_t i = 0; i < author_names.size(); ++i)
+                {
+                    label += author_names[i];
+                    if (i < author_names.size() - 1)
+                        label += ", ";
+                }
+                label += "]";
+            }
+        }
 
         std::string display_label = label;
 
@@ -401,8 +442,6 @@ void CodesTab::CodesFrame()
 
         ImGui::PopID();
     }
-
-    ImGui::PopStyleVar();
 
     if (m_list_updated)
     {
