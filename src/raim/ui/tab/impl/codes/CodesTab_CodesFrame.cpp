@@ -321,7 +321,7 @@ void CodesTab::CodesFrame()
 
             if (ImGui::IsKeyPressed(ImGuiKey_Z))
             {
-                if (!io.KeyShift)
+                if (io.KeyShift)
                     m_codes.redo();
                 else
                     m_codes.undo();

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <utils/tcp_gecko/TCPGecko.h>
 #include <utils/Config.h>
+#include <utils/common.h>
 #include <raim/ui/RaimUI.h>
 #include <raim/Raim.h>
 
@@ -103,7 +104,7 @@ void MemoryEditorTab::Update()
             ImGui::TableNextColumn();
             ImGui::SetNextItemWidth(-FLT_MIN);
             if (ImGui::InputTextWithHint("##Address", "Address...", m_address_input, sizeof(m_address_input),
-                                        ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsHexadecimal))
+                                         ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsHexadecimal))
             {
                 uint32_t addr = std::strtoul(m_address_input, nullptr, 16);
                 if (TCPGecko::valid_range(addr, m_mem_size))

@@ -6,12 +6,17 @@
 #include <curl/curl.h>
 
 
+namespace
+{
+
 size_t write_to_buffer(void *ptr, size_t size, size_t nmemb, void *userdata)
 {
     std::vector<char> *buffer = (std::vector<char> *) userdata;
     size_t totalSize = size * nmemb;
     buffer->insert(buffer->end(), (char *) ptr, (char *) ptr + totalSize);
     return totalSize;
+}
+
 }
 
 bool download_file(const std::string &url, std::vector<char> &data)
