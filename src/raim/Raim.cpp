@@ -2,6 +2,8 @@
 
 #include <cstdint>
 #include <format>
+#include <filesystem>
+#include <iostream>
 
 #include <imgui.h>
 
@@ -26,10 +28,30 @@ Raim::Raim(GLFWwindow *window)
     : m_window(window),
       m_config(std::make_shared<Config>()),
       m_tcp_gecko(std::make_shared<TCPGecko>()),
-      m_title_id_parser(std::make_shared<TitleIdParser>(get_save_dir() + "/res/titles.xml")),
+      m_title_id_parser(std::make_shared<TitleIdParser>(get_save_dir() / "res/titles.xml")),
       m_discord_rpc(std::make_shared<DiscordRPC>(DISCORD_RPC_CLIENT_ID)),
-      m_config_path(get_save_dir() + "/config.json")
+      m_config_path(get_save_dir() / "config.json")
 {
+    { // 古いバージョンで使用されていたディレクトリを自動でリネーム
+        namespace fs = std::filesystem;
+
+        fs::path old_dir = get_home_dir() / "zaqro_u";
+        fs::path new_dir = get_save_dir();
+
+        if (fs::exists(old_dir) && !fs::exists(new_dir))
+        {
+            try
+            {
+                fs::rename(old_dir, new_dir);
+                std::cout << "Renamed successfully.\n";
+            }
+            catch (const fs::filesystem_error &e)
+            {
+                std::cerr << "Rename failed: " << e.what() << '\n';
+            }
+        }
+    }
+    
     m_config->load(m_config_path);
     LoadFonts();
     m_raim_ui = new RaimUI(this);

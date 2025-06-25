@@ -4,7 +4,7 @@
 #include <cctype>
 
 
-std::string get_home_dir()
+std::filesystem::path get_home_dir()
 {
 #ifdef _WIN32
     return std::getenv("USERPROFILE");
@@ -13,15 +13,15 @@ std::string get_home_dir()
 #endif
 }
 
-std::string get_save_dir()
+std::filesystem::path get_save_dir()
 {
-    std::string home_dir = get_home_dir();
-    home_dir += "/zaqro_u";
+    std::filesystem::path home_dir = get_home_dir();
+    home_dir /= "ZaqroU";
     return home_dir;
 }
 
 
-static bool is_hexstr(const std::string &str)
+bool is_hexstr(const std::string &str)
 {
     for (char c : str)
     if (!std::isxdigit(c))

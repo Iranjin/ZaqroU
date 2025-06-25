@@ -3,9 +3,10 @@
 #include <imgui.h>
 
 #include <string>
+#include <filesystem>
 
 
-std::string get_home_dir();
-std::string get_save_dir();
+std::filesystem::path get_home_dir();
+std::filesystem::path get_save_dir();
 
-static bool is_hexstr(const std::string &str);
+bool is_hexstr(const std::string &str);

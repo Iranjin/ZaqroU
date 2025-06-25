@@ -15,7 +15,7 @@
 
 void CodesTab::ControlsFrame(const ImVec2 &available)
 {
-    std::string titles_path = get_save_dir() + "/titles";
+    std::string titles_path = get_save_dir() / "titles/";
     
     float bottom_height = (available.y - ImGui::GetStyle().ItemSpacing.y) / 3.0f;
 
@@ -72,7 +72,7 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
         const char *filters[] = { "*.bin" };
         const char *path = tinyfd_openFileDialog(
             "Select file to load",
-            (get_save_dir() + "/titles/").c_str(),
+            (get_save_dir() / "titles/").c_str(),
             1, filters,
             ".dat file",
             0);
@@ -103,7 +103,7 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
         const char *filters[] = { "*.bin", "*.xml" };
         const char *path = tinyfd_openFileDialog(
             "Select file to import",
-            (get_save_dir() + "/titles/").c_str(),
+            (get_save_dir() / "titles/").c_str(),
             2, filters,
             "Code file",
             0);
