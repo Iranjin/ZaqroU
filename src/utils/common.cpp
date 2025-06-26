@@ -24,7 +24,9 @@ std::filesystem::path get_save_dir()
 bool is_hexstr(const std::string &str)
 {
     for (char c : str)
-    if (!std::isxdigit(c))
-        return false;
+    {
+        if (!std::isxdigit(c))
+            return false;
+    }
     return true;
 }

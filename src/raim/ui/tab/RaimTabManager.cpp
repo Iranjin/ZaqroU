@@ -4,7 +4,7 @@
 #include "impl/codes/CodesTab.h"
 #include "impl/MemoryEditorTab.h"
 #include "impl/settings/SettingsTab.h"
-#include "impl/LogsTab.h"
+#include "impl/AboutTab.h"
 #ifdef DEBUG_MODE
 #include "impl/DebugTab.h"
 #endif
@@ -32,7 +32,7 @@ void RaimTabManager::AllocTabs()
         new CodesTab(m_raim_ui),
         new MemoryEditorTab(m_raim_ui),
         new SettingsTab(m_raim_ui),
-        new LogsTab(m_raim_ui),
+        new AboutTab(m_raim_ui),
 #ifdef DEBUG_MODE
         new DebugTab(m_raim_ui),
 #endif

@@ -15,11 +15,11 @@
 
 void CodesTab::ControlsFrame(const ImVec2 &available)
 {
-    std::string titles_path = get_save_dir() / "titles/";
+    std::filesystem::path titles_path = get_save_dir() / "titles/";
     
     float bottom_height = (available.y - ImGui::GetStyle().ItemSpacing.y) / 3.0f;
 
-    ImGui::BeginChild("ControlsFrame", ImVec2(-FLT_MIN, -FLT_MIN), ImGuiChildFlags_Border, ImGuiWindowFlags_AlwaysUseWindowPadding);
+    ImGui::BeginChild("ControlsFrame", ImVec2(-FLT_MIN, -FLT_MIN), ImGuiChildFlags_Border, ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_HorizontalScrollbar);
 
     std::shared_ptr<TCPGecko> tcp = get_tcp_gecko();
     
@@ -103,7 +103,7 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
         const char *filters[] = { "*.bin", "*.xml" };
         const char *path = tinyfd_openFileDialog(
             "Select file to import",
-            (get_save_dir() / "titles/").c_str(),
+            titles_path.c_str(),
             2, filters,
             "Code file",
             0);

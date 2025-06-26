@@ -3,10 +3,10 @@
 #include "../IRaimTab.h"
 
 
-class LogsTab : public IRaimTab
+class AboutTab : public IRaimTab
 {
 public:
-    LogsTab(RaimUI *raim_ui);
+    AboutTab(RaimUI *raim_ui);
 
     void Update() override;
 };

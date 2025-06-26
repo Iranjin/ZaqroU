@@ -10,6 +10,7 @@
 #include "../../../RaimUI.h"
 #include "../../../../Raim.h"
 
+#include <imgui_internal.h>
 #include <imgui.h>
 
 
@@ -417,19 +418,35 @@ void CodesTab::CodesFrame()
             }
         }
 
-        std::string display_label = label;
-
         float max_label_width = full_width.x - ImGui::GetStyle().FramePadding.x * 2.0f - ImGui::GetFontSize();
         ImVec2 textSize = ImGui::CalcTextSize(label.c_str());
 
+        std::string display_label = label;
         bool was_truncated = false;
         if (textSize.x > max_label_width)
         {
             was_truncated = true;
-            while (display_label.length() > 3 &&
-                   ImGui::CalcTextSize((display_label.substr(0, display_label.length() - 3) + "...").c_str()).x > max_label_width)
-                display_label.pop_back();
-            display_label = display_label.substr(0, display_label.length() - 3) + "...";
+            const char *str = label.c_str();
+            const char *str_end = str + label.size();
+
+            std::string temp;
+            while (str < str_end)
+            {
+                const char *prev = str;
+                unsigned int c;
+                int char_len = ImTextCharFromUtf8(&c, str, str_end);
+                if (char_len == 0)
+                    break;
+
+                str += char_len;
+
+                std::string next = temp + std::string(prev, str) + "...";
+                if (ImGui::CalcTextSize(next.c_str()).x > max_label_width)
+                    break;
+
+                temp += std::string(prev, str);
+            }
+            display_label = temp + "...";
         }
 
         ImGui::SetCursorPos(checkboxPos);

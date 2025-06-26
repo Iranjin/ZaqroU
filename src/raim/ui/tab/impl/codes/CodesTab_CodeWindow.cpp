@@ -125,6 +125,8 @@ void CodesTab::CodeWindow()
 
         m_code_window_initialized = false;
         m_code_window_mode = CodeWindowMode::None;
+
+        SaveCodes(true);
     }
 
     ImGui::End();
