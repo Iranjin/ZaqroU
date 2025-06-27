@@ -69,15 +69,13 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
     ImGui::SameLine();
     if (ImGui::Button("Load Code List"))
     {
-        const char *filters[] = { "*.bin" };
-        const char *path = tinyfd_openFileDialog(
+        std::string path = show_open_file_dialog(
             "Select file to load",
-            (get_save_dir() / "titles/").c_str(),
-            1, filters,
-            ".dat file",
-            0);
+            titles_path,
+            { "*.bin" },
+            ".dat file");
 
-        if (path)
+        if (!path.empty())
             LoadCodes(path);
 
         m_list_updated = true;
@@ -100,15 +98,13 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
     {
         std::filesystem::create_directories(titles_path);
 
-        const char *filters[] = { "*.bin", "*.xml" };
-        const char *path = tinyfd_openFileDialog(
+        std::string path = show_open_file_dialog(
             "Select file to import",
-            titles_path.c_str(),
-            2, filters,
-            "Code file",
-            0);
+            titles_path,
+            { "*.bin", "*.xml" },
+            "Code file");
 
-        if (path)
+        if (!path.empty())
         {
             m_codes.begin_modify();
             LoadCodes(path, false, false);
