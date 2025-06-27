@@ -1,9 +1,7 @@
+#include "downloader.h"
+
 #include <iostream>
 #include <fstream>
-#include <string>
-#include <vector>
-
-#include <curl/curl.h>
 
 
 namespace
@@ -48,9 +46,9 @@ bool download_file(const std::string &url, std::vector<char> &data)
     return false;
 }
 
-bool save_to_file(const std::filesystem::path &path, const std::vector<char> &data)
+bool save_to_file(const std::filesystem::path &file_path, const std::vector<char> &data)
 {
-    std::ofstream file(path, std::ios::binary);
+    std::ofstream file(file_path, std::ios::binary);
     if (!file)
     {
         std::cerr << "Failed to open file for writing: " << path << std::endl;
