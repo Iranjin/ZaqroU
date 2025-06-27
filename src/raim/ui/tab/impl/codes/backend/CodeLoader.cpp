@@ -13,9 +13,9 @@
 #include "CodeEntryManager.h"
 
 
-uint8_t CodeLoader::get_version_from_file(const std::string &filename)
+uint8_t CodeLoader::get_version_from_file(const std::filesystem::path &file_path)
 {
-    std::ifstream in(filename, std::ios::binary);
+    std::ifstream in(file_path, std::ios::binary);
     if (!in)
         throw std::runtime_error("Failed to open file.");
 
@@ -32,9 +32,9 @@ uint8_t CodeLoader::get_version_from_file(const std::string &filename)
     return version;
 }
 
-void CodeLoader::load_from_file(const std::string &filename, CodeEntryManager &manager)
+void CodeLoader::load_from_file(const std::filesystem::path &file_path, CodeEntryManager &manager)
 {
-    std::ifstream in(filename, std::ios::binary);
+    std::ifstream in(file_path, std::ios::binary);
     if (!in)
         throw std::runtime_error("Failed to open file.");
 
@@ -59,12 +59,12 @@ void CodeLoader::load_from_file(const std::string &filename, CodeEntryManager &m
     }
 }
 
-void CodeLoader::load_from_xml_file(const std::string &filename, CodeEntryManager &manager)
+void CodeLoader::load_from_xml_file(const std::filesystem::path &file_path, CodeEntryManager &manager)
 {
     using namespace tinyxml2;
 
     XMLDocument doc;
-    XMLError result = doc.LoadFile(filename.c_str());
+    XMLError result = doc.LoadFile(file_path.c_str());
     if (result != XML_SUCCESS)
         throw std::runtime_error("Failed to load XML file.");
 
@@ -116,7 +116,7 @@ void CodeLoader::load_from_xml_file(const std::string &filename, CodeEntryManage
     }
 }
 
-void CodeLoader::save_to_file(const std::string &filename, const CodeEntryManager &manager)
+void CodeLoader::save_to_file(const std::filesystem::path &file_path, const CodeEntryManager &manager)
 {
     std::ostringstream raw_stream(std::ios::binary);
 
@@ -162,7 +162,7 @@ void CodeLoader::save_to_file(const std::string &filename, const CodeEntryManage
     if (compressed_size <= 0)
         throw std::runtime_error("Compression failed.");
 
-    std::ofstream out(filename, std::ios::binary);
+    std::ofstream out(file_path, std::ios::binary);
     if (!out)
         throw std::runtime_error("Failed to open output file.");
 

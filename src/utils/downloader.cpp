@@ -48,7 +48,7 @@ bool download_file(const std::string &url, std::vector<char> &data)
     return false;
 }
 
-bool save_to_file(const std::string &path, const std::vector<char> &data)
+bool save_to_file(const std::filesystem::path &path, const std::vector<char> &data)
 {
     std::ofstream file(path, std::ios::binary);
     if (!file)
