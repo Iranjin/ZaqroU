@@ -4,17 +4,12 @@
 #include <fstream>
 
 
-namespace
-{
-
 size_t write_to_buffer(void *ptr, size_t size, size_t nmemb, void *userdata)
 {
     std::vector<char> *buffer = (std::vector<char> *) userdata;
     size_t totalSize = size * nmemb;
     buffer->insert(buffer->end(), (char *) ptr, (char *) ptr + totalSize);
     return totalSize;
-}
-
 }
 
 bool download_file(const std::string &url, std::vector<char> &data)
@@ -51,7 +46,7 @@ bool save_to_file(const std::filesystem::path &file_path, const std::vector<char
     std::ofstream file(file_path, std::ios::binary);
     if (!file)
     {
-        std::cerr << "Failed to open file for writing: " << path << std::endl;
+        std::cerr << "Failed to open file for writing: " << file_path << std::endl;
         return false;
     }
 
