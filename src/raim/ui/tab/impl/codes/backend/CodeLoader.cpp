@@ -64,7 +64,7 @@ void CodeLoader::load_from_xml_file(const std::filesystem::path &file_path, Code
     using namespace tinyxml2;
 
     XMLDocument doc;
-    XMLError result = doc.LoadFile(file_path.c_str());
+    XMLError result = doc.LoadFile(file_path.string().c_str());
     if (result != XML_SUCCESS)
         throw std::runtime_error("Failed to load XML file.");
 

@@ -15,7 +15,7 @@ TitleIdParser::TitleIdParser(const std::filesystem::path &xml_path)
 bool TitleIdParser::load()
 {
     tinyxml2::XMLDocument doc;
-    if (doc.LoadFile(m_path.c_str()) != tinyxml2::XML_SUCCESS)
+    if (doc.LoadFile(m_path.string().c_str()) != tinyxml2::XML_SUCCESS)
     {
         std::cerr << "Failed to load XML file: " << m_path << std::endl;
         return false;
