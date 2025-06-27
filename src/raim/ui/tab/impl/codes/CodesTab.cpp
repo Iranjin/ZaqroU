@@ -241,7 +241,7 @@ void CodesTab::OnConnected()
     uint64_t title_id = tcp->get_title_id();
     std::string title_id_str = TitleIdParser::from_Uint64(title_id);
 
-    std::string codes_file_path = get_save_dir() / "titles" / title_id_str / "codes.bin";
+    std::filesystem::path codes_file_path = get_save_dir() / "titles" / title_id_str / "codes.bin";
 
     if (std::filesystem::exists(codes_file_path))
     {
