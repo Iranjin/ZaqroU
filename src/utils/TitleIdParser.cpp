@@ -1,6 +1,5 @@
 #include "TitleIdParser.h"
 
-#include <filesystem>
 #include <iostream>
 #include <cstdio>
 #include <vector>
@@ -8,7 +7,7 @@
 #include "downloader.h"
 
 
-TitleIdParser::TitleIdParser(const std::string &xml_path)
+TitleIdParser::TitleIdParser(const std::filesystem::path &xml_path)
     : m_path(xml_path)
 {
 }

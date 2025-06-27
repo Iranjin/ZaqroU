@@ -35,21 +35,19 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
     ImGui::SameLine();
     if (ImGui::Button("Save Code List"))
     {
-        std::string saved_file_path;
+        std::filesystem::path saved_file_path;
         
         if (m_loaded_path.empty())
         {
             std::filesystem::create_directories(titles_path);
 
-            const char *filters[] = { "*.bin" };
-            const char *path = tinyfd_saveFileDialog(
+            std::string path = show_save_file_dialog(
                 "Save file",
-                titles_path.c_str(),
-                1, filters,
-                ".bin file"
-            );
+                titles_path,
+                { "*.bin" },
+                ".bin file");
 
-            if (path)
+            if (!path.empty())
             {
                 CodeLoader::save_to_file(path, m_codes);
                 saved_file_path = path;
@@ -62,7 +60,7 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
         }
 
         if (!saved_file_path.empty())
-            get_raim_ui()->get_notification_manager()->AddNotification(m_notif_title, std::format("Saved \"{}\"", saved_file_path));
+            get_raim_ui()->get_notification_manager()->AddNotification(m_notif_title, std::format("Saved \"{}\"", saved_file_path.string()));
     }
 
     ImGui::BeginDisabled(tcp->is_connected());
@@ -73,7 +71,7 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
             "Select file to load",
             titles_path,
             { "*.bin" },
-            ".dat file");
+            ".bin file");
 
         if (!path.empty())
             LoadCodes(path);

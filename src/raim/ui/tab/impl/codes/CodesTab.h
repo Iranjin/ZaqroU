@@ -2,6 +2,7 @@
 
 #include <string>
 #include <unordered_set>
+#include <filesystem>
 
 #include "backend/CodeEntryManager.h"
 #include "../../IRaimTab.h"
@@ -57,7 +58,7 @@ private:
 
     bool m_connected = false,
          m_last_connected = false;
-    std::string m_loaded_path;
+    std::filesystem::path m_loaded_path;
 
     bool m_list_updated = false;
     
@@ -91,7 +92,7 @@ public:
     void CodesFrame_ScrollToIndex(size_t index, bool align_bottom = false);
 
     void SaveCodes(bool check_auto_save = false);
-    void LoadCodes(const std::string &path, bool overwrite = true, bool save_path = true);
+    void LoadCodes(const std::filesystem::path &path, bool overwrite = true, bool save_path = true);
 
     void SendCodes();
     void DisableCodes();

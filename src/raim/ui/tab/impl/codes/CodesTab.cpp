@@ -265,7 +265,7 @@ void CodesTab::SaveCodes(bool check_auto_save)
     
     try
     {
-        std::string folder_path = std::filesystem::path(m_loaded_path).parent_path().string();
+        std::filesystem::path folder_path = m_loaded_path.parent_path().string();
         std::filesystem::create_directories(folder_path);
 
         CodeLoader::save_to_file(m_loaded_path, m_codes);
@@ -276,7 +276,7 @@ void CodesTab::SaveCodes(bool check_auto_save)
     }
 }
 
-void CodesTab::LoadCodes(const std::string &path, bool overwrite, bool save_path)
+void CodesTab::LoadCodes(const std::filesystem::path &path, bool overwrite, bool save_path)
 {
     NotificationManager *notif_mngr = get_raim_ui()->get_notification_manager();
     
@@ -295,7 +295,7 @@ void CodesTab::LoadCodes(const std::string &path, bool overwrite, bool save_path
         if (overwrite)
             m_codes.clear();
         
-        std::string ext = std::filesystem::path(path).extension().string();
+        std::string ext = path.extension().string();
         if (ext == ".xml")
             CodeLoader::load_from_xml_file(path, m_codes);
         else
@@ -306,7 +306,7 @@ void CodesTab::LoadCodes(const std::string &path, bool overwrite, bool save_path
 
         CodesFrame_ScrollToIndex(0, true);
 
-        notif_mngr->AddNotification(m_notif_title, std::format("{} \"{}\"", overwrite ? "Loaded" : "Imported", path));
+        notif_mngr->AddNotification(m_notif_title, std::format("{} \"{}\"", overwrite ? "Loaded" : "Imported", path.string()));
     }
     catch(const std::exception &e)
     {

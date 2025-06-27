@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <filesystem>
 
 #include <tinyxml2.h>
 
@@ -25,13 +26,13 @@ struct TitleEntry
 class TitleIdParser
 {
 private:
-    std::string m_path;
+    std::filesystem::path m_path;
     std::vector<TitleEntry> m_entries;
 
     void parse_titles(tinyxml2::XMLElement *root);
 
 public:
-    TitleIdParser(const std::string &xml_path);
+    TitleIdParser(const std::filesystem::path &xml_path);
 
     bool load();
     const std::vector<TitleEntry> &get_entries() const;
@@ -40,6 +41,6 @@ public:
 
     const TitleEntry *find_entry_by_Uint64(uint64_t title_id) const;
 
-    void set_path(const std::string &path) { m_path = path; }
-    std::string get_path() const { return m_path; }
+    void set_path(const std::filesystem::path &path) { m_path = path; }
+    std::filesystem::path get_path() const { return m_path; }
 };

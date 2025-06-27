@@ -5,11 +5,11 @@
 #include <nlohmann/json.hpp>
 
 
-bool Config::load(const std::string& filename)
+bool Config::load(const std::filesystem::path &config_path)
 {
-    std::ifstream in(filename);
+    std::ifstream in(config_path);
 
-    m_loaded_file_path = filename;
+    m_loaded_file_path = config_path;
 
     if (!in)
         return false;
@@ -23,14 +23,14 @@ bool Config::load(const std::string& filename)
     return true;
 }
 
-bool Config::save(const std::string& filename) const
+bool Config::save(const std::filesystem::path &config_path) const
 {
     if (empty())
         return false;
     
-    std::filesystem::create_directories(std::filesystem::path(filename).parent_path());
+    std::filesystem::create_directories(config_path.parent_path());
 
-    std::ofstream out(filename);
+    std::ofstream out(config_path);
 
     if (!out)
         return false;

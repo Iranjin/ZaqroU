@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <format>
-#include <filesystem>
 #include <iostream>
 
 #include <imgui.h>
@@ -113,14 +112,14 @@ void Raim::LoadFonts()
 
 void Raim::LoadTitles()
 {
-    std::string titles_path = m_title_id_parser->get_path();
+    std::filesystem::path titles_path = m_title_id_parser->get_path();
     
     if (!std::filesystem::exists(m_title_id_parser->get_path()))
     {
         std::vector<char> data;
         std::string titles_url = std::format("{}/res/titles.xml", FILE_SERVER_URL);
         download_file(titles_url, data);
-        std::filesystem::create_directories(std::filesystem::path(titles_path).parent_path());
+        std::filesystem::create_directories(titles_path.parent_path());
         save_to_file(titles_path, data);
     }
     m_title_id_parser->load();

@@ -11,11 +11,11 @@ class Config
 {
 private:
     nlohmann::json m_data;
-    std::string m_loaded_file_path;
+    std::filesystem::path m_loaded_file_path;
 
 public:
-    bool load(const std::string &filename);
-    bool save(const std::string &filename) const;
+    bool load(const std::filesystem::path &file_path);
+    bool save(const std::filesystem::path &file_path) const;
     bool save() const;
 
     bool contains(const std::string &key) const
