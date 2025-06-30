@@ -100,21 +100,20 @@ jobs:
         run: |
           cmake -B build -S . \
             -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_OSX_ARCHITECTURES=arm64
+            -DCMAKE_BUILD_TYPE=Release
 
       - name: 🏗️ Build project
         run: cmake --build build --config Release
 
-      - name: 📤 Upload artifact (macOS arm64)
+      - name: 📤 Upload artifact (macOS)
         uses: actions/upload-artifact@v4
         with:
-          name: Zaqro_U-macos-arm64
+          name: Zaqro_U-macos
           path: build/bin/
 
   build-macos-x86_64:
     name: 🍎 Build on macOS (Intel)
-    runs-on: macos-latest
+    runs-on: macos-13
 
     steps:
       - name: 📥 Checkout repository
@@ -133,14 +132,13 @@ jobs:
         run: |
           cmake -B build -S . \
             -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_OSX_ARCHITECTURES=x86_64
+            -DCMAKE_BUILD_TYPE=Release
 
       - name: 🏗️ Build project
         run: cmake --build build --config Release
 
-      - name: 📤 Upload artifact (macOS x86_64)
+      - name: 📤 Upload artifact (macOS)
         uses: actions/upload-artifact@v4
         with:
-          name: Zaqro_U-macos-x86_64
+          name: Zaqro_U-macos
           path: build/bin/
