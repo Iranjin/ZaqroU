@@ -147,7 +147,7 @@ void Raim::Discord_RPC_Update()
                 rp.details = std::format("Playing: {}", entry->description);
         }
 
-        if (IRaimTab* current_tab = get_raim_ui()->get_tab_manager()->get_active_tab())
+        if (IRaimTab *current_tab = get_raim_ui()->get_tab_manager()->get_active_tab())
             rp.state = std::format("📁 - {}", current_tab->get_tab_name());
 
         rp.start_time = start_time;

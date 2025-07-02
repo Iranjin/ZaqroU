@@ -12,13 +12,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-file(GLOB_RECURSE CPP_SOURCES CONFIGURE_DEPENDS src/*.cpp)
-file(GLOB_RECURSE C_SOURCES CONFIGURE_DEPENDS src/*.c libs/**/*.c)
-
-list(APPEND CPP_SOURCES
-    include/imgui_impl_glfw.cpp
-    include/imgui_impl_opengl3.cpp
-)
+file(GLOB_RECURSE CPP_SOURCES CONFIGURE_DEPENDS src/*.cpp include/*.cpp)
+file(GLOB_RECURSE C_SOURCES CONFIGURE_DEPENDS src/*.c include/*.c libs/**/*.c)
 
 set(SOURCES ${CPP_SOURCES} ${C_SOURCES})
 
@@ -61,7 +56,7 @@ find_package(CURL REQUIRED)
 find_package(lz4 REQUIRED)
 find_package(tinyxml2 REQUIRED)
 find_package(tinyfiledialogs REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system)
+find_package(boost_asio CONFIG REQUIRED)
 find_package(nlohmann_json REQUIRED)
 
 target_link_libraries(Zaqro_U PRIVATE
@@ -73,7 +68,7 @@ target_link_libraries(Zaqro_U PRIVATE
     CURL::libcurl
     tinyxml2::tinyxml2
     tinyfiledialogs::tinyfiledialogs
-    Boost::system
+    Boost::asio
     nlohmann_json::nlohmann_json
 )
 
