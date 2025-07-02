@@ -6,6 +6,7 @@
 
 #include "theme/ZaqroTheme.h"
 #include "theme/DarkTheme.h"
+#include "theme/PinkTheme.h"
 #include "theme/GrayScaleTheme.h"
 #include "theme/JavaTheme.h"
 
@@ -21,6 +22,7 @@ public:
         mThemes = {
             new ZaqroTheme(),
             new DarkTheme(),
+            new PinkTheme(),
             new GrayScaleTheme(),
             new JavaTheme(),
         };

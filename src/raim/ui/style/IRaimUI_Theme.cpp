@@ -7,6 +7,8 @@ void IRaimUITheme::apply() const // Default
 {
     ImGuiStyle &style = ImGui::GetStyle();
 
+    style = ImGuiStyle();
+
     style.FrameBorderSize = 0.025f;
     style.ChildRounding = 4.0f;
     style.TabRounding = 4.0f;
