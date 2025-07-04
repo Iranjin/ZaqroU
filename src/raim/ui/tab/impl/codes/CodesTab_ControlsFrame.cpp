@@ -4,6 +4,7 @@
 #include <format>
 
 #include <utils/tcp_gecko/TCPGecko.h>
+#include <utils/Config.h>
 #include <utils/common.h>
 #include <raim/ui/NotificationManager.h>
 #include "backend/CodeLoader.h"
@@ -15,6 +16,8 @@
 
 void CodesTab::ControlsFrame(const ImVec2 &available)
 {
+    ImGuiIO &io = ImGui::GetIO();
+    
     std::filesystem::path titles_path = get_save_dir() / "titles/";
     
     float bottom_height = (available.y - ImGui::GetStyle().ItemSpacing.y) / 3.0f;
@@ -67,16 +70,28 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
     ImGui::SameLine();
     if (ImGui::Button("Load Code List"))
     {
-        std::string path = show_open_file_dialog(
-            "Select file to load",
-            titles_path,
-            { "*.bin" },
-            ".bin file");
+        std::string path;
+
+        if (io.KeyShift)
+        {
+            path = get_config()->get_nested("codes.last_opened", std::string());
+            if (path.empty())
+                get_raim_ui()->get_notification_manager()->AddErrorNotification(m_notif_title, "No previously opened code list found.");
+        }
+        else
+        {
+            path = show_open_file_dialog(
+                "Select file to load",
+                titles_path,
+                { "*.bin" },
+                ".bin file");
+        }
 
         if (!path.empty())
+        {
             LoadCodes(path);
-
-        m_list_updated = true;
+            m_list_updated = true;
+        }
     }
     ImGui::EndDisabled();
 

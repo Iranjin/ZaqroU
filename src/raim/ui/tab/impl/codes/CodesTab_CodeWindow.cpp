@@ -2,6 +2,8 @@
 
 #include <imgui.h>
 
+#include <utils/common.h>
+
 
 void CodesTab::CodeWindow()
 {
@@ -16,7 +18,6 @@ void CodesTab::CodeWindow()
 
     static char input_title[64] = "";
     static char input_authors[64] = "";
-    static char input_code[262144] = "";
     static char input_comment[131072] = "";
     static bool input_assembly_ram_write = false;
 
@@ -41,8 +42,7 @@ void CodesTab::CodeWindow()
             strncpy(input_authors, entry.authors.c_str(), sizeof(input_authors));
             input_authors[sizeof(input_authors) - 1] = '\0';
 
-            strncpy(input_code, entry.codes.c_str(), sizeof(input_code));
-            input_code[sizeof(input_code) - 1] = '\0';
+            m_code_window_editor.SetText(entry.codes);
 
             strncpy(input_comment, entry.comment.c_str(), sizeof(input_comment));
             input_comment[sizeof(input_comment) - 1] = '\0';
@@ -53,19 +53,19 @@ void CodesTab::CodeWindow()
         {
             input_title[0] = '\0';
             input_authors[0] = '\0';
-            input_code[0] = '\0';
+            m_code_window_editor.SetText("");
             input_comment[0] = '\0';
             input_assembly_ram_write = false;
         }
         m_code_window_initialized = true;
     }
 
-    // Title
+    // タイトル
     ImGui::TextUnformatted("Title");
     ImGui::SetNextItemWidth(-FLT_MIN);
     ImGui::InputText("##Title", input_title, IM_ARRAYSIZE(input_title));
 
-    // Author(s)
+    // 作成者
     ImGui::TextUnformatted("Author(s)");
     ImGui::SetNextItemWidth(-FLT_MIN);
     ImGui::InputText("##Authors", input_authors, IM_ARRAYSIZE(input_authors));
@@ -80,11 +80,20 @@ void CodesTab::CodeWindow()
     if (multiline_height < 100.0f) multiline_height = 100.0f;
 
     ImGui::Columns(2, "CodeWindowFields", false);
-    ImGui::TextUnformatted("Code");
-    ImGui::InputTextMultiline("##Code", input_code, IM_ARRAYSIZE(input_code), ImVec2(-FLT_MIN, multiline_height));
+    { // コード
+        ImGui::TextUnformatted("Code");
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+        ImGui::BeginChild("CodeChild", ImVec2(-FLT_MIN, multiline_height), ImGuiChildFlags_Border);
+        m_code_window_editor.Render("Code", ImVec2(-FLT_MIN, multiline_height));
+        ImGui::EndChild();
+        ImGui::PopStyleVar();
+    }
     ImGui::NextColumn();
-    ImGui::TextUnformatted("Comment");
-    ImGui::InputTextMultiline("##Comment", input_comment, IM_ARRAYSIZE(input_comment), ImVec2(-FLT_MIN, multiline_height));
+    { // コメント
+        ImGui::TextUnformatted("Comment");
+        ImGui::InputTextMultiline("##Comment", input_comment, IM_ARRAYSIZE(input_comment), ImVec2(-FLT_MIN, multiline_height));
+    }
     ImGui::Columns(1);
 
     ImGui::Dummy(ImVec2(0.0f, 5.0f));
@@ -114,7 +123,11 @@ void CodesTab::CodeWindow()
         entry.assembly_ram_write = input_assembly_ram_write;
         if (m_code_window_mode == CodeWindowMode::Edit)
             entry.enabled = m_codes[m_edit_target_index].enabled;
-        entry.codes = input_code;
+        {
+            std::string codes = m_code_window_editor.GetText();
+            codes.pop_back(); // 改行削除
+            entry.codes = codes;
+        }
 
         m_codes.begin_modify();
         if (m_code_window_mode == CodeWindowMode::Add)
@@ -127,6 +140,8 @@ void CodesTab::CodeWindow()
         m_code_window_mode = CodeWindowMode::None;
 
         SaveCodes(true);
+
+        m_selected_entry_updated = true;
     }
 
     ImGui::End();

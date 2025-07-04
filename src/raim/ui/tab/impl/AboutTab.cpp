@@ -32,6 +32,7 @@ void AboutTab::Update()
     ImGui::Bullet(); ImGui::TextLinkOpenURL("OpenGL", "https://www.opengl.org/");
     ImGui::Bullet(); ImGui::TextLinkOpenURL("GLAD", "https://github.com/Dav1dde/glad");
     ImGui::Bullet(); ImGui::TextLinkOpenURL("ImGui", "https://github.com/ocornut/imgui");
+    ImGui::Bullet(); ImGui::TextLinkOpenURL("ImGuiColorTextEdit", "https://github.com/BalazsJako/ImGuiColorTextEdit");
     ImGui::Bullet(); ImGui::TextLinkOpenURL("cURL", "https://curl.se/libcurl/");
     ImGui::Bullet(); ImGui::TextLinkOpenURL("LZ4", "https://github.com/lz4/lz4");
     ImGui::Bullet(); ImGui::TextLinkOpenURL("nlohmann/json", "https://github.com/nlohmann/json");

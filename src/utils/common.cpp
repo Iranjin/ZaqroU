@@ -5,6 +5,7 @@
 #include <codecvt>
 #include <locale>
 #include <string>
+
 #include <tinyfiledialogs.h>
 
 
@@ -70,3 +71,36 @@ std::string show_open_file_dialog(const std::string &title,
     return result ? std::string(result) : "";
 }
 
+void apply_editor_color(TextEditor &editor)
+{
+    ImGuiStyle &style = ImGui::GetStyle();
+    ImVec4 *colors = style.Colors;
+
+    ImVec4 text_color = colors[ImGuiCol_Text];
+    
+    TextEditor::Palette palette = editor.GetPalette();
+    palette = {
+        ImColor(text_color), // Default
+        ImColor(text_color), // Keyword	
+        ImColor(text_color), // Number
+        ImColor(text_color), // String
+        ImColor(text_color), // Char literal
+        ImColor(text_color), // Punctuation
+        ImColor(text_color), // Preprocessor
+        ImColor(text_color), // Identifier
+        ImColor(text_color), // Known identifier
+        ImColor(text_color), // Preproc identifier
+        ImColor(text_color.x, text_color.y, text_color.z, text_color.w - 0.4f), // Comment (single line)
+        ImColor(text_color), // Comment (multi line)
+        ImColor(colors[ImGuiCol_ChildBg]), // Background
+        ImColor(text_color), // Cursor
+        0x80a06020, // Selection
+        0x800020ff, // ErrorMarker
+        0x40f08000, // Breakpoint
+        ImColor(text_color), // Line number
+        0x40000000, // Current line fill
+        0x40808080, // Current line fill (inactive)
+        0x40a0a0a0, // Current line edge
+    };
+    editor.SetPalette(palette);
+}

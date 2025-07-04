@@ -3,6 +3,9 @@
 #include <string>
 #include <unordered_set>
 #include <filesystem>
+#include <memory>
+
+#include <TextEditor.h>
 
 #include "backend/CodeEntryManager.h"
 #include "../../IRaimTab.h"
@@ -49,18 +52,19 @@ private:
 
     std::unordered_set<size_t> m_selected_indices;
     size_t m_active_index = -1;
+    bool m_selected_entry_updated = false;
 
-    const char *m_notif_title = "CodesTab";
+    std::string m_notif_title = "CodesTab";
 
     bool m_show_search_bar = false;
     char m_search_query[256] = "";
     std::vector<size_t> m_filtered_indices;
 
-    bool m_connected = false,
-         m_last_connected = false;
     std::filesystem::path m_loaded_path;
 
     bool m_list_updated = false;
+
+    TextEditor m_code_frame_editor, m_code_window_editor;
     
 public:
     CodesTab(RaimUI *raim_ui);
@@ -73,10 +77,10 @@ public:
     void CodesFrame_Search();
     void CodesFrame();
 
-    std::string CodeFrame_GetSelectedText(std::vector<std::string> &lines, int &selection_start, int &selection_end);
-    int CodeFrame_GetCharIndexFromPos(std::vector<std::string> &lines, const ImVec2 &pos, ImVec2 &start_pos, ImVec2 &text_size, ImVec2 &scroll_pos, float &line_height, float &line_number_width);
-    void CodeFrame_DrawTextSelection(ImDrawList *draw_list, const std::vector<std::string> &lines, const ImVec2 &start_pos, float line_number_width, float line_height, const ImVec2 &char_size, const ImVec2 &scroll_pos, int sel_start, int sel_end);
-    void CodeFrame_ContextMenu(std::vector<std::string> &lines, int &selection_start, int &selection_end);
+    // std::string CodeFrame_GetSelectedText(std::vector<std::string> &lines, int &selection_start, int &selection_end);
+    // int CodeFrame_GetCharIndexFromPos(std::vector<std::string> &lines, const ImVec2 &pos, ImVec2 &start_pos, ImVec2 &text_size, ImVec2 &scroll_pos, float &line_height, float &line_number_width);
+    // void CodeFrame_DrawTextSelection(ImDrawList *draw_list, const std::vector<std::string> &lines, const ImVec2 &start_pos, float line_number_width, float line_height, const ImVec2 &char_size, const ImVec2 &scroll_pos, int sel_start, int sel_end);
+    // void CodeFrame_ContextMenu(std::vector<std::string> &lines, int &selection_start, int &selection_end);
     void CodeFrame();
 
     void CommentFrame();

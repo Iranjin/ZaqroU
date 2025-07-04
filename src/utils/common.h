@@ -1,6 +1,7 @@
 #pragma once
 
 #include <imgui.h>
+#include <TextEditor.h>
 
 #include <vector>
 #include <string>
@@ -22,3 +23,5 @@ std::string show_open_file_dialog(const std::string &title,
                                   const std::vector<const char*> &filter_patterns,
                                   const std::string &filter_description = "",
                                   bool allow_multiple = false);
+
+void apply_editor_color(TextEditor &editor);

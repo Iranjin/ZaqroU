@@ -26,6 +26,7 @@ Zaqro U は、Wii U 向けのチートツールです。C++20 を使用してお
 - [OpenGL](https://www.opengl.org/) — グラフィックス API  
 - [GLAD](https://github.com/Dav1dde/glad) — OpenGL ローダー（関数読み込み）  
 - [ImGui](https://github.com/ocornut/imgui) — GUI ライブラリ  
+- [ImGuiColorTextEdit](https://github.com/BalazsJako/ImGuiColorTextEdit) — ImGui 用のコードエディタコンポーネント（構文ハイライト対応）  
 - [cURL](https://curl.se/libcurl/) — HTTP 通信ライブラリ  
 - [LZ4](https://github.com/lz4/lz4) — 高速圧縮ライブラリ  
 - [nlohmann/json](https://github.com/nlohmann/json) — JSON パーサ／シリアライザ  

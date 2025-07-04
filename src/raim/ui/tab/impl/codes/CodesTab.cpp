@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <format>
 #include <cstdint>
+#include <memory>
 
 #include <utils/tcp_gecko/TCPGecko.h>
 #include <utils/TitleIdParser.h>
@@ -17,11 +18,20 @@
 #include "backend/CodeLoader.h"
 
 #include <imgui.h>
+#include <TextEditor.h>
 
 
 CodesTab::CodesTab(RaimUI *raimUI)
     : IRaimTab(raimUI, "Codes")
 {
+    TextEditor::LanguageDefinition lang_def;
+    lang_def.mName = "JGecko U Code";
+    lang_def.mSingleLineComment = "#";
+
+    m_code_frame_editor.SetLanguageDefinition(lang_def);
+    m_code_window_editor.SetLanguageDefinition(lang_def);
+
+    m_code_frame_editor.SetReadOnly(true);
 }
 
 std::shared_ptr<TCPGecko> CodesTab::get_tcp_gecko()
@@ -296,10 +306,17 @@ void CodesTab::LoadCodes(const std::filesystem::path &path, bool overwrite, bool
             m_codes.clear();
         
         std::string ext = path.extension().string();
-        if (ext == ".xml")
-            CodeLoader::load_from_xml_file(path, m_codes);
-        else
+        if (ext != ".xml")
+        {
             CodeLoader::load_from_file(path, m_codes);
+            auto config = get_config();
+            config->set_nested("codes.last_opened", path.string());
+            config->save();
+        }
+        else
+        {
+            CodeLoader::load_from_xml_file(path, m_codes);
+        }
         
         if (save_path)
             m_loaded_path = path;
