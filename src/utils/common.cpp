@@ -90,7 +90,7 @@ void apply_editor_color(TextEditor &editor)
         ImColor(text_color), // Identifier
         ImColor(text_color), // Known identifier
         ImColor(text_color), // Preproc identifier
-        ImColor(text_color.x, text_color.y, text_color.z, text_color.w - 0.4f), // Comment (single line)
+        ImColor(text_color.x, text_color.y, text_color.z, text_color.w * 0.75f), // Comment (single line)
         ImColor(text_color), // Comment (multi line)
         ImColor(colors[ImGuiCol_ChildBg]), // Background
         ImColor(text_color), // Cursor

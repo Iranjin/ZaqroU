@@ -122,7 +122,7 @@ void CodesTab::CodesFrame_MouseClick(ImGuiIO &io, bool &is_selected, size_t &i)
             m_selected_indices.clear();
             m_selected_indices.insert(i);
         }
-        ImGui::OpenPopup("RightClickMenu");
+        ImGui::OpenPopup("codes_frame_context_menu");
     }
 }
 
@@ -176,7 +176,7 @@ void CodesTab::CodesFrame_DragAndDrop(size_t &i)
 
 void CodesTab::CodesFrame_ContextMenu()
 {
-    if (ImGui::BeginPopup("RightClickMenu"))
+    if (ImGui::BeginPopup("codes_frame_context_menu"))
     {
         if (ImGui::MenuItem("Edit"))
         {
@@ -219,6 +219,18 @@ void CodesTab::CodesFrame_ContextMenu()
             m_selected_indices.clear();
             for (size_t new_index : new_indices)
                 m_selected_indices.insert(new_index);
+        }
+        if (m_show_search_bar && m_filtered_indices.size() != m_codes.size())
+        {
+            ImGui::Separator();
+            if (ImGui::MenuItem("↪ Go to Selected"))
+            {
+                m_filtered_indices.clear();
+                m_show_search_bar = false;
+                m_search_query[0] = '\0';
+
+                CodesFrame_ScrollToIndex(m_active_index);
+            }
         }
 
         ImGui::EndPopup();
