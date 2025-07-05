@@ -1432,6 +1432,8 @@ void TextEditor::SetSelection(const Coordinates & aStart, const Coordinates & aE
 	if (mState.mSelectionStart > mState.mSelectionEnd)
 		std::swap(mState.mSelectionStart, mState.mSelectionEnd);
 
+	mScrollToCursor = true;
+
 	switch (aMode)
 	{
 	case TextEditor::SelectionMode::Normal:
