@@ -68,11 +68,12 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
 
     ImGui::BeginDisabled(tcp->is_connected());
     ImGui::SameLine();
-    if (ImGui::Button("Load Code List"))
+    static bool s_load_recent = false;
+    if (ImGui::Button(s_load_recent ? "Load Recent" : "Load Code List"))
     {
         std::string path;
 
-        if (io.KeyShift)
+        if (s_load_recent)
         {
             path = get_config()->get_nested("codes.last_opened", std::string());
             if (path.empty())
@@ -93,11 +94,20 @@ void CodesTab::ControlsFrame(const ImVec2 &available)
             m_list_updated = true;
         }
     }
+    if (s_load_recent)
+    {
+        std::string path = get_config()->get_nested("codes.last_opened", std::string());
+        ImGui::SetItemTooltip("%s", path.c_str());
+    }
+    if (io.KeyShift && ImGui::IsItemHovered())
+        s_load_recent = true;
+    else if (!io.KeyShift)
+        s_load_recent = false;
     ImGui::EndDisabled();
 
     ImGui::BeginDisabled(m_loaded_path.empty() || tcp->is_connected());
     ImGui::SameLine();
-    if (ImGui::Button("Unload Code List"))
+    if (ImGui::Button("Close Code List"))
     {
         m_codes.clear();
         m_loaded_path.clear();
