@@ -130,15 +130,24 @@ void CodesTab::CodesFrame_DragAndDrop(size_t &i)
 {
     if (ImGui::BeginDragDropSource())
     {
-        std::vector<int> drag_indices(m_selected_indices.begin(), m_selected_indices.end());
-        std::sort(drag_indices.begin(), drag_indices.end());
+        std::vector<size_t> drag_indices;
+        for (size_t idx : m_selected_indices)
+        {
+            if (idx >= 0 && idx < m_codes.size())
+                drag_indices.push_back(idx);
+        }
 
-        ImGui::SetDragDropPayload("ENTRIES_MOVE", drag_indices.data(), drag_indices.size() * sizeof(int));
-        
-        if (drag_indices.size() == 1)
-            ImGui::Text("Move Entry: %s", m_codes[drag_indices[0]].name.c_str());
-        else
-            ImGui::Text("Move %zu Entries", drag_indices.size());
+        if (!drag_indices.empty())
+        {
+            std::sort(drag_indices.begin(), drag_indices.end());
+
+            ImGui::SetDragDropPayload("ENTRIES_MOVE", drag_indices.data(), drag_indices.size() * sizeof(int));
+            
+            if (drag_indices.size() == 1)
+                ImGui::Text("Move Entry: %s", m_codes[drag_indices[0]].name.c_str());
+            else
+                ImGui::Text("Move %zu Entries", drag_indices.size());
+        }
 
         ImGui::EndDragDropSource();
     }
@@ -149,19 +158,30 @@ void CodesTab::CodesFrame_DragAndDrop(size_t &i)
         {
             const int *src_indices = static_cast<const int*>(payload->Data);
             size_t count = payload->DataSize / sizeof(int);
-            std::vector<int> indices(src_indices, src_indices + count);
+            std::vector<size_t> indices;
+
+            for (size_t k = 0; k < count; ++k)
+            {
+                size_t idx = src_indices[k];
+                if (idx >= 0 && idx < m_codes.size())
+                    indices.push_back(idx);
+            }
+
+            if (indices.empty())
+                return;
 
             std::sort(indices.begin(), indices.end());
 
             std::vector<CodeEntry> moving_entries;
-            for (int idx : indices)
+            for (size_t idx : indices)
                 moving_entries.push_back(m_codes[idx]);
 
             m_codes.begin_modify();
             for (auto it = indices.rbegin(); it != indices.rend(); ++it)
                 m_codes.remove_entry(*it);
 
-            size_t insert_pos = i;
+            size_t insert_pos = std::min(i, m_codes.size());
+
             for (size_t j = 0; j < moving_entries.size(); ++j)
                 m_codes.insert_entry(insert_pos + j, moving_entries[j]);
             m_codes.end_modify();
@@ -369,6 +389,8 @@ void CodesTab::CodesFrame()
                     m_codes.undo();
                 
                 SaveCodes(true);
+
+                m_selected_indices.clear();
             }
         }
     }
@@ -513,4 +535,3 @@ void CodesTab::CodesFrame()
 
     ImGui::EndChild();
 }
-
