@@ -242,6 +242,40 @@ void CodesTab::CodesFrame()
     
     ImGuiIO &io = ImGui::GetIO();
 
+    // ドラッグ中の自動スクロール
+    if (ImGui::IsDragDropActive())
+    {
+        const ImVec2 mouse_pos = ImGui::GetMousePos();
+        const ImVec2 window_pos = ImGui::GetWindowPos();
+        const ImVec2 window_size = ImGui::GetWindowSize();
+
+        constexpr float base_scroll_speed = 300.0f;
+        constexpr float scroll_threshold = 20.0f;
+
+        float scroll_y = ImGui::GetScrollY();
+        float delta_time = io.DeltaTime;
+
+        if (mouse_pos.y < window_pos.y + scroll_threshold) // 上
+        {
+            float distance = (window_pos.y + scroll_threshold) - mouse_pos.y;
+            float speed = base_scroll_speed * (distance / scroll_threshold);
+            scroll_y -= speed * delta_time;
+            if (scroll_y < 0)
+                scroll_y = 0;
+            ImGui::SetScrollY(scroll_y);
+        }
+        else if (mouse_pos.y > window_pos.y + window_size.y - scroll_threshold) // 下
+        {
+            float distance = mouse_pos.y - (window_pos.y + window_size.y - scroll_threshold);
+            float speed = base_scroll_speed * (distance / scroll_threshold);
+            float max_scroll = ImGui::GetScrollMaxY();
+            scroll_y += speed * delta_time;
+            if (scroll_y > max_scroll)
+                scroll_y = max_scroll;
+            ImGui::SetScrollY(scroll_y);
+        }
+    }
+
     // ショートカット
     if (ImGui::IsWindowFocused() && !io.WantCaptureKeyboard)
     {
