@@ -133,3 +133,39 @@ std::wstring string_to_wstring(const std::string &str)
     return result;
 #endif
 }
+
+std::string trim(const std::string &s)
+{
+    size_t start = s.find_first_not_of(" \t\n\r");
+    size_t end = s.find_last_not_of(" \t\n\r");
+    if (start == std::string::npos || end == std::string::npos)
+        return "";
+    return s.substr(start, end - start + 1);
+}
+
+std::vector<std::string> split(const std::string &s, const std::string &delimiter)
+{
+    std::vector<std::string> tokens;
+    size_t start = 0;
+    size_t end;
+
+    while ((end = s.find(delimiter, start)) != std::string::npos)
+    {
+        tokens.push_back(s.substr(start, end - start));
+        start = end + delimiter.length();
+    }
+    tokens.push_back(s.substr(start));
+    return tokens;
+}
+
+std::string join(const std::vector<std::string> &elements, const std::string &delimiter)
+{
+    std::string result;
+    for (size_t i = 0; i < elements.size(); ++i)
+    {
+        result += elements[i];
+        if (i != elements.size() - 1)
+            result += delimiter;
+    }
+    return result;
+}

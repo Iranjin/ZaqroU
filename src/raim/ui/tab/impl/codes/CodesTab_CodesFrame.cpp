@@ -7,6 +7,7 @@
 
 #include <utils/tcp_gecko/TCPGecko.h>
 #include <utils/Config.h>
+#include <utils/StrUtils.h>
 #include "../../../RaimUI.h"
 #include "../../../../Raim.h"
 
@@ -218,21 +219,51 @@ void CodesTab::CodesFrame_ContextMenu()
                 OpenEditCodeWindow(selected);
             }
         }
-        if (ImGui::MenuItem("Delete"))
+        if (ImGui::MenuItem("Copy"))
         {
-            std::vector<size_t> sorted_indices(m_selected_indices.begin(), m_selected_indices.end());
-            std::sort(sorted_indices.begin(), sorted_indices.end());
+            std::vector<std::string> result;
 
-            m_codes.begin_modify();
-            for (auto it = sorted_indices.rbegin(); it != sorted_indices.rend(); ++it)
+            size_t count = 0;
+            for (const size_t &selected_index : m_selected_indices)
             {
-                size_t selected_index = *it;
-                m_codes.remove_entry(selected_index);
-                m_selected_indices.erase(selected_index);
-            }
-            m_codes.end_modify();
+                const CodeEntry &entry = m_codes[selected_index];
+                if (!entry.empty())
+                {
+                    std::string first_line;
+                    if (!entry.name.empty())
+                        first_line += entry.name;
 
-            m_active_index = -1;
+                    if (!entry.authors.empty())
+                    {
+                        std::vector<std::string> parts = split(entry.authors, ",");
+
+                        std::vector<std::string> trimmed_authors;
+                        for (const std::string &name : parts)
+                            trimmed_authors.push_back(trim(name));
+
+                        if (!trimmed_authors.empty())
+                        {
+                            if (!first_line.empty())
+                                first_line += ' ';
+                            first_line += '[' + join(trimmed_authors, ", ") + ']';
+                        }
+                    }
+
+                    if (!first_line.empty())
+                        result.push_back(first_line);
+                    if (!entry.codes.empty())
+                        result.push_back(entry.codes);
+                    if (!entry.comment.empty())
+                        result.push_back(entry.comment);
+
+                    if (count != m_selected_indices.size() - 1)
+                        result.emplace_back("");
+                }
+                
+                ++count;
+            }
+
+            ImGui::SetClipboardText(join(result, "\n").c_str());
         }
         if (ImGui::MenuItem("Duplicate"))
         {
@@ -251,6 +282,22 @@ void CodesTab::CodesFrame_ContextMenu()
             m_selected_indices.clear();
             for (size_t new_index : new_indices)
                 m_selected_indices.insert(new_index);
+        }
+        if (ImGui::MenuItem("Delete"))
+        {
+            std::vector<size_t> sorted_indices(m_selected_indices.begin(), m_selected_indices.end());
+            std::sort(sorted_indices.begin(), sorted_indices.end());
+
+            m_codes.begin_modify();
+            for (auto it = sorted_indices.rbegin(); it != sorted_indices.rend(); ++it)
+            {
+                size_t selected_index = *it;
+                m_codes.remove_entry(selected_index);
+                m_selected_indices.erase(selected_index);
+            }
+            m_codes.end_modify();
+
+            m_active_index = -1;
         }
         ImGui::EndPopup();
     }
@@ -443,46 +490,14 @@ void CodesTab::CodesFrame()
 
         if (!m_codes[index].authors.empty())
         {
-            std::vector<std::string> author_names;
-            std::string author_name;
+            std::vector<std::string> parts = split(m_codes[index].authors, ",");
+            std::vector<std::string> trimmed_authors;
 
-            auto push_trimmed = [&](std::string &str)
-            {
-                size_t start = str.find_first_not_of(' ');
-                size_t end = str.find_last_not_of(' ');
-                if (start != std::string::npos && end != std::string::npos)
-                    author_names.push_back(str.substr(start, end - start + 1));
-                else
-                    author_names.push_back("");
-                str.clear();
-            };
+            for (std::string &name : parts)
+                trimmed_authors.push_back(trim(name));
 
-            for (char c : m_codes[index].authors)
-            {
-                if (c == ',')
-                {
-                    if (!author_name.empty())
-                        push_trimmed(author_name);
-                }
-                else
-                {
-                    author_name += c;
-                }
-            }
-            if (!author_name.empty())
-                push_trimmed(author_name);
-
-            if (!author_names.empty())
-            {
-                label += " [";
-                for (size_t i = 0; i < author_names.size(); ++i)
-                {
-                    label += author_names[i];
-                    if (i < author_names.size() - 1)
-                        label += ", ";
-                }
-                label += "]";
-            }
+            if (!trimmed_authors.empty())
+                label += " [" + join(trimmed_authors, ", ") + "]";
         }
 
         float max_label_width = full_width.x - ImGui::GetStyle().FramePadding.x * 2.0f - ImGui::GetFontSize();
