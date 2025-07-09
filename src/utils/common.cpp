@@ -71,14 +71,14 @@ std::string show_open_file_dialog(const std::string &title,
     return result ? std::string(result) : "";
 }
 
-void apply_editor_color(TextEditor &editor)
+TextEditor::Palette default_editor_color()
 {
     ImGuiStyle &style = ImGui::GetStyle();
     ImVec4 *colors = style.Colors;
 
     ImVec4 text_color = colors[ImGuiCol_Text];
     
-    TextEditor::Palette palette = editor.GetPalette();
+    TextEditor::Palette palette;
     palette = {
         ImColor(text_color), // Default
         ImColor(text_color), // Keyword	
@@ -102,5 +102,5 @@ void apply_editor_color(TextEditor &editor)
         0x40808080, // Current line fill (inactive)
         0x40a0a0a0, // Current line edge
     };
-    editor.SetPalette(palette);
+    return palette;
 }

@@ -7,7 +7,7 @@
 
 void CodesTab::Update()
 {
-    apply_editor_color(m_code_frame_editor);
+    m_code_frame_editor.SetPalette(default_editor_color());
     
     ImGui::BeginChild("MainScrollArea");
     
@@ -22,13 +22,15 @@ void CodesTab::Update()
 
 void CodesTab::UpdateBackground()
 {
-    apply_editor_color(m_code_window_editor);
     {
+        TextEditor::Palette palette = default_editor_color();
+
         ImGuiStyle &style = ImGui::GetStyle();
         ImVec4 *colors = style.Colors;
-        TextEditor::Palette palette = m_code_window_editor.GetPalette();
         palette[(size_t) TextEditor::PaletteIndex::Background] = ImColor(colors[ImGuiCol_FrameBg]);
+        
         m_code_window_editor.SetPalette(palette);
     }
+
     CodeWindow();
 }

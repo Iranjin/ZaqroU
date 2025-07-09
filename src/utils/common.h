@@ -24,4 +24,4 @@ std::string show_open_file_dialog(const std::string &title,
                                   const std::string &filter_description = "",
                                   bool allow_multiple = false);
 
-void apply_editor_color(TextEditor &editor);
+TextEditor::Palette default_editor_color();

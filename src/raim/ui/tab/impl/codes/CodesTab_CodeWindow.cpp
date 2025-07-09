@@ -84,9 +84,7 @@ void CodesTab::CodeWindow()
         ImGui::TextUnformatted("Code");
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-        ImGui::BeginChild("CodeChild", ImVec2(-FLT_MIN, multiline_height), ImGuiChildFlags_Border);
-        m_code_window_editor.Render("Code", ImVec2(-FLT_MIN, multiline_height));
-        ImGui::EndChild();
+        m_code_window_editor.Render("Code", ImVec2(-FLT_MIN, multiline_height), true);
         ImGui::PopStyleVar();
     }
     ImGui::NextColumn();
