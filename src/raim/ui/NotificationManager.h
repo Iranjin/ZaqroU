@@ -9,6 +9,8 @@
 class NotificationManager
 {
 public:
+    using OnClickEvent = std::function<void()>;
+
     struct NotifLog
     {
         std::string title;
@@ -17,8 +19,6 @@ public:
     };
 
 private:
-    using OnClickEvent = std::function<void()>;
-
     enum NotifType
     {
         NOTIF_INFORMATION,

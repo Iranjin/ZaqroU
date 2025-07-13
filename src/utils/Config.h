@@ -43,6 +43,11 @@ public:
         }
         return default_value;
     }
+
+    bool remove(const std::string &key)
+    {
+        return m_data.erase(key) > 0;
+    }
     
     bool contains_nested(const std::string &key) const
     {
@@ -96,6 +101,29 @@ public:
         } catch (...) {
             return default_value;
         }
+    }
+
+    bool remove_nested(const std::string &key)
+    {
+        std::stringstream ss(key);
+        std::string token;
+        std::vector<std::string> tokens;
+
+        while (std::getline(ss, token, '.'))
+            tokens.push_back(token);
+
+        if (tokens.empty()) return false;
+
+        nlohmann::json *current = &m_data;
+        for (size_t i = 0; i < tokens.size() - 1; ++i)
+        {
+            if (current->contains(tokens[i]) && (*current)[tokens[i]].is_object())
+                current = &(*current)[tokens[i]];
+            else
+                return false;
+        }
+
+        return current->erase(tokens.back()) > 0;
     }
 
     bool empty() const { return m_data.empty(); }

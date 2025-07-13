@@ -25,9 +25,6 @@ bool Config::load(const std::filesystem::path &config_path)
 
 bool Config::save(const std::filesystem::path &config_path) const
 {
-    if (empty())
-        return false;
-    
     std::filesystem::create_directories(config_path.parent_path());
 
     std::ofstream out(config_path);
