@@ -459,11 +459,12 @@ void CodesTab::CodesFrame()
         m_scroll_request.reset();
     }
 
+    ImVec2 full_width = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeightWithSpacing());
+
     for (size_t i = 0; i < m_filtered_indices.size(); ++i)
     {
         size_t index = m_filtered_indices[i];
-
-        ImVec2 full_width = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeightWithSpacing());
+        
         bool is_selected = m_selected_indices.count(index) > 0;
 
         if (is_selected)
@@ -481,7 +482,9 @@ void CodesTab::CodesFrame()
         ImGui::PushID(i);
 
         ImVec2 checkboxPos = ImGui::GetCursorPos();
-        ImGui::InvisibleButton("##EntryWidget", ImVec2(full_width.x, ImGui::GetFrameHeight()));
+
+        if (full_width.x > 0)  // 0以下でボタンを配置しようとするとクラッシュすることがある
+            ImGui::InvisibleButton("##EntryWidget", ImVec2(full_width.x, ImGui::GetFrameHeight()));
 
         CodesFrame_MouseClick(io, is_selected, index);
         CodesFrame_DragAndDrop(index);
