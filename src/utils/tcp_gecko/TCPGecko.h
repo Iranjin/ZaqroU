@@ -23,6 +23,8 @@ private:
     std::recursive_mutex m_mutex;
     
 public:
+    enum class AccessType { Read, Write };
+
     TCPGecko();
     ~TCPGecko();
 
@@ -51,6 +53,7 @@ public:
     bool is_code_handler_enabled();
 
     bool check_server_status();
+    bool check_remote_access(uint32_t start, uint32_t length);
     size_t get_data_buffer_size();
 
     uint32_t get_symbol(const std::string &rplname, const std::string &symname, uint8_t data_flag = 0);
@@ -74,5 +77,5 @@ public:
     uint32_t get_code_handler_address();
 
     static bool valid_range(uint32_t address, uint32_t length);
-    static bool valid_access(uint32_t address, uint32_t length, const std::string &access);
+    static bool valid_access(uint32_t address, uint32_t length, AccessType access);
 };

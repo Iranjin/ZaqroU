@@ -337,6 +337,24 @@ bool TCPGecko::check_server_status()
     }
 }
 
+bool TCPGecko::check_remote_access(uint32_t start, uint32_t length)
+{
+    char command = (char) COMMAND_VALIDATE_ADDRESS_RANGE;
+    boost::asio::write(m_socket, boost::asio::buffer(&command, 1));
+
+    uint32_t end = start + length;
+    char range[8];
+    write_u32(range, start);
+    write_u32(range + 4, end);
+
+    boost::asio::write(m_socket, boost::asio::buffer(range, 8));
+
+    char result;
+    boost::asio::read(m_socket, boost::asio::buffer(&result, 1));
+
+    return result != 0;
+}
+
 size_t TCPGecko::get_data_buffer_size()
 {
     std::lock_guard<std::recursive_mutex> lock(m_mutex);
@@ -656,59 +674,31 @@ bool TCPGecko::valid_range(uint32_t address, uint32_t length)
     else return false;
 }
 
-bool TCPGecko::valid_access(uint32_t address, uint32_t length, const std::string &access)
+bool TCPGecko::valid_access(uint32_t address, uint32_t length, AccessType access)
 {
     if (address + length < address)
         return false;
-
+    
     if (0x01000000 <= address && address + length <= 0x01800000)
-    {
-        if (access == "read") return true;
-        else if (access == "write") return false;
-    }
+        return access == AccessType::Read;
     else if (0x0E000000 <= address && address + length <= 0x10000000)
-    {  // Depends on game
-        if (access == "read") return true;
-        else if (access == "write") return false;
-    }
+        return access == AccessType::Read;
     else if (0x10000000 <= address && address + length <= 0x50000000)
-    {
-        if (access == "read" || access == "write") return true;
-    }
+        return true;
     else if (0xE0000000 <= address && address + length <= 0xE4000000)
-    {
-        if (access == "read") return true;
-        else if (access == "write") return false;
-    }
+        return access == AccessType::Read;
     else if (0xE8000000 <= address && address + length <= 0xEA000000)
-    {
-        if (access == "read") return true;
-        else if (access == "write") return false;
-    }
+        return access == AccessType::Read;
     else if (0xF4000000 <= address && address + length <= 0xF6000000)
-    {
-        if (access == "read") return true;
-        else if (access == "write") return false;
-    }
+        return access == AccessType::Read;
     else if (0xF6000000 <= address && address + length <= 0xF6800000)
-    {
-        if (access == "read") return true;
-        else if (access == "write") return false;
-    }
+        return access == AccessType::Read;
     else if (0xF8000000 <= address && address + length <= 0xFB000000)
-    {
-        if (access == "read") return true;
-        else if (access == "write") return false;
-    }
+        return access == AccessType::Read;
     else if (0xFB000000 <= address && address + length <= 0xFB800000)
-    {
-        if (access == "read") return true;
-        else if (access == "write") return false;
-    }
+        return access == AccessType::Read;
     else if (0xFFFE0000 <= address && address + length <= 0xFFFFFFFF)
-    {
-        if (access == "read" || access == "write") return true;
-    }
+        return true;
 
     return false;
 }
